@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bayu Setiadji, S.Pd., Gr. — Guru IPA SMP Negeri 3 Besuki</title>
+<meta name="description" content="Portal pembelajaran IPA SMP Negeri 3 Besuki, Situbondo. Materi, media pembelajaran, dan pengumuman kelas — Kurikulum Merdeka Fase D." />
+
+<!-- ============================================================
+     FONT (Google Fonts CDN) — Poppins untuk heading, Inter untuk body
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+<!-- ============================================================
+     TAILWIND CSS (Play CDN) + konfigurasi tema "Laboratorium"
+     ============================================================ -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          /* Biru sains */
+          sains: {
+            50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',
+            500:'#2563eb',600:'#1d4ed8',700:'#1e40af',800:'#1e3a8a',900:'#172554'
+          },
+          /* Hijau aksen */
+          lab: {
+            50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',
+            500:'#059669',600:'#047857',700:'#065f46'
+          },
+          /* Color-coding untuk setiap kelas */
+          'kelas-vii': { /* Cyan/Light Blue */
+            50:'#ecfeff',100:'#cffafe',200:'#a5f3fc',300:'#67e8f9',400:'#22d3ee',
+            500:'#06b6d4',600:'#0891b2',700:'#0e7490',800:'#155e75',900:'#164e63'
+          },
+          'kelas-viii': { /* Emerald/Green */
+            50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',
+            500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b'
+          },
+          'kelas-ix': { /* Violet/Purple */
+            50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',
+            500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95'
+          },
+          /* Warna untuk badge kategori */
+          'penting': '#ef4444',
+          'info': '#3b82f6',
+          'tips': '#10b981'
+        },
+        fontFamily: {
+          display: ['Poppins','system-ui','sans-serif'],
+          sans: ['Inter','system-ui','sans-serif']
+        },
+        /* ukuran ikon menengah */
+        spacing: { '4.5':'1.125rem' }
+      }
+    }
+  }
+</script>
+
+<!-- ============================================================
+     LUCIDE ICONS (CDN) — ikon bertema sains
+     ============================================================ -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<!-- ============================================================
+     SUPABASE JS (CDN) — penyimpanan konten bersama + login admin
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ============================================================
+     CSS KUSTOM — pattern background, animasi, utility kecil
+     Semua aset visual = kode (CSS/SVG). Tidak ada file gambar eksternal.
+     ============================================================ -->
+<style>
+  body { font-family:'Inter',system-ui,sans-serif; }
+  h1,h2,h3,h4,.font-display { font-family:'Poppins',system-ui,sans-serif; }
+
+  /* --- Pattern grid halus ala kertas milimeter laboratorium --- */
+  .pattern-grid{
+    background-image:
+      linear-gradient(rgba(37,99,235,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* --- Pattern titik molekul --- */
+  .pattern-dots{
+    background-image: radial-gradient(rgba(5,150,105,.15) 1.5px, transparent 1.6px);
+    background-size: 22px 22px;
+  }
+  /* --- Wave separator pattern --- */
+  .pattern-waves{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%23ffffff' fill-opacity='0.4' d='M0,50 C360,100 720,0 1080,50 C1260,75 1380,25 1440,50 L1440,100 L0,100 Z'/%3E%3C/svg%3E");
+    background-size: cover;
+  }
+  /* --- Gradient orbs untuk hero --- */
+  .glow-blue{ background: radial-gradient(circle at 30% 30%, rgba(37,99,235,.18), transparent 60%); }
+  .glow-green{ background: radial-gradient(circle at 70% 70%, rgba(5,150,105,.16), transparent 60%); }
+  .glow-cyan{ background: radial-gradient(circle at 20% 80%, rgba(6,182,212,.15), transparent 50%); }
+
+  /* --- Animasi atom berputar --- */
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .spin-slow  { animation: spin-slow 18s linear infinite; transform-origin:50% 50%; }
+  .spin-slower{ animation: spin-slow 26s linear infinite reverse; transform-origin:50% 50%; }
+
+  /* --- Elektron mengorbit --- */
+  @keyframes orbit-dash { to { stroke-dashoffset: -1000; } }
+  .orbit-dash{ stroke-dasharray: 6 10; animation: orbit-dash 12s linear infinite; }
+
+  /* --- Gelembung tabung reaksi --- */
+  @keyframes bubble { 0%{transform:translateY(0);opacity:0} 20%{opacity:.9} 100%{transform:translateY(-42px);opacity:0} }
+  .bubble{ animation: bubble 3.2s ease-in infinite; }
+  .bubble.b2{ animation-delay:.9s } .bubble.b3{ animation-delay:1.8s } .bubble.b4{ animation-delay:2.5s }
+
+  /* --- Float lembut --- */
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .float{ animation: float 6s ease-in-out infinite; }
+  .float-delay{ animation: float 7s ease-in-out infinite; animation-delay:1.2s; }
+  .float-slow{ animation: float 8s ease-in-out infinite; animation-delay:2s; }
+
+  /* --- Fade in saat masuk viewport --- */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.show{ opacity:1; transform:none; }
+
+  /* --- Kartu materi: transisi expand/collapse --- */
+  .card-body{ max-height:0; overflow:hidden; transition:max-height .35s ease, opacity .3s ease; opacity:0; }
+  .card-open .card-body{ max-height:520px; opacity:1; }
+  .card-open .card-chevron{ transform:rotate(180deg); }
+  .card-chevron{ transition:transform .3s ease; }
+
+  /* --- Kartu hover lift effect --- */
+  .card-lift{ transition: transform .3s ease, box-shadow .3s ease; }
+  .card-lift:hover{ transform:translateY(-4px); }
+
+  /* --- Gradient text --- */
+  .gradient-text{
+    background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* --- Glassmorphism effect --- */
+  .glass{ backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+  /* --- Floating badge animation --- */
+  @keyframes badge-float { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-5px) rotate(3deg)} }
+  .badge-float{ animation: badge-float 4s ease-in-out infinite; }
+  .badge-float-delay{ animation: badge-float 5s ease-in-out infinite; animation-delay:1.5s; }
+
+  /* --- Pulse glow untuk badge --- */
+  @keyframes pulse-glow { 0%,100%{box-shadow: 0 0 0 0 rgba(6,182,212,0.4)} 50%{box-shadow: 0 0 12px 4px rgba(6,182,212,0.2)} }
+  .pulse-glow{ animation: pulse-glow 2s ease-in-out infinite; }
+
+  /* --- Scrollbar tipis di panel admin --- */
+  .thin-scroll::-webkit-scrollbar{ width:8px;height:8px }
+  .thin-scroll::-webkit-scrollbar-thumb{ background:#cbd5e1;border-radius:9px }
+
+  /* --- Sticky note style untuk pengumuman --- */
+  .sticky-note{
+    position: relative;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.08);
+  }
+  .sticky-note::before{
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color, #2563eb), transparent);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* --- Timeline connector --- */
+  .timeline-dot{
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 3px solid currentColor;
+    background: white;
+    position: relative;
+    z-index: 1;
+  }
+  .timeline-line{
+    position: absolute;
+    left: 5px; top: 12px;
+    bottom: -16px;
+    width: 2px;
+    background: currentColor;
+    opacity: 0.2;
+  }
+
+  /* --- Hover glow border untuk kartu --- */
+  .hover-glow-cyan:hover{ box-shadow: 0 0 0 2px #22d3ee, 0 8px 24px rgba(34,211,238,0.15); }
+  .hover-glow-emerald:hover{ box-shadow: 0 0 0 2px #34d399, 0 8px 24px rgba(52,211,153,0.15); }
+  .hover-glow-violet:hover{ box-shadow: 0 0 0 2px #a78bfa, 0 8px 24px rgba(167,139,250,0.15); }
+
+  /* --- Hero overlay pattern --- */
+  .hero-pattern{
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(6,182,212,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 20%, rgba(99,102,241,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(16,185,129,0.05) 0%, transparent 50%);
+  }
+
+  /* --- Improved typography --- */
+  .text-balance{ text-wrap: balance; }
+
+  /* --- Action button mobile-friendly --- */
+  .btn-action{
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* --- Hormati preferensi reduce motion --- */
+  @media (prefers-reduced-motion: reduce){
+    .spin-slow,.spin-slower,.orbit-dash,.bubble,.float,.float-delay,.float-slow,.badge-float,.badge-float-delay,.pulse-glow{ animation:none !important }
+    .reveal{ opacity:1; transform:none }
+    .card-lift:hover{ transform:none }
+  }
+</style>
+</head>
+
+<body class="bg-slate-50 text-slate-700 antialiased">
+
+<!-- ============================================================================
+     ██ TAMPILAN PUBLIK
+     ============================================================================ -->
+<div id="publicView">
+
+  <!-- ------------------------------------------------------------------
+       NAVBAR
+       ------------------------------------------------------------------ -->
+  <header class="fixed top-0 inset-x-0 z-40 bg-white/90 backdrop-blur-lg border-b border-slate-200/50 shadow-sm shadow-slate-100/50">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- Logo + nama: klik 5x untuk membuka akses admin tersembunyi -->
+      <button id="logoTrigger" class="flex items-center gap-2.5 group" title="Beranda">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-sains-700 to-sains-500 text-white shadow-lg shadow-sains-500/25 transition-transform group-hover:scale-105">
+          <i data-lucide="atom" class="w-5 h-5"></i>
+        </span>
+        <span class="text-left leading-tight">
+          <span class="block font-display font-bold gradient-text text-sm sm:text-base" data-bind="navNama">Bayu Setiadji</span>
+          <span class="block text-[11px] text-slate-500">Guru IPA · SMPN 3 Besuki</span>
+        </span>
+      </button>
+
+      <!-- Menu desktop -->
+      <ul class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <li><a class="px-4 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#tentang">Tentang</a></li>
+        <li><a class="px-4 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#materi">Materi</a></li>
+        <li><a class="px-4 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#media">Media</a></li>
+        <li><a class="px-4 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#pengumuman">Pengumuman</a></li>
+        <li><a class="ml-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sains-600 to-sains-700 text-white hover:from-sains-700 hover:to-sains-800 transition-all shadow-lg shadow-sains-600/20 hover:shadow-sains-600/30 font-semibold" href="#kontak">Kontak</a></li>
+      </ul>
+
+      <!-- Tombol menu mobile -->
+      <button id="mobileMenuBtn" class="md:hidden grid place-items-center w-11 h-11 rounded-xl border-2 border-slate-200 text-slate-600 hover:border-sains-300 hover:bg-sains-50 transition" aria-label="Buka menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </nav>
+
+    <!-- Menu mobile -->
+    <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200/50 bg-white/95 backdrop-blur-lg">
+      <ul class="px-4 py-4 space-y-2 text-sm font-medium">
+        <li><a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sains-50 text-slate-700 transition" href="#tentang">
+          <i data-lucide="user-round" class="w-5 h-5 text-sains-500"></i> Tentang Guru</a></li>
+        <li><a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sains-50 text-slate-700 transition" href="#materi">
+          <i data-lucide="book-open" class="w-5 h-5 text-emerald-500"></i> Materi IPA</a></li>
+        <li><a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sains-50 text-slate-700 transition" href="#media">
+          <i data-lucide="monitor-play" class="w-5 h-5 text-violet-500"></i> Media Pembelajaran</a></li>
+        <li><a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sains-50 text-slate-700 transition" href="#pengumuman">
+          <i data-lucide="megaphone" class="w-5 h-5 text-amber-500"></i> Pengumuman</a></li>
+        <li><a class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-sains-600 to-sains-700 text-white font-semibold shadow-lg" href="#kontak">
+          <i data-lucide="mail" class="w-5 h-5"></i> Kontak</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ------------------------------------------------------------------
+       1. HERO SECTION
+       ------------------------------------------------------------------ -->
+  <section class="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 pattern-grid hero-pattern">
+    <!-- Dekorasi glow -->
+    <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 glow-blue"></div>
+    <div class="pointer-events-none absolute -bottom-32 -right-24 w-96 h-96 glow-green"></div>
+    <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] glow-cyan opacity-50"></div>
+
+    <!-- Wave separator top -->
+    <div class="absolute top-0 left-0 right-0 h-16 sm:h-24 overflow-hidden">
+      <svg class="absolute top-0 w-full h-full" viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <path fill="#ffffff" fill-opacity="0.9" d="M0,0 C320,60 640,20 960,60 C1200,85 1360,35 1440,60 L1440,0 L0,0 Z"/>
+      </svg>
+    </div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 xl:gap-16 items-center">
+      <!-- Teks -->
+      <div class="reveal">
+        <!-- Badge Kurikulum dengan glow -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 text-xs font-bold border border-cyan-200/60 shadow-sm shadow-cyan-100">
+          <span class="grid place-items-center w-5 h-5 rounded-full bg-cyan-100">
+            <i data-lucide="microscope" class="w-3 h-3"></i>
+          </span>
+          <span>Kurikulum Merdeka · Fase D</span>
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        </div>
+
+        <!-- Nama Guru dengan gradient -->
+        <h1 class="mt-6 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight">
+          <span class="gradient-text" data-bind="heroNama">Bayu Setiadji, S.Pd., Gr.</span>
+        </h1>
+        <p class="mt-3 text-base sm:text-lg font-semibold text-slate-600">
+          <span data-bind="heroJabatan">Guru IPA</span> · <span data-bind="heroSekolah">SMP Negeri 3 Besuki, Situbondo</span>
+        </p>
+        <p class="mt-5 text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl text-balance" data-bind="heroTagline">
+          Belajar IPA itu seperti membuka pintu laboratorium: penuh rasa penasaran, percobaan, dan penemuan.
+        </p>
+
+        <!-- Tombol CTA -->
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#materi" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-sains-600 to-sains-700 text-white font-semibold hover:from-sains-700 hover:to-sains-800 transition-all duration-300 shadow-lg shadow-sains-600/25 hover:shadow-xl hover:shadow-sains-600/30 hover:-translate-y-0.5">
+            <i data-lucide="book-open" class="w-5 h-5"></i> Jelajahi Materi
+          </a>
+          <a href="#media" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-sains-700 font-semibold border-2 border-sains-200 hover:border-sains-400 hover:bg-sains-50 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i> Media Pembelajaran
+          </a>
+        </div>
+
+        <!-- Statistik ringkas dengan desain card modern -->
+        <div class="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md">
+          <!-- Card Materi -->
+          <div class="group relative rounded-2xl bg-white border border-slate-200 p-4 text-center hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-100/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative">
+              <div class="flex items-center justify-center w-10 h-10 mx-auto rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 mb-2">
+                <i data-lucide="book-marked" class="w-5 h-5 text-cyan-600"></i>
+              </div>
+              <div class="text-2xl font-display font-bold text-sains-700" data-bind="statMateri">0</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 font-medium">Topik Materi</div>
+            </div>
+          </div>
+          <!-- Card Media -->
+          <div class="group relative rounded-2xl bg-white border border-slate-200 p-4 text-center hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative">
+              <div class="flex items-center justify-center w-10 h-10 mx-auto rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 mb-2">
+                <i data-lucide="play-circle" class="w-5 h-5 text-emerald-600"></i>
+              </div>
+              <div class="text-2xl font-display font-bold text-lab-500" data-bind="statMedia">0</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 font-medium">Media Belajar</div>
+            </div>
+          </div>
+          <!-- Card Kelas -->
+          <div class="group relative rounded-2xl bg-white border border-slate-200 p-4 text-center hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-violet-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative">
+              <div class="flex items-center justify-center w-10 h-10 mx-auto rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 mb-2">
+                <i data-lucide="users" class="w-5 h-5 text-violet-600"></i>
+              </div>
+              <div class="text-2xl font-display font-bold text-sains-700">3</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 font-medium">Kelas VII–IX</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ilustrasi SVG inline: atom berputar + tabung reaksi -->
+      <div class="relative reveal">
+        <!-- Floating badges decoration -->
+        <div class="absolute -top-4 -right-4 z-10 badge-float">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-700 text-xs font-bold shadow-lg shadow-cyan-200/50 border border-cyan-200/50">
+            <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Lab IPA
+          </span>
+        </div>
+        <div class="absolute top-1/4 -left-6 z-10 badge-float-delay">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 text-xs font-bold shadow-lg shadow-emerald-200/50 border border-emerald-200/50">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Sains
+          </span>
+        </div>
+        <div class="absolute bottom-12 -right-4 z-10">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 text-xs font-bold shadow-lg shadow-violet-200/50 border border-violet-200/50 badge-float" style="animation-delay: 0.5s;">
+            <i data-lucide="atom" class="w-3.5 h-3.5"></i> Eksperimen
+          </span>
+        </div>
+
+        <div class="relative mx-auto w-full max-w-md aspect-square">
+          <!-- Atom -->
+          <svg viewBox="0 0 400 400" class="absolute inset-0 w-full h-full float" aria-hidden="true">
+            <defs>
+              <linearGradient id="gradAtom" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"  stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#1e3a8a"/>
+              </linearGradient>
+              <radialGradient id="gradCore">
+                <stop offset="0%"  stop-color="#6ee7b7"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </radialGradient>
+              <!-- Glow filter -->
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Orbit 1 -->
+            <g class="spin-slow" filter="url(#glow)">
+              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".75" class="orbit-dash"/>
+              <circle cx="350" cy="200" r="9" fill="#2563eb"/>
+            </g>
+            <!-- Orbit 2 -->
+            <g class="spin-slower" style="transform:rotate(60deg)" filter="url(#glow)">
+              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".55" class="orbit-dash"/>
+              <circle cx="50" cy="200" r="8" fill="#059669"/>
+            </g>
+            <!-- Orbit 3 -->
+            <g class="spin-slow" style="transform:rotate(120deg)" filter="url(#glow)">
+              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".4" class="orbit-dash"/>
+              <circle cx="350" cy="200" r="7" fill="#93c5fd"/>
+            </g>
+            <!-- Inti -->
+            <circle cx="200" cy="200" r="30" fill="url(#gradCore)"/>
+            <circle cx="200" cy="200" r="30" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>
+            <circle cx="190" cy="190" r="7" fill="#fff" opacity=".45"/>
+          </svg>
+
+          <!-- Tabung reaksi kecil (pojok kiri bawah) -->
+          <svg viewBox="0 0 120 160" class="absolute -left-2 bottom-2 w-20 sm:w-24 float-delay" aria-hidden="true">
+            <rect x="44" y="6" width="32" height="10" rx="4" fill="#cbd5e1"/>
+            <path d="M46 16 h28 v112 a14 14 0 0 1 -28 0 Z" fill="#fff" stroke="#94a3b8" stroke-width="3"/>
+            <path d="M46 84 h28 v44 a14 14 0 0 1 -28 0 Z" fill="#2563eb" opacity=".85"/>
+            <circle class="bubble"    cx="56" cy="120" r="3.5" fill="#bfdbfe"/>
+            <circle class="bubble b2" cx="64" cy="124" r="2.8" fill="#bfdbfe"/>
+            <circle class="bubble b3" cx="59" cy="118" r="2.2" fill="#dbeafe"/>
+          </svg>
+
+          <!-- Labu erlenmeyer (pojok kanan atas) -->
+          <svg viewBox="0 0 140 150" class="absolute -right-1 top-2 w-20 sm:w-24 float" aria-hidden="true">
+            <path d="M56 10 h28 v44 l30 62 a14 14 0 0 1 -12 22 H38 a14 14 0 0 1 -12 -22 l30 -62 Z" fill="#fff" stroke="#94a3b8" stroke-width="3"/>
+            <path d="M36 106 h68 l8 16 a12 12 0 0 1 -10 16 H38 a12 12 0 0 1 -10 -16 Z" fill="#059669" opacity=".85"/>
+            <circle class="bubble b2" cx="62" cy="124" r="3" fill="#a7f3d0"/>
+            <circle class="bubble b4" cx="78" cy="128" r="2.4" fill="#d1fae5"/>
+            <rect x="52" y="4" width="36" height="9" rx="4" fill="#cbd5e1"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave separator bottom -->
+    <div class="absolute bottom-0 left-0 right-0 h-16 sm:h-24 overflow-hidden">
+      <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <path fill="#ffffff" fill-opacity="0.9" d="M0,100 C320,40 640,80 960,40 C1200,15 1360,65 1440,40 L1440,100 L0,100 Z"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       2. TENTANG GURU
+       ------------------------------------------------------------------ -->
+  <section id="tentang" class="py-16 sm:py-24 bg-white relative overflow-hidden scroll-mt-20">
+    <!-- Background decoration -->
+    <div class="absolute inset-0 pattern-dots opacity-30"></div>
+    <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-50/50 to-blue-50/50 blur-3xl"></div>
+    <div class="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-br from-emerald-50/50 to-green-50/50 blur-3xl"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="grid md:grid-cols-[320px_1fr] gap-10 xl:gap-16 items-start">
+
+        <!-- Foto / avatar inisial dengan glassmorphism -->
+        <div class="reveal mx-auto md:mx-0">
+          <div class="relative w-56 h-56 sm:w-72 sm:h-72 mx-auto">
+            <!-- Outer glow ring -->
+            <div class="absolute -inset-4 rounded-3xl bg-gradient-to-br from-cyan-200 via-emerald-200 to-violet-200 opacity-60 blur-sm"></div>
+            <!-- Rotating gradient border -->
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-500 via-emerald-500 to-violet-500 rotate-6 animate-pulse" style="opacity: 0.3;"></div>
+            <!-- Main card with glass effect -->
+            <div class="relative w-full h-full">
+              <div id="fotoWrap" class="absolute inset-0 rounded-3xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border-4 border-white/80 shadow-2xl shadow-slate-200/50 grid place-items-center">
+                <!-- Diisi oleh JS: <img> base64 atau avatar inisial -->
+              </div>
+              <!-- Glass overlay -->
+              <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none"></div>
+            </div>
+            <!-- Floating science badges -->
+            <div class="absolute -top-3 -right-3 badge-float">
+              <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 text-white shadow-lg shadow-cyan-200 border-2 border-white">
+                <i data-lucide="microscope" class="w-5 h-5"></i>
+              </span>
+            </div>
+            <div class="absolute -bottom-3 -left-3 badge-float-delay">
+              <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-200 border-2 border-white">
+                <i data-lucide="award" class="w-5 h-5"></i>
+              </span>
+            </div>
+            <div class="absolute bottom-6 -right-4 badge-float" style="animation-delay: 0.8s;">
+              <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-violet-600 text-white shadow-lg shadow-violet-200 border-2 border-white">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deskripsi -->
+        <div class="reveal">
+          <span class="inline-flex items-center gap-2 text-emerald-600 text-xs font-bold uppercase tracking-widest">
+            <i data-lucide="user-round" class="w-4 h-4"></i> Tentang Guru
+          </span>
+          <h2 class="mt-3 text-2xl sm:text-3xl xl:text-4xl font-bold text-slate-900" data-bind="aboutNama">Bayu Setiadji, S.Pd., Gr.</h2>
+          <p class="mt-2 text-sains-600 font-semibold flex items-center gap-2" data-bind="aboutJabatan">
+            <span>Guru IPA</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <span>SMP Negeri 3 Besuki, Situbondo</span>
+          </p>
+          <p class="mt-6 text-slate-600 leading-relaxed text-base sm:text-lg" data-bind="aboutDeskripsi"></p>
+
+          <!-- Daftar peran dengan style baru -->
+          <div id="peranList" class="mt-6 flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       3. MATERI / RINGKASAN BAB IPA
+       ------------------------------------------------------------------ -->
+  <section id="materi" class="py-16 sm:py-24 bg-slate-50 relative overflow-hidden scroll-mt-20">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 pattern-dots"></div>
+    <div class="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/80 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/80 to-transparent"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Header dengan style baru -->
+      <div class="text-center max-w-2xl mx-auto reveal mb-10">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-600 text-xs font-bold border border-emerald-200/60">
+          <i data-lucide="book-open-check" class="w-4 h-4"></i> Materi IPA
+        </span>
+        <h2 class="mt-4 text-2xl sm:text-3xl xl:text-4xl font-bold text-slate-900">Ringkasan Bab per Kelas</h2>
+        <p class="mt-3 text-slate-600 text-base sm:text-lg">Klik kartu untuk membuka ringkasan singkat materi. Disusun mengikuti Kurikulum Merdeka Fase D.</p>
+      </div>
+
+      <!-- Tab kelas dengan color-coding -->
+      <div id="kelasTabs" class="mt-6 flex flex-wrap justify-center gap-3"></div>
+
+      <!-- Grid kartu materi -->
+      <div id="materiGrid" class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       4. MEDIA PEMBELAJARAN
+       ------------------------------------------------------------------ -->
+  <section id="media" class="py-16 sm:py-24 bg-white relative overflow-hidden scroll-mt-20">
+    <!-- Background decoration -->
+    <div class="absolute inset-0 pattern-grid opacity-30"></div>
+    <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-violet-100/50 to-purple-100/50 blur-3xl"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/50 to-cyan-100/50 blur-3xl"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto reveal mb-10">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-violet-50 to-purple-50 text-violet-600 text-xs font-bold border border-violet-200/60">
+          <i data-lucide="monitor-play" class="w-4 h-4"></i> Media Pembelajaran
+        </span>
+        <h2 class="mt-4 text-2xl sm:text-3xl xl:text-4xl font-bold text-slate-900">Simulasi, LKPD, Video & Latihan Soal</h2>
+        <p class="mt-3 text-slate-600 text-base sm:text-lg">Pilih kategori untuk menyaring media pembelajaran yang kamu butuhkan.</p>
+      </div>
+
+      <!-- Filter kategori -->
+      <div id="mediaFilters" class="mt-6 flex flex-wrap justify-center gap-3"></div>
+
+      <!-- Grid media -->
+      <div id="mediaGrid" class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       5. PENGUMUMAN KELAS
+       ------------------------------------------------------------------ -->
+  <section id="pengumuman" class="py-16 sm:py-24 bg-slate-50 relative overflow-hidden scroll-mt-20">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 pattern-grid"></div>
+    <div class="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/80 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/80 to-transparent"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <div class="text-center max-w-2xl mx-auto reveal mb-10">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 text-xs font-bold border border-amber-200/60">
+          <i data-lucide="megaphone" class="w-4 h-4"></i> Papan Pengumuman
+        </span>
+        <h2 class="mt-4 text-2xl sm:text-3xl xl:text-4xl font-bold text-slate-900">Pengumuman Kelas</h2>
+        <p class="mt-3 text-slate-600 text-base sm:text-lg">Informasi terbaru seputar kegiatan, tugas, dan penilaian.</p>
+      </div>
+
+      <!-- Legend badge -->
+      <div class="flex flex-wrap justify-center gap-3 mb-8">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold border border-red-200">
+          <span class="w-2 h-2 rounded-full bg-red-500"></span> PENTING
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-200">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span> INFO
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 text-green-600 text-xs font-semibold border border-green-200">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span> TIPS SAINS
+        </span>
+      </div>
+
+      <div id="pengumumanList" class="mt-6 space-y-5"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       6. KONTAK & SOSIAL MEDIA
+       ------------------------------------------------------------------ -->
+  <section id="kontak" class="py-16 sm:py-24 bg-gradient-to-br from-sains-800 via-sains-700 to-sains-800 text-white scroll-mt-20 relative overflow-hidden">
+    <!-- Dekorasi molekul SVG -->
+    <svg class="absolute -right-10 -top-10 w-72 h-72 opacity-10" viewBox="0 0 200 200" aria-hidden="true">
+      <g stroke="#fff" stroke-width="3" fill="none">
+        <line x1="60" y1="60" x2="120" y2="40"/><line x1="60" y1="60" x2="50" y2="130"/>
+        <line x1="120" y1="40" x2="160" y2="95"/><line x1="50" y1="130" x2="120" y2="150"/>
+        <line x1="160" y1="95" x2="120" y2="150"/>
+      </g>
+      <g fill="#fff">
+        <circle cx="60" cy="60" r="12"/><circle cx="120" cy="40" r="9"/>
+        <circle cx="50" cy="130" r="10"/><circle cx="160" cy="95" r="8"/><circle cx="120" cy="150" r="11"/>
+      </g>
+    </svg>
+
+    <!-- Background orbs -->
+    <div class="absolute -top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-br from-cyan-500/10 to-blue-500/10 blur-3xl"></div>
+    <div class="absolute -bottom-20 -right-20 w-60 h-60 rounded-full bg-gradient-to-br from-emerald-500/10 to-green-500/10 blur-3xl"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
+      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-lab-300 text-xs font-bold uppercase tracking-widest backdrop-blur-sm border border-white/10">
+        <i data-lucide="share-2" class="w-4 h-4"></i> Terhubung
+      </span>
+      <h2 class="mt-4 text-2xl sm:text-3xl xl:text-4xl font-bold">Ikuti & Hubungi Pak Bayu</h2>
+      <p class="mt-3 text-sains-100/90 max-w-xl mx-auto text-base sm:text-lg">Konten belajar IPA ringan, tips sains, dan produk digital pembelajaran.</p>
+
+      <div id="sosmedGrid" class="mt-10 grid sm:grid-cols-3 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       7. FOOTER
+       ------------------------------------------------------------------ -->
+  <footer class="bg-slate-900 text-slate-400 py-12 relative overflow-hidden">
+    <!-- Background decoration -->
+    <div class="absolute inset-0 pattern-dots opacity-10"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-center sm:text-left">
+      <div class="flex items-center gap-4">
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sains-600 to-sains-700 text-white shrink-0 shadow-lg shadow-sains-700/30">
+          <i data-lucide="atom" class="w-6 h-6"></i>
+        </span>
+        <div>
+          <p class="text-white font-semibold font-display text-base" data-bind="footerSekolah">SMP Negeri 3 Besuki</p>
+          <p class="text-xs text-slate-400" data-bind="footerTahun">Tahun Ajaran 2026/2027</p>
+        </div>
+      </div>
+      <div class="flex flex-col sm:items-end gap-1">
+        <p class="text-xs text-slate-500" data-bind="footerCredit">© 2026 Bayu Setiadji, S.Pd., Gr.</p>
+        <p class="text-[10px] text-slate-600">Dibuat dengan ❤️ untuk pembelajaran IPA</p>
+      </div>
+    </div>
+  </footer>
+</div><!-- /publicView -->
+
+
+<!-- ============================================================================
+     ██ MODAL LOGIN ADMIN
+     ============================================================================ -->
+<div id="loginModal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 grid place-items-center">
+  <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
+    <div class="flex items-center gap-3">
+      <span class="grid place-items-center w-11 h-11 rounded-xl bg-sains-50 text-sains-700">
+        <i data-lucide="lock" class="w-5 h-5"></i>
+      </span>
+      <div>
+        <h3 class="font-bold text-slate-900">Mode Admin</h3>
+        <p class="text-xs text-slate-500">Masuk dengan akun Supabase Anda.</p>
+      </div>
+    </div>
+
+    <form id="loginForm" class="mt-5 space-y-3">
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="Email"
+             class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-sains-500 focus:ring-2 focus:ring-sains-100 outline-none text-sm" />
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password"
+             class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-sains-500 focus:ring-2 focus:ring-sains-100 outline-none text-sm" />
+      <p id="loginError" class="hidden text-xs text-red-600 font-medium"></p>
+      <div class="flex gap-2 pt-1">
+        <button type="button" id="loginCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50">Batal</button>
+        <button type="submit" id="loginSubmit" class="flex-1 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800 disabled:opacity-60">Masuk</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ============================================================================
+     ██ PANEL ADMIN
+     ============================================================================ -->
+<div id="adminView" class="hidden fixed inset-0 z-50 bg-slate-100 overflow-y-auto thin-scroll">
+
+  <!-- Header admin -->
+  <header class="sticky top-0 z-10 bg-sains-800 text-white shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-white/15 shrink-0"><i data-lucide="settings" class="w-5 h-5"></i></span>
+        <div class="min-w-0">
+          <p class="font-display font-bold text-sm leading-tight">Panel Admin</p>
+          <p id="adminAkun" class="text-[11px] text-sains-200 truncate">Kelola konten landing page</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="logoutAdmin" title="Keluar dari akun" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 text-white text-xs sm:text-sm font-semibold hover:bg-white/25">
+          <i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span>
+        </button>
+        <button id="exitAdmin" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white text-sains-800 text-xs sm:text-sm font-semibold hover:bg-sains-50">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Kembali ke tampilan publik</span>
+          <span class="sm:hidden">Publik</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab navigasi admin -->
+    <div class="max-w-5xl mx-auto px-2 sm:px-6 pb-2 flex gap-1 overflow-x-auto thin-scroll" id="adminTabs"></div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-24">
+
+    <!-- ===== TAB: PROFIL ===== -->
+    <section data-tab-panel="profil" class="admin-panel space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="user-round" class="w-4.5 h-4.5 text-sains-700"></i> Profil Guru</h3>
+        <div class="mt-4 grid sm:grid-cols-2 gap-4">
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Nama Lengkap</span>
+            <input id="pfNama" class="adm-input" /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Jabatan</span>
+            <input id="pfJabatan" class="adm-input" /></label>
+          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Sekolah</span>
+            <input id="pfSekolah" class="adm-input" /></label>
+          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Tagline (Hero)</span>
+            <textarea id="pfTagline" rows="2" class="adm-input"></textarea></label>
+          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Deskripsi Singkat</span>
+            <textarea id="pfDeskripsi" rows="4" class="adm-input"></textarea></label>
+          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Peran / Keahlian <span class="font-normal text-slate-400">(pisahkan dengan koma)</span></span>
+            <input id="pfPeran" class="adm-input" placeholder="Guru IPA, Pembina OSN IPA, ..." /></label>
+        </div>
+
+        <!-- Upload foto -> base64 -->
+        <div class="mt-5 pt-5 border-t border-slate-100">
+          <span class="text-xs font-semibold text-slate-600">Foto Profil</span>
+          <div class="mt-2 flex items-center gap-4 flex-wrap">
+            <div id="pfPreview" class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 grid place-items-center shrink-0"></div>
+            <div class="flex flex-wrap gap-2">
+              <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-50 text-sains-700 text-xs font-semibold border border-sains-200 hover:bg-sains-100">
+                <i data-lucide="upload" class="w-4 h-4"></i> Pilih Foto
+                <input id="pfFoto" type="file" accept="image/*" class="hidden" />
+              </label>
+              <button id="pfHapusFoto" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 text-red-600 text-xs font-semibold border border-red-100 hover:bg-red-100">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Foto
+              </button>
+            </div>
+          </div>
+          <p class="mt-2 text-[11px] text-slate-400">Gambar otomatis dikompres & disimpan sebagai base64 di localStorage. Disarankan foto persegi, maks ~2 MB.</p>
+        </div>
+
+        <button id="pfSimpan" class="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Profil
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== TAB: MATERI ===== -->
+    <section data-tab-panel="materi" class="admin-panel hidden space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="book-open" class="w-4.5 h-4.5 text-sains-700"></i> Kartu Materi</h3>
+        <button data-add="materi" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-xs font-semibold hover:bg-sains-800">
+          <i data-lucide="plus" class="w-4 h-4"></i> Tambah Materi
+        </button>
+      </div>
+      <div id="admMateriList" class="space-y-2"></div>
+    </section>
+
+    <!-- ===== TAB: MEDIA ===== -->
+    <section data-tab-panel="media" class="admin-panel hidden space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="monitor-play" class="w-4.5 h-4.5 text-sains-700"></i> Media Pembelajaran</h3>
+        <button data-add="media" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-xs font-semibold hover:bg-sains-800">
+          <i data-lucide="plus" class="w-4 h-4"></i> Tambah Media
+        </button>
+      </div>
+      <div id="admMediaList" class="space-y-2"></div>
+    </section>
+
+    <!-- ===== TAB: PENGUMUMAN ===== -->
+    <section data-tab-panel="pengumuman" class="admin-panel hidden space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="megaphone" class="w-4.5 h-4.5 text-sains-700"></i> Pengumuman</h3>
+        <button data-add="pengumuman" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-xs font-semibold hover:bg-sains-800">
+          <i data-lucide="plus" class="w-4 h-4"></i> Tambah Pengumuman
+        </button>
+      </div>
+      <div id="admPengumumanList" class="space-y-2"></div>
+    </section>
+
+    <!-- ===== TAB: KONTAK ===== -->
+    <section data-tab-panel="kontak" class="admin-panel hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="share-2" class="w-4.5 h-4.5 text-sains-700"></i> Kontak & Sosial Media</h3>
+        <div class="mt-4 grid sm:grid-cols-2 gap-4">
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Link TikTok</span><input id="ktTiktok" class="adm-input" placeholder="https://tiktok.com/@..." /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Link Instagram</span><input id="ktInstagram" class="adm-input" placeholder="https://instagram.com/..." /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Link Lynk.id</span><input id="ktLynkid" class="adm-input" placeholder="https://lynk.id/..." /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Email <span class="font-normal text-slate-400">(opsional)</span></span><input id="ktEmail" class="adm-input" placeholder="nama@email.com" /></label>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-slate-100 grid sm:grid-cols-3 gap-4">
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Nama Sekolah (Footer)</span><input id="ftSekolah" class="adm-input" /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Tahun Ajaran</span><input id="ftTahun" class="adm-input" /></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Credit</span><input id="ftCredit" class="adm-input" /></label>
+        </div>
+
+        <button id="ktSimpan" class="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Kontak & Footer
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== TAB: DATA (Export/Import/Reset) ===== -->
+    <section data-tab-panel="data" class="admin-panel hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="database" class="w-4.5 h-4.5 text-sains-700"></i> Cadangan Data</h3>
+        <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+          Konten tersimpan di <b>database Supabase</b>, jadi setiap perubahan yang Anda simpan langsung terlihat oleh semua siswa
+          (cukup mereka muat ulang halaman). Salinan lokal tetap disimpan di browser ini sebagai cadangan saat internet putus.
+          Gunakan <b>Export JSON</b> untuk mengarsipkan konten, dan <b>Import JSON</b> untuk memulihkannya.
+        </p>
+        <div id="statusServer" class="mt-4 flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border"></div>
+        <div class="mt-5 grid sm:grid-cols-2 gap-3">
+          <button id="btnExport" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800">
+            <i data-lucide="download" class="w-4 h-4"></i> Export ke file .json
+          </button>
+          <label class="cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
+            <i data-lucide="upload" class="w-4 h-4"></i> Import dari file .json
+            <input id="btnImport" type="file" accept="application/json,.json" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-red-100 p-5">
+        <h3 class="font-display font-bold text-red-700 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4.5 h-4.5"></i> Zona Berbahaya</h3>
+        <p class="mt-2 text-sm text-slate-600">Mengembalikan seluruh konten ke data contoh bawaan. Semua perubahan akan hilang.</p>
+        <button id="btnReset" class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset ke Data Contoh
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="info" class="w-4.5 h-4.5 text-sains-700"></i> Ringkasan</h3>
+        <div id="admStats" class="mt-4 grid grid-cols-3 gap-3 text-center"></div>
+      </div>
+    </section>
+  </main>
+</div><!-- /adminView -->
+
+
+<!-- ============================================================================
+     ██ MODAL FORM CRUD (dipakai bersama untuk materi/media/pengumuman)
+     ============================================================================ -->
+<div id="formModal" class="hidden fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto thin-scroll">
+  <div class="min-h-full grid place-items-center py-6">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <h3 id="formModalTitle" class="font-display font-bold text-slate-900"></h3>
+        <button id="formModalClose" class="grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="crudForm">
+        <div id="formModalFields" class="px-5 py-5 space-y-4"></div>
+        <div class="px-5 py-4 border-t border-slate-100 flex gap-2">
+          <button type="button" id="formModalCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50">Batal</button>
+          <button type="submit" class="flex-1 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notifikasi -->
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] px-5 py-3 rounded-xl bg-slate-900 text-white text-sm font-medium shadow-2xl"></div>
+
+<!-- Style utility untuk input admin -->
+<style>
+  .adm-input{
+    margin-top:.375rem; width:100%; padding:.625rem .875rem; border-radius:.75rem;
+    border:1px solid #e2e8f0; font-size:.875rem; outline:none; background:#fff; color:#334155;
+  }
+  .adm-input:focus{ border-color:#2563eb; box-shadow:0 0 0 3px #dbeafe; }
+</style>
+
+
+<!-- ============================================================================
+     ██ JAVASCRIPT — data, render publik, dan logika admin
+     ============================================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ==========================================================================
+     § 1. KONFIGURASI
+     Konten disimpan di Supabase (tabel ipa_konten, satu baris JSON).
+     Kunci di bawah ini adalah "publishable key" yang memang boleh publik —
+     yang melindungi data adalah aturan RLS di database, bukan kunci ini:
+       · siapa pun boleh MEMBACA konten
+       · hanya akun pemilik yang boleh MENGUBAH konten
+     ========================================================================== */
+  const SUPABASE_URL = 'https://riajhxegskgwytmpcvut.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kUte5XzkrxtGohaMEVNpKA_u6UkZd2g';
+  const TABEL        = 'ipa_konten';
+  const STORAGE_KEY  = 'ipa_landing_bayu_v1';   // cache lokal (cadangan offline)
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let sesi = null;          // sesi login admin (null = belum login)
+  let terhubung = false;    // apakah konten terakhir berhasil diambil dari server
+
+  /* Kategori media + warna & ikonnya */
+  const KATEGORI = {
+    'Simulasi':     { icon:'flask-conical', badge:'bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-600 border-blue-200', aktif:'from-blue-500 to-cyan-500', glow:'hover:border-blue-300 hover-glow-cyan', iconBg:'from-blue-100 to-cyan-50' },
+    'LKPD':         { icon:'clipboard-list', badge:'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-600 border-emerald-200', aktif:'from-emerald-500 to-green-500', glow:'hover:border-emerald-300 hover-glow-emerald', iconBg:'from-emerald-100 to-green-50' },
+    'Video':        { icon:'play-circle',   badge:'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 border-amber-200', aktif:'from-amber-500 to-orange-500', glow:'hover:border-amber-300', iconBg:'from-amber-100 to-orange-50' },
+    'Latihan Soal': { icon:'pencil-ruler',  badge:'bg-gradient-to-r from-violet-50 to-purple-50 text-violet-600 border-violet-200', aktif:'from-violet-500 to-purple-500', glow:'hover:border-violet-300 hover-glow-violet', iconBg:'from-violet-100 to-purple-50' }
+  };
+  const KELAS = ['VII','VIII','IX'];
+
+  /* Pilihan ikon materi (nama ikon Lucide) */
+  const IKON_MATERI = ['atom','microscope','flask-conical','test-tube','dna','thermometer','leaf','trees',
+    'zap','magnet','orbit','waves','sun','droplets','wind','heart-pulse','mountain','recycle','bug','move',
+    'gauge','lightbulb','eye','activity','globe','scale','cog','sprout'];
+
+  /* ==========================================================================
+     § 2. DATA DEFAULT / CONTOH
+     Ditampilkan saat pertama kali dibuka (localStorage masih kosong).
+     ========================================================================== */
+  const DEFAULT_DATA = {
+    profil: {
+      nama: 'Bayu Setiadji, S.Pd., Gr.',
+      jabatan: 'Guru Mata Pelajaran IPA',
+      sekolah: 'SMP Negeri 3 Besuki, Situbondo',
+      tagline: 'Belajar IPA itu seperti membuka pintu laboratorium: penuh rasa penasaran, percobaan, dan penemuan. Yuk, jelajahi sains bersama!',
+      deskripsi: 'Saya mengajar Ilmu Pengetahuan Alam untuk siswa kelas VII, VIII, dan IX di SMP Negeri 3 Besuki, Situbondo, dengan kerangka Kurikulum Merdeka Fase D. Pembelajaran saya menekankan proses inkuiri: siswa mengamati, bertanya, mencoba, lalu menyimpulkan sendiri. Halaman ini saya siapkan sebagai portal ringan agar siswa bisa mengakses ringkasan materi, media pembelajaran interaktif, dan pengumuman kelas kapan saja — cukup dari HP.',
+      peran: ['Guru IPA Fase D','Pembina OSN IPA','Penggerak Literasi Sains','Pengembang Media Pembelajaran'],
+      foto: null
+    },
+
+    materi: [
+      /* ---- Kelas VII ---- */
+      { id:'m1', kelas:'VII', judul:'Hakikat Ilmu Sains & Metode Ilmiah', ikon:'microscope',
+        ringkasan:'Mengenal cabang-cabang ilmu sains, alat-alat laboratorium beserta fungsinya, keselamatan kerja di lab, besaran dan satuan, serta langkah-langkah metode ilmiah mulai dari observasi, rumusan masalah, hipotesis, percobaan, hingga kesimpulan.' },
+      { id:'m2', kelas:'VII', judul:'Zat dan Perubahannya', ikon:'flask-conical',
+        ringkasan:'Wujud zat (padat, cair, gas) dan model partikelnya, perubahan wujud, massa jenis, serta perbedaan perubahan fisika dan perubahan kimia lengkap dengan ciri-ciri terjadinya reaksi kimia.' },
+      { id:'m3', kelas:'VII', judul:'Suhu, Kalor, dan Pemuaian', ikon:'thermometer',
+        ringkasan:'Konsep suhu dan termometer beserta konversi skala, pemuaian zat padat/cair/gas, kalor dan perubahan suhu, kalor laten, serta tiga cara perpindahan kalor: konduksi, konveksi, dan radiasi.' },
+      { id:'m4', kelas:'VII', judul:'Gerak dan Gaya', ikon:'move',
+        ringkasan:'Gerak lurus, kelajuan dan kecepatan, percepatan, jenis-jenis gaya, serta penerapan Hukum I, II, dan III Newton dalam kejadian sehari-hari.' },
+      { id:'m5', kelas:'VII', judul:'Klasifikasi Makhluk Hidup', ikon:'leaf',
+        ringkasan:'Ciri-ciri makhluk hidup, dasar klasifikasi, penggunaan kunci determinasi dan kunci dikotomi, serta pengelompokan makhluk hidup ke dalam lima kingdom.' },
+      { id:'m6', kelas:'VII', judul:'Ekologi & Keanekaragaman Hayati', ikon:'trees',
+        ringkasan:'Interaksi antar komponen biotik dan abiotik, rantai serta jaring-jaring makanan, aliran energi dalam ekosistem, keanekaragaman hayati Indonesia, dan upaya pelestariannya.' },
+      { id:'m7', kelas:'VII', judul:'Bumi dan Tata Surya', ikon:'orbit',
+        ringkasan:'Struktur lapisan Bumi, gerak rotasi dan revolusi Bumi beserta akibatnya, fase Bulan, gerhana, pasang surut, serta anggota-anggota tata surya.' },
+
+      /* ---- Kelas VIII ---- */
+      { id:'m8', kelas:'VIII', judul:'Sel sebagai Unit Kehidupan', ikon:'dna',
+        ringkasan:'Sejarah penemuan sel, perbedaan sel hewan dan sel tumbuhan, fungsi organel-organel sel, serta tingkatan organisasi kehidupan dari sel hingga organisme.' },
+      { id:'m9', kelas:'VIII', judul:'Struktur & Fungsi Tubuh Makhluk Hidup', ikon:'heart-pulse',
+        ringkasan:'Sistem pencernaan, sistem pernapasan, dan sistem peredaran darah manusia — organ penyusun, mekanisme kerja, gangguan yang umum terjadi, serta cara menjaga kesehatannya.' },
+      { id:'m10', kelas:'VIII', judul:'Usaha, Energi & Pesawat Sederhana', ikon:'gauge',
+        ringkasan:'Bentuk-bentuk energi dan perubahannya, energi kinetik dan potensial, konsep usaha dan daya, serta prinsip kerja tuas, katrol, bidang miring, dan roda berporos.' },
+      { id:'m11', kelas:'VIII', judul:'Tekanan Zat', ikon:'droplets',
+        ringkasan:'Tekanan pada zat padat, tekanan hidrostatis, Hukum Pascal dan Hukum Archimedes, tekanan udara, serta penerapannya pada pengangkutan air dan tekanan darah manusia.' },
+      { id:'m12', kelas:'VIII', judul:'Getaran, Gelombang, dan Bunyi', ikon:'waves',
+        ringkasan:'Ciri getaran dan gelombang, gelombang transversal dan longitudinal, frekuensi dan periode, sifat-sifat bunyi, resonansi, serta pemanfaatan bunyi pantul.' },
+      { id:'m13', kelas:'VIII', judul:'Cahaya dan Alat Optik', ikon:'eye',
+        ringkasan:'Sifat-sifat cahaya, pemantulan pada cermin datar dan lengkung, pembiasan pada lensa, pembentukan bayangan, mata dan cacat mata, serta lup, mikroskop, dan teleskop.' },
+
+      /* ---- Kelas IX ---- */
+      { id:'m14', kelas:'IX', judul:'Sistem Reproduksi Manusia', ikon:'activity',
+        ringkasan:'Organ reproduksi pria dan wanita, proses pembelahan sel (mitosis & meiosis), siklus menstruasi, fertilisasi dan kehamilan, penyakit pada sistem reproduksi, serta upaya menjaga kesehatan reproduksi.' },
+      { id:'m15', kelas:'IX', judul:'Pewarisan Sifat', ikon:'dna',
+        ringkasan:'Materi genetik (DNA, gen, kromosom), istilah genotipe dan fenotipe, persilangan monohibrid dan dihibrid menurut Hukum Mendel, serta penerapan pewarisan sifat dalam pemuliaan tanaman dan hewan.' },
+      { id:'m16', kelas:'IX', judul:'Listrik Statis dan Dinamis', ikon:'zap',
+        ringkasan:'Muatan listrik dan Hukum Coulomb, medan listrik, arus dan beda potensial, Hukum Ohm, rangkaian seri dan paralel, energi dan daya listrik, serta cara menghemat listrik di rumah.' },
+      { id:'m17', kelas:'IX', judul:'Kemagnetan & Induksi Elektromagnetik', ikon:'magnet',
+        ringkasan:'Sifat magnet dan cara membuatnya, medan magnet, kemagnetan Bumi, gaya Lorentz, induksi elektromagnetik, serta prinsip kerja generator dan transformator.' },
+      { id:'m18', kelas:'IX', judul:'Bioteknologi', ikon:'sprout',
+        ringkasan:'Perbedaan bioteknologi konvensional dan modern, penerapannya di bidang pangan, pertanian, dan kesehatan, serta dampak positif dan negatifnya bagi lingkungan dan masyarakat.' },
+      { id:'m19', kelas:'IX', judul:'Partikel Penyusun Benda & Makhluk Hidup', ikon:'atom',
+        ringkasan:'Molekul, atom, dan ion; perkembangan model atom; partikel subatom; nomor atom dan nomor massa; serta hubungan sifat bahan dengan partikel penyusunnya.' },
+      { id:'m20', kelas:'IX', judul:'Teknologi Ramah Lingkungan', ikon:'recycle',
+        ringkasan:'Prinsip teknologi ramah lingkungan, energi alternatif (surya, angin, air, biogas), penerapannya pada bidang transportasi dan rumah tangga, serta perilaku hemat energi.' }
+    ],
+
+    media: [
+      { id:'d1', kategori:'Simulasi', judul:'PhET — Rangkaian Listrik Sederhana',
+        deskripsi:'Rakit rangkaian seri dan paralel secara virtual, ukur arus dan tegangan dengan amperemeter serta voltmeter.',
+        link:'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_in.html' },
+      { id:'d2', kategori:'Simulasi', judul:'PhET — Bentuk & Perubahan Energi',
+        deskripsi:'Amati bagaimana energi berubah bentuk dari satu sistem ke sistem lain: air, uap, listrik, hingga cahaya.',
+        link:'https://phet.colorado.edu/sims/html/energy-forms-and-changes/latest/energy-forms-and-changes_in.html' },
+      { id:'d3', kategori:'Simulasi', judul:'PhET — Keadaan Materi (Wujud Zat)',
+        deskripsi:'Lihat gerak partikel pada wujud padat, cair, dan gas ketika suhu dinaikkan atau diturunkan.',
+        link:'https://phet.colorado.edu/sims/html/states-of-matter-basics/latest/states-of-matter-basics_in.html' },
+      { id:'d4', kategori:'LKPD', judul:'LKPD Digital — Klasifikasi Makhluk Hidup',
+        deskripsi:'Lembar kerja interaktif kelas VII: mengelompokkan makhluk hidup menggunakan kunci dikotomi.',
+        link:'#' },
+      { id:'d5', kategori:'LKPD', judul:'LKPD Digital — Praktikum Tekanan Hidrostatis',
+        deskripsi:'Panduan praktikum kelas VIII lengkap dengan tabel pengamatan dan pertanyaan analisis.',
+        link:'#' },
+      { id:'d6', kategori:'Video', judul:'Video — Fotosintesis dalam 5 Menit',
+        deskripsi:'Penjelasan singkat proses fotosintesis, faktor yang memengaruhinya, dan percobaan Ingenhousz.',
+        link:'#' },
+      { id:'d7', kategori:'Video', judul:'Video — Hukum Newton di Kehidupan Sehari-hari',
+        deskripsi:'Contoh nyata Hukum I, II, dan III Newton yang bisa kamu temui di jalan, di rumah, dan saat berolahraga.',
+        link:'#' },
+      { id:'d8', kategori:'Latihan Soal', judul:'Latihan Soal — Sumatif Tengah Semester Kelas VII',
+        deskripsi:'25 soal pilihan ganda dengan pembahasan, mencakup materi zat, suhu, kalor, dan gerak.',
+        link:'#' },
+      { id:'d9', kategori:'Latihan Soal', judul:'Bank Soal — Pewarisan Sifat Kelas IX',
+        deskripsi:'Kumpulan soal persilangan monohibrid dan dihibrid bertingkat, dari dasar sampai HOTS.',
+        link:'#' }
+    ],
+
+    pengumuman: [
+      { id:'p1', tanggal:'2026-07-28', judul:'Praktikum Uji Makanan Kelas VIII',
+        isi:'Praktikum uji kandungan zat makanan dilaksanakan Kamis, 31 Juli 2026 di laboratorium IPA. Setiap kelompok membawa: nasi, tahu, putih telur rebus, dan pisang. Jangan lupa memakai jas lab dan mengumpulkan laporan sementara sebelum meninggalkan lab.' },
+      { id:'p2', tanggal:'2026-07-22', judul:'Seleksi OSN IPA Tingkat Sekolah',
+        isi:'Siswa kelas VII dan VIII yang berminat mengikuti seleksi OSN IPA dapat mendaftar ke Pak Bayu paling lambat 5 Agustus 2026. Seleksi meliputi tes tulis dan wawancara singkat. Materi seleksi: Biologi, Fisika, dan Kimia dasar Fase D.' },
+      { id:'p3', tanggal:'2026-07-15', judul:'Pengumpulan Proyek Poster Ekosistem',
+        isi:'Proyek poster rantai makanan dan jaring-jaring makanan untuk kelas VII dikumpulkan paling lambat Jumat, 25 Juli 2026. Poster dibuat manual di kertas A3 atau digital (kirim file PDF). Penilaian mencakup ketepatan konsep, kelengkapan, dan kreativitas.' },
+      { id:'p4', tanggal:'2026-07-08', judul:'Selamat Datang Tahun Ajaran 2026/2027',
+        isi:'Selamat datang kembali di kelas IPA! Silakan pelajari ringkasan materi dan media pembelajaran di halaman ini sebagai persiapan sebelum tatap muka. Sampai jumpa di laboratorium!' }
+    ],
+
+    kontak: {
+      tiktok:    'https://www.tiktok.com/@bayusetiadji',
+      instagram: 'https://www.instagram.com/bayusetiadji',
+      lynkid:    'https://lynk.id/bayusetiadji',
+      email:     'bayusetiadji07@gmail.com'
+    },
+
+    footer: {
+      sekolah: 'SMP Negeri 3 Besuki, Situbondo',
+      tahun:   'Tahun Ajaran 2026/2027',
+      credit:  '© 2026 Bayu Setiadji, S.Pd., Gr. — Dibuat untuk pembelajaran IPA.'
+    }
+  };
+
+  /* ==========================================================================
+     § 3. UTILITAS
+     ========================================================================== */
+  const $  = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  /** Escape HTML agar input admin aman dirender ke DOM */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  /** Hanya izinkan URL yang aman untuk href (blokir javascript:) */
+  function safeUrl(u) {
+    const v = String(u || '').trim();
+    if (!v || v === '#') return '#';
+    if (/^(https?:|mailto:|tel:|\.|\/|#)/i.test(v)) return v;
+    return 'https://' + v;
+  }
+
+  /** Format tanggal ISO -> "28 Juli 2026" */
+  function formatTanggal(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return iso || '';
+    return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  /** Ambil inisial dari nama untuk avatar placeholder */
+  function inisial(nama) {
+    return String(nama || 'B')
+      .replace(/,.*$/, '')                 // buang gelar setelah koma
+      .trim().split(/\s+/).slice(0, 2)
+      .map(w => w[0]).join('').toUpperCase();
+  }
+
+  /** Refresh ikon Lucide setelah render ulang DOM */
+  function icons() { if (window.lucide) window.lucide.createIcons(); }
+
+  /** Notifikasi kecil */
+  let toastTimer;
+  function toast(msg, tipe) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] px-5 py-3 rounded-xl text-white text-sm font-medium shadow-2xl ' +
+                   (tipe === 'error' ? 'bg-red-600' : tipe === 'ok' ? 'bg-lab-500' : 'bg-slate-900');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+  }
+
+  /* ==========================================================================
+     § 4. PENYIMPANAN DATA
+     Sumber kebenaran = Supabase. localStorage hanya cache supaya halaman
+     tetap tampil cepat (dan tetap terbaca saat internet putus).
+     ========================================================================== */
+  let data = muatCache();
+
+  function muatCache() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return gabungDefault(JSON.parse(raw));
+    } catch (e) { console.warn('Gagal membaca cache lokal:', e); }
+    return clone(DEFAULT_DATA);
+  }
+
+  function simpanCache() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (e) { console.warn('Cache lokal penuh, dilewati:', e); }
+  }
+
+  /** Ambil konten terbaru dari server lalu render ulang. */
+  async function tarikDariServer(diam) {
+    try {
+      const res = await sb.from(TABEL).select('data, updated_at').eq('id', 1).maybeSingle();
+      if (res.error) throw res.error;
+      if (res.data && res.data.data && res.data.data.profil) {
+        data = gabungDefault(res.data.data);
+        simpanCache();
+        renderPublik();
+        renderAdminLists();
+        isiFormProfil();
+        isiFormKontak();
+      }
+      terhubung = true;
+    } catch (e) {
+      terhubung = false;
+      console.warn('Tidak bisa mengambil konten dari server:', e.message || e);
+      if (!diam) toast('Gagal memuat konten terbaru. Menampilkan salinan tersimpan.', 'error');
+    }
+    perbaruiStatusServer();
+    return terhubung;
+  }
+
+  /** Kirim konten ke server. Hanya berhasil bila login sebagai pemilik. */
+  async function dorongKeServer() {
+    const res = await sb.from(TABEL).update({ data }).eq('id', 1).select('id');
+    if (res.error) throw new Error(res.error.message);
+    if (!res.data || !res.data.length) {
+      throw new Error('Akun ini tidak punya izin mengubah konten.');
+    }
+  }
+
+  /** Pastikan struktur data lengkap walau file lama tidak punya field baru */
+  function gabungDefault(d) {
+    const base = clone(DEFAULT_DATA);
+    if (!d || typeof d !== 'object') return base;
+    return {
+      profil:     Object.assign(base.profil, d.profil || {}),
+      materi:     Array.isArray(d.materi)     ? d.materi     : base.materi,
+      media:      Array.isArray(d.media)      ? d.media      : base.media,
+      pengumuman: Array.isArray(d.pengumuman) ? d.pengumuman : base.pengumuman,
+      kontak:     Object.assign(base.kontak, d.kontak || {}),
+      footer:     Object.assign(base.footer, d.footer || {})
+    };
+  }
+
+  /**
+   * Simpan perubahan: render ulang seketika, cache lokal, lalu terbitkan ke server.
+   * Bila pengiriman ke server gagal, perubahan tetap ada di layar & cache —
+   * pengguna diberi tahu supaya bisa mencoba simpan lagi.
+   */
+  async function simpanData(pesan) {
+    simpanCache();
+    renderPublik();          // tampilan publik langsung ter-update tanpa reload
+    renderAdminLists();
+
+    if (!sesi) { if (pesan) toast(pesan, 'ok'); return true; }
+
+    try {
+      await dorongKeServer();
+      terhubung = true;
+      perbaruiStatusServer();
+      toast(pesan ? pesan + ' Terbit ke semua siswa.' : 'Terbit ke semua siswa.', 'ok');
+      return true;
+    } catch (e) {
+      terhubung = false;
+      perbaruiStatusServer();
+      toast('Gagal menerbitkan: ' + e.message, 'error');
+      return false;
+    }
+  }
+
+  /** Panel status koneksi di tab Data */
+  function perbaruiStatusServer() {
+    const el = $('#statusServer');
+    if (!el) return;
+    const ok = terhubung;
+    el.className = 'mt-4 flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border ' +
+      (ok ? 'bg-lab-50 text-lab-600 border-lab-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+    el.innerHTML = '<i data-lucide="' + (ok ? 'cloud-check' : 'cloud-off') + '" class="w-4 h-4"></i>' +
+      (ok ? 'Tersambung ke database — perubahan langsung terbit.'
+          : 'Tidak tersambung ke database — menampilkan salinan lokal.');
+    icons();
+  }
+
+  /* ==========================================================================
+     § 5. RENDER TAMPILAN PUBLIK
+     ========================================================================== */
+  let kelasAktif = 'VII';
+  let kategoriAktif = 'Semua';
+
+  function renderPublik() {
+    renderProfil();
+    renderTabKelas();
+    renderMateri();
+    renderFilterMedia();
+    renderMedia();
+    renderPengumuman();
+    renderSosmed();
+    renderFooter();
+    icons();
+  }
+
+  /* ---- Profil, hero, tentang ---- */
+  function renderProfil() {
+    const p = data.profil;
+    const set = (key, val) => $$('[data-bind="' + key + '"]').forEach(el => el.textContent = val);
+
+    set('navNama',      p.nama.replace(/,.*$/, ''));
+    set('heroNama',     p.nama);
+    set('heroJabatan',  p.jabatan);
+    set('heroSekolah',  p.sekolah);
+    set('heroTagline',  p.tagline);
+    set('aboutNama',    p.nama);
+    set('aboutJabatan', p.jabatan + ' · ' + p.sekolah);
+    set('aboutDeskripsi', p.deskripsi);
+    set('statMateri',   data.materi.length);
+    set('statMedia',    data.media.length);
+
+    // Foto profil (base64) atau avatar inisial
+    $('#fotoWrap').innerHTML = p.foto
+      ? '<img src="' + esc(p.foto) + '" alt="Foto ' + esc(p.nama) + '" class="w-full h-full object-cover" />'
+      : '<div class="w-full h-full grid place-items-center bg-gradient-to-br from-sains-700 to-lab-500">' +
+          '<span class="font-display font-extrabold text-white text-6xl tracking-tight">' + esc(inisial(p.nama)) + '</span>' +
+        '</div>';
+
+    // Chip peran
+    $('#peranList').innerHTML = (p.peran || []).map(r =>
+      '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sains-50 text-sains-700 text-xs font-semibold border border-sains-100">' +
+        '<i data-lucide="check" class="w-3.5 h-3.5"></i>' + esc(r) +
+      '</span>').join('');
+  }
+
+  /* ---- Tab kelas VII / VIII / IX ---- */
+  /* Color-coding untuk setiap kelas */
+  const KELAS_WARNA = {
+    'VII': {
+      aktif: 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/25',
+      normal: 'bg-white text-slate-600 border-slate-200 hover:border-cyan-300 hover:text-cyan-600 hover:bg-cyan-50',
+      badge: 'bg-cyan-50 text-cyan-600 border-cyan-200',
+      icon: 'from-cyan-100 to-cyan-50 text-cyan-600',
+      border: 'hover:border-cyan-300',
+      glow: 'hover-glow-cyan'
+    },
+    'VIII': {
+      aktif: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/25',
+      normal: 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50',
+      badge: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+      icon: 'from-emerald-100 to-emerald-50 text-emerald-600',
+      border: 'hover:border-emerald-300',
+      glow: 'hover-glow-emerald'
+    },
+    'IX': {
+      aktif: 'bg-gradient-to-r from-violet-500 to-violet-600 text-white border-violet-500 shadow-lg shadow-violet-500/25',
+      normal: 'bg-white text-slate-600 border-slate-200 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50',
+      badge: 'bg-violet-50 text-violet-600 border-violet-200',
+      icon: 'from-violet-100 to-violet-50 text-violet-600',
+      border: 'hover:border-violet-300',
+      glow: 'hover-glow-violet'
+    }
+  };
+
+  function renderTabKelas() {
+    $('#kelasTabs').innerHTML = KELAS.map(k => {
+      const jml = data.materi.filter(m => m.kelas === k).length;
+      const aktif = k === kelasAktif;
+      const warna = KELAS_WARNA[k] || KELAS_WARNA['VII'];
+      return '<button data-kelas="' + k + '" class="px-5 py-2.5 rounded-xl text-sm font-semibold border transition ' +
+        (aktif ? warna.aktif : warna.normal) +
+        '">Kelas ' + k + ' <span class="opacity-70 text-xs">(' + jml + ')</span></button>';
+    }).join('');
+
+    $$('#kelasTabs button').forEach(b => b.addEventListener('click', () => {
+      kelasAktif = b.dataset.kelas;
+      renderTabKelas(); renderMateri(); icons();
+    }));
+  }
+
+  /* ---- Kartu materi (expand/collapse) ---- */
+  function renderMateri() {
+    const list = data.materi.filter(m => m.kelas === kelasAktif);
+    const grid = $('#materiGrid');
+
+    if (!list.length) {
+      grid.innerHTML = kosong('book-open', 'Belum ada materi untuk kelas ' + kelasAktif + '.');
+      icons(); return;
+    }
+
+    const warna = KELAS_WARNA[kelasAktif] || KELAS_WARNA['VII'];
+
+    grid.innerHTML = list.map(m =>
+      '<article class="materi-card group bg-white rounded-2xl border-2 border-slate-100 hover:border-slate-200 ' + warna.glow + ' hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 cursor-pointer overflow-hidden hover:-translate-y-1.5">' +
+        '<div class="p-5 flex items-start gap-4">' +
+          '<span class="grid place-items-center w-12 h-12 rounded-xl bg-gradient-to-br ' + warna.icon + ' border border-slate-100 shrink-0 shadow-sm">' +
+            '<i data-lucide="' + esc(m.ikon || 'atom') + '" class="w-6 h-6"></i>' +
+          '</span>' +
+          '<div class="min-w-0 flex-1">' +
+            '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ' + warna.badge + '">Kelas ' + esc(m.kelas) + '</span>' +
+            '<h3 class="mt-2 font-display font-bold text-slate-900 leading-snug text-base sm:text-lg">' + esc(m.judul) + '</h3>' +
+          '</div>' +
+          '<span class="grid place-items-center w-8 h-8 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-slate-100 group-hover:text-slate-600 transition shrink-0">' +
+            '<i data-lucide="chevron-down" class="card-chevron w-5 h-5"></i>' +
+          '</span>' +
+        '</div>' +
+        '<div class="card-body px-5">' +
+          '<p class="pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100 mt-0">' +
+            '<span class="block pt-4">' + esc(m.ringkasan) + '</span>' +
+          '</p>' +
+        '</div>' +
+      '</article>').join('');
+
+    $$('.materi-card', grid).forEach(card =>
+      card.addEventListener('click', () => card.classList.toggle('card-open')));
+
+    icons();
+  }
+
+  /* ---- Filter kategori media ---- */
+  function renderFilterMedia() {
+    const kategoriList = ['Semua'].concat(Object.keys(KATEGORI));
+    $('#mediaFilters').innerHTML = kategoriList.map(k => {
+      const aktif = k === kategoriAktif;
+      const ic = k === 'Semua' ? 'layout-grid' : KATEGORI[k].icon;
+      const jml = k === 'Semua' ? data.media.length : data.media.filter(x => x.kategori === k).length;
+      const kat = k === 'Semua' ? null : KATEGORI[k];
+      return '<button data-kat="' + esc(k) + '" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition ' +
+        (aktif
+          ? (kat ? 'bg-gradient-to-r ' + kat.aktif + ' text-white border-transparent shadow-lg' : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white border-transparent shadow-lg')
+          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50') +
+        '"><i data-lucide="' + ic + '" class="w-4 h-4"></i>' + esc(k) + ' <span class="opacity-70 text-xs">(' + jml + ')</span></button>';
+    }).join('');
+
+    $$('#mediaFilters button').forEach(b => b.addEventListener('click', () => {
+      kategoriAktif = b.dataset.kat;
+      renderFilterMedia(); renderMedia(); icons();
+    }));
+  }
+
+  /* ---- Grid media pembelajaran ---- */
+  function renderMedia() {
+    const list = kategoriAktif === 'Semua' ? data.media : data.media.filter(m => m.kategori === kategoriAktif);
+    const grid = $('#mediaGrid');
+
+    if (!list.length) {
+      grid.innerHTML = kosong('monitor-play', 'Belum ada media pada kategori ini.');
+      icons(); return;
+    }
+
+    grid.innerHTML = list.map(m => {
+      const kat = KATEGORI[m.kategori] || KATEGORI['Simulasi'];
+      const url = safeUrl(m.link);
+      const adaLink = url !== '#';
+      return '<article class="flex flex-col bg-white rounded-2xl border-2 border-slate-100 p-5 sm:p-6 hover:shadow-xl hover:shadow-slate-200/60 ' + kat.glow + ' transition-all duration-300 hover:-translate-y-1">' +
+        '<div class="flex items-center justify-between gap-3">' +
+          '<span class="grid place-items-center w-12 h-12 rounded-xl bg-gradient-to-br ' + kat.iconBg + ' border border-slate-100 shadow-sm">' +
+            '<i data-lucide="' + kat.icon + '" class="w-6 h-6"></i></span>' +
+          '<span class="px-3 py-1.5 rounded-lg text-xs font-bold border ' + kat.badge + '">' + esc(m.kategori) + '</span>' +
+        '</div>' +
+        '<h3 class="mt-4 font-display font-bold text-slate-900 leading-snug text-base sm:text-lg">' + esc(m.judul) + '</h3>' +
+        '<p class="mt-2 text-sm text-slate-600 leading-relaxed flex-1">' + esc(m.deskripsi) + '</p>' +
+        (adaLink
+          ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" class="btn-action mt-5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-sains-600 to-sains-700 text-white text-sm font-semibold shadow-lg shadow-sains-600/20 hover:from-sains-700 hover:to-sains-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">' +
+              '<i data-lucide="external-link" class="w-4 h-4"></i>Buka Media</a>'
+          : '<span class="btn-action mt-5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-100 text-slate-400 text-sm font-semibold">' +
+              '<i data-lucide="clock" class="w-4 h-4"></i>Segera hadir</span>') +
+      '</article>';
+    }).join('');
+
+    icons();
+  }
+
+  /* ---- Papan pengumuman (terbaru di atas) ---- */
+  function renderPengumuman() {
+    const list = data.pengumuman.slice().sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    const wrap = $('#pengumumanList');
+
+    if (!list.length) {
+      wrap.innerHTML = kosong('megaphone', 'Belum ada pengumuman.');
+      icons(); return;
+    }
+
+    // Tentukan badge kategori berdasarkan judul
+    function getBadge(judul) {
+      const lower = (judul || '').toLowerCase();
+      if (lower.includes('praktikum') || lower.includes('ujian') || lower.includes('seleksi') || lower.includes('tugas')) {
+        return '<span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] font-bold border border-red-200 uppercase tracking-wide">Penting</span>';
+      } else if (lower.includes('selamat') || lower.includes('info') || lower.includes('penting')) {
+        return '<span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 text-[10px] font-bold border border-blue-200 uppercase tracking-wide">Info</span>';
+      } else {
+        return '<span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-green-50 to-green-100 text-green-600 text-[10px] font-bold border border-green-200 uppercase tracking-wide">Tips Sains</span>';
+      }
+    }
+
+    wrap.innerHTML = list.map((p, i) => {
+      const isFirst = i === 0;
+      const accentColor = isFirst ? 'from-emerald-500 to-green-500' : 'from-slate-400 to-slate-500';
+      const dotColor = isFirst ? 'bg-emerald-500' : 'bg-slate-300';
+      return '<article class="relative flex gap-0 sm:gap-4 group">' +
+        // Timeline dot
+        '<div class="hidden sm:flex flex-col items-center">' +
+          '<div class="w-4 h-4 rounded-full ' + dotColor + ' border-4 border-white shadow-md relative z-10"></div>' +
+          (i < list.length - 1 ? '<div class="w-0.5 flex-1 bg-gradient-to-b from-slate-200 to-slate-100 my-2"></div>' : '') +
+        '</div>' +
+        // Card
+        '<div class="flex-1 relative bg-white rounded-2xl border-2 border-slate-100 p-5 sm:p-6 hover:shadow-xl hover:shadow-slate-200/60 transition-all duration-300 hover:-translate-y-1 mb-5 overflow-hidden">' +
+          // Top accent line
+          '<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ' + accentColor + '"></div>' +
+          // Content
+          '<div class="flex flex-wrap items-center gap-2 sm:gap-3">' +
+            '<span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">' +
+              '<i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>' + esc(formatTanggal(p.tanggal)) + '</span>' +
+            getBadge(p.judul) +
+            (isFirst ? '<span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 text-[10px] font-bold border border-amber-200 uppercase tracking-wide animate-pulse">Terbaru</span>' : '') +
+          '</div>' +
+          '<h3 class="mt-3 font-display font-bold text-slate-900 text-base sm:text-lg leading-snug">' + esc(p.judul) + '</h3>' +
+          '<p class="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-line">' + esc(p.isi) + '</p>' +
+          // Action button
+          '<div class="mt-4 pt-4 border-t border-slate-100">' +
+            '<span class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 group-hover:text-slate-600 transition-colors">' +
+              '<i data-lucide="arrow-right" class="w-4 h-4"></i> Baca selengkapnya' +
+            '</span>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+
+    icons();
+  }
+
+  /* ---- Ikon sosial media: SVG inline, karena ikon merek sudah tidak ada di Lucide ---- */
+  const SVG_SOSMED = {
+    tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" aria-hidden="true">' +
+      '<path d="M16.6 3h-3.1v13.1a2.6 2.6 0 1 1-2.2-2.6v-3.1A5.7 5.7 0 1 0 16.6 16V9.6a6.7 6.7 0 0 0 3.9 1.2V7.7a3.9 3.9 0 0 1-3.9-3.9z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="w-6 h-6" aria-hidden="true">' +
+      '<rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/>' +
+      '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    lynkid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6" aria-hidden="true">' +
+      '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/>' +
+      '<path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'
+  };
+
+  /* ---- Tombol sosial media ---- */
+  function renderSosmed() {
+    const k = data.kontak;
+    const items = [
+      { key:'tiktok',    label:'TikTok',    sub:'Video belajar singkat', url:k.tiktok },
+      { key:'instagram', label:'Instagram', sub:'Dokumentasi kelas',     url:k.instagram },
+      { key:'lynkid',    label:'Lynk.id',   sub:'Produk digital & LKPD', url:k.lynkid }
+    ].filter(i => i.url && i.url.trim());
+
+    let html = items.map(i =>
+      '<a href="' + esc(safeUrl(i.url)) + '" target="_blank" rel="noopener noreferrer" ' +
+        'class="group flex items-center gap-4 p-5 rounded-2xl bg-white/10 hover:bg-white border border-white/20 hover:border-white transition text-left">' +
+        '<span class="grid place-items-center w-12 h-12 rounded-xl bg-white/15 group-hover:bg-sains-700 text-white transition shrink-0">' +
+          SVG_SOSMED[i.key] + '</span>' +
+        '<span class="min-w-0">' +
+          '<span class="block font-display font-bold text-white group-hover:text-sains-800 transition">' + esc(i.label) + '</span>' +
+          '<span class="block text-xs text-sains-100/80 group-hover:text-slate-500 transition truncate">' + esc(i.sub) + '</span>' +
+        '</span>' +
+      '</a>').join('');
+
+    if (k.email && k.email.trim()) {
+      html += '<a href="mailto:' + esc(k.email) + '" class="sm:col-span-3 inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white hover:text-sains-800 text-white text-sm font-semibold transition">' +
+              '<i data-lucide="mail" class="w-4 h-4"></i>' + esc(k.email) + '</a>';
+    }
+
+    $('#sosmedGrid').innerHTML = html || '<p class="sm:col-span-3 text-sains-100/70 text-sm">Belum ada tautan sosial media.</p>';
+  }
+
+  function renderFooter() {
+    $('[data-bind="footerSekolah"]').textContent = data.footer.sekolah;
+    $('[data-bind="footerTahun"]').textContent   = data.footer.tahun;
+    $('[data-bind="footerCredit"]').textContent  = data.footer.credit;
+  }
+
+  /* ---- Placeholder saat data kosong ---- */
+  function kosong(icon, pesan) {
+    return '<div class="col-span-full py-14 text-center">' +
+      '<span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 mb-3">' +
+        '<i data-lucide="' + icon + '" class="w-7 h-7"></i></span>' +
+      '<p class="text-sm text-slate-500">' + esc(pesan) + '</p></div>';
+  }
+
+  /* ==========================================================================
+     § 6. INTERAKSI UMUM (menu mobile, reveal on scroll)
+     ========================================================================== */
+  $('#mobileMenuBtn').addEventListener('click', () => $('#mobileMenu').classList.toggle('hidden'));
+  $$('#mobileMenu a').forEach(a => a.addEventListener('click', () => $('#mobileMenu').classList.add('hidden')));
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  $$('.reveal').forEach(el => io.observe(el));
+
+  /* ==========================================================================
+     § 7. AKSES ADMIN TERSEMBUNYI
+     Cara 1: klik nama/logo 5x berturut-turut
+     Cara 2: buka URL dengan ?admin=true
+     ========================================================================== */
+  let klik = 0, klikTimer;
+  $('#logoTrigger').addEventListener('click', () => {
+    klik++;
+    clearTimeout(klikTimer);
+    klikTimer = setTimeout(() => { klik = 0; }, 1500);   // reset bila jeda > 1,5 detik
+    if (klik >= 5) { klik = 0; bukaLogin(); }
+  });
+
+  if (new URLSearchParams(location.search).get('admin') === 'true') {
+    setTimeout(bukaLogin, 250);
+  }
+
+  async function bukaLogin() {
+    // Sesi Supabase bertahan otomatis, jadi tidak perlu login ulang tiap buka.
+    const cek = await sb.auth.getSession();
+    if (cek.data && cek.data.session) { sesi = cek.data.session; masukAdmin(); return; }
+
+    $('#loginModal').classList.remove('hidden');
+    $('#loginError').classList.add('hidden');
+    $('#loginPassword').value = '';
+    setTimeout(() => $('#loginEmail').focus(), 60);
+    icons();
+  }
+
+  $('#loginCancel').addEventListener('click', () => $('#loginModal').classList.add('hidden'));
+  $('#loginModal').addEventListener('click', (e) => { if (e.target === $('#loginModal')) $('#loginModal').classList.add('hidden'); });
+
+  $('#loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tombol = $('#loginSubmit');
+    const galat  = $('#loginError');
+    const email  = $('#loginEmail').value.trim();
+    const sandi  = $('#loginPassword').value;
+
+    if (!email || !sandi) {
+      galat.textContent = 'Email dan password harus diisi.';
+      galat.classList.remove('hidden');
+      return;
+    }
+
+    tombol.disabled = true;
+    tombol.textContent = 'Memproses…';
+    galat.classList.add('hidden');
+
+    const res = await sb.auth.signInWithPassword({ email: email, password: sandi });
+
+    tombol.disabled = false;
+    tombol.textContent = 'Masuk';
+
+    if (res.error) {
+      galat.textContent = /invalid/i.test(res.error.message)
+        ? 'Email atau password salah.'
+        : 'Gagal masuk: ' + res.error.message;
+      galat.classList.remove('hidden');
+      $('#loginPassword').select();
+      return;
+    }
+
+    sesi = res.data.session;
+    $('#loginPassword').value = '';
+    $('#loginModal').classList.add('hidden');
+    masukAdmin();
+  });
+
+  async function masukAdmin() {
+    $('#adminView').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    $('#adminAkun').textContent = sesi && sesi.user ? sesi.user.email : 'Kelola konten landing page';
+    await tarikDariServer(true);      // pastikan mengedit versi terbaru
+    isiFormProfil();
+    isiFormKontak();
+    renderAdminLists();
+    gantiTab('profil');
+    perbaruiStatusServer();
+    icons();
+  }
+
+  function keluarPanel() {
+    $('#adminView').classList.add('hidden');
+    document.body.style.overflow = '';
+    // Bersihkan ?admin=true dari URL supaya tidak terus meminta login
+    if (location.search.includes('admin=true')) {
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  }
+
+  $('#exitAdmin').addEventListener('click', keluarPanel);
+
+  $('#logoutAdmin').addEventListener('click', async () => {
+    if (!confirm('Keluar dari akun admin?')) return;
+    await sb.auth.signOut();
+    sesi = null;
+    keluarPanel();
+    toast('Anda sudah keluar.', 'ok');
+  });
+
+  /* ==========================================================================
+     § 8. TAB PANEL ADMIN
+     ========================================================================== */
+  const TABS = [
+    { id:'profil',     label:'Profil',     icon:'user-round' },
+    { id:'materi',     label:'Materi',     icon:'book-open' },
+    { id:'media',      label:'Media',      icon:'monitor-play' },
+    { id:'pengumuman', label:'Pengumuman', icon:'megaphone' },
+    { id:'kontak',     label:'Kontak',     icon:'share-2' },
+    { id:'data',       label:'Data',       icon:'database' }
+  ];
+  let tabAktif = 'profil';
+
+  function gantiTab(id) {
+    tabAktif = id;
+    $('#adminTabs').innerHTML = TABS.map(t =>
+      '<button data-tab="' + t.id + '" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition ' +
+      (t.id === tabAktif ? 'bg-white text-sains-800' : 'text-sains-100 hover:bg-white/10') + '">' +
+      '<i data-lucide="' + t.icon + '" class="w-3.5 h-3.5"></i>' + t.label + '</button>').join('');
+
+    $$('#adminTabs button').forEach(b => b.addEventListener('click', () => gantiTab(b.dataset.tab)));
+    $$('.admin-panel').forEach(p => p.classList.toggle('hidden', p.dataset.tabPanel !== id));
+
+    if (id === 'data') renderAdminStats();
+    icons();
+  }
+
+  /* ==========================================================================
+     § 9. ADMIN — PROFIL
+     ========================================================================== */
+  function isiFormProfil() {
+    const p = data.profil;
+    $('#pfNama').value      = p.nama;
+    $('#pfJabatan').value   = p.jabatan;
+    $('#pfSekolah').value   = p.sekolah;
+    $('#pfTagline').value   = p.tagline;
+    $('#pfDeskripsi').value = p.deskripsi;
+    $('#pfPeran').value     = (p.peran || []).join(', ');
+    renderPreviewFoto();
+  }
+
+  function renderPreviewFoto() {
+    $('#pfPreview').innerHTML = data.profil.foto
+      ? '<img src="' + esc(data.profil.foto) + '" alt="Preview foto" class="w-full h-full object-cover" />'
+      : '<span class="font-display font-bold text-slate-400 text-xl">' + esc(inisial(data.profil.nama)) + '</span>';
+  }
+
+  /* Upload foto -> kompres via canvas -> base64 (hemat kuota localStorage) */
+  $('#pfFoto').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast('File harus berupa gambar.', 'error'); return; }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 512;                                   // sisi terpanjang maks 512px
+        let { width: w, height: h } = img;
+        if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        else if (h > MAX)     { w = Math.round(w * MAX / h); h = MAX; }
+
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+
+        data.profil.foto = cv.toDataURL('image/jpeg', 0.82);
+        renderPreviewFoto();
+        simpanData('Foto profil diperbarui.');
+      };
+      img.onerror = () => toast('Gambar tidak dapat dibaca.', 'error');
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  $('#pfHapusFoto').addEventListener('click', () => {
+    data.profil.foto = null;
+    renderPreviewFoto();
+    simpanData('Foto profil dihapus.');
+  });
+
+  $('#pfSimpan').addEventListener('click', () => {
+    const nama = $('#pfNama').value.trim();
+    if (!nama) { toast('Nama tidak boleh kosong.', 'error'); return; }
+    Object.assign(data.profil, {
+      nama,
+      jabatan:   $('#pfJabatan').value.trim(),
+      sekolah:   $('#pfSekolah').value.trim(),
+      tagline:   $('#pfTagline').value.trim(),
+      deskripsi: $('#pfDeskripsi').value.trim(),
+      peran:     $('#pfPeran').value.split(',').map(s => s.trim()).filter(Boolean)
+    });
+    simpanData('Profil tersimpan.');
+  });
+
+  /* ==========================================================================
+     § 10. ADMIN — KONTAK & FOOTER
+     ========================================================================== */
+  function isiFormKontak() {
+    $('#ktTiktok').value    = data.kontak.tiktok || '';
+    $('#ktInstagram').value = data.kontak.instagram || '';
+    $('#ktLynkid').value    = data.kontak.lynkid || '';
+    $('#ktEmail').value     = data.kontak.email || '';
+    $('#ftSekolah').value   = data.footer.sekolah || '';
+    $('#ftTahun').value     = data.footer.tahun || '';
+    $('#ftCredit').value    = data.footer.credit || '';
+  }
+
+  $('#ktSimpan').addEventListener('click', () => {
+    data.kontak = {
+      tiktok:    $('#ktTiktok').value.trim(),
+      instagram: $('#ktInstagram').value.trim(),
+      lynkid:    $('#ktLynkid').value.trim(),
+      email:     $('#ktEmail').value.trim()
+    };
+    data.footer = {
+      sekolah: $('#ftSekolah').value.trim(),
+      tahun:   $('#ftTahun').value.trim(),
+      credit:  $('#ftCredit').value.trim()
+    };
+    simpanData('Kontak & footer tersimpan.');
+  });
+
+  /* ==========================================================================
+     § 11. ADMIN — DAFTAR CRUD (materi / media / pengumuman)
+     ========================================================================== */
+  function renderAdminLists() {
+    /* --- Materi, dikelompokkan per kelas --- */
+    let html = '';
+    KELAS.forEach(k => {
+      const list = data.materi.filter(m => m.kelas === k);
+      html += '<div class="pt-2"><p class="px-1 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Kelas ' + k + ' · ' + list.length + ' topik</p>';
+      html += list.length ? list.map(m => barisAdmin({
+        id: m.id, tipe: 'materi',
+        icon: m.ikon || 'atom',
+        judul: m.judul,
+        sub: (m.ringkasan || '').slice(0, 90) + ((m.ringkasan || '').length > 90 ? '…' : '')
+      })).join('') : '<p class="px-1 pb-2 text-xs text-slate-400 italic">Belum ada materi.</p>';
+      html += '</div>';
+    });
+    $('#admMateriList').innerHTML = html;
+
+    /* --- Media --- */
+    $('#admMediaList').innerHTML = data.media.length
+      ? data.media.map(m => barisAdmin({
+          id: m.id, tipe: 'media',
+          icon: (KATEGORI[m.kategori] || {}).icon || 'link',
+          judul: m.judul,
+          sub: m.kategori + ' · ' + (m.deskripsi || '').slice(0, 70)
+        })).join('')
+      : '<p class="text-sm text-slate-400 italic py-6 text-center">Belum ada media.</p>';
+
+    /* --- Pengumuman --- */
+    const peng = data.pengumuman.slice().sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    $('#admPengumumanList').innerHTML = peng.length
+      ? peng.map(p => barisAdmin({
+          id: p.id, tipe: 'pengumuman',
+          icon: 'megaphone',
+          judul: p.judul,
+          sub: formatTanggal(p.tanggal) + ' · ' + (p.isi || '').slice(0, 70) + '…'
+        })).join('')
+      : '<p class="text-sm text-slate-400 italic py-6 text-center">Belum ada pengumuman.</p>';
+
+    /* Pasang event tombol edit & hapus */
+    $$('[data-edit]').forEach(b => b.addEventListener('click', () => bukaForm(b.dataset.tipe, b.dataset.edit)));
+    $$('[data-del]').forEach(b => b.addEventListener('click', () => hapusItem(b.dataset.tipe, b.dataset.del)));
+
+    renderAdminStats();
+    icons();
+  }
+
+  /** Satu baris item di panel admin */
+  function barisAdmin(o) {
+    return '<div class="flex items-center gap-3 bg-white rounded-xl border border-slate-200 p-3">' +
+      '<span class="grid place-items-center w-10 h-10 rounded-lg bg-sains-50 text-sains-700 shrink-0">' +
+        '<i data-lucide="' + esc(o.icon) + '" class="w-4.5 h-4.5"></i></span>' +
+      '<div class="min-w-0 flex-1">' +
+        '<p class="text-sm font-semibold text-slate-800 truncate">' + esc(o.judul) + '</p>' +
+        '<p class="text-xs text-slate-400 truncate">' + esc(o.sub) + '</p>' +
+      '</div>' +
+      '<button data-edit="' + esc(o.id) + '" data-tipe="' + o.tipe + '" title="Edit" ' +
+        'class="grid place-items-center w-9 h-9 rounded-lg bg-slate-50 text-slate-500 hover:bg-sains-50 hover:text-sains-700 shrink-0">' +
+        '<i data-lucide="pencil" class="w-4 h-4"></i></button>' +
+      '<button data-del="' + esc(o.id) + '" data-tipe="' + o.tipe + '" title="Hapus" ' +
+        'class="grid place-items-center w-9 h-9 rounded-lg bg-slate-50 text-slate-500 hover:bg-red-50 hover:text-red-600 shrink-0">' +
+        '<i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
+    '</div>';
+  }
+
+  function renderAdminStats() {
+    const el = $('#admStats');
+    if (!el) return;
+    const kartu = (n, l, c) =>
+      '<div class="rounded-xl bg-slate-50 border border-slate-200 py-4">' +
+        '<div class="text-2xl font-display font-bold ' + c + '">' + n + '</div>' +
+        '<div class="text-[11px] text-slate-500 mt-0.5">' + l + '</div></div>';
+    el.innerHTML = kartu(data.materi.length, 'Materi', 'text-sains-700') +
+                   kartu(data.media.length, 'Media', 'text-lab-500') +
+                   kartu(data.pengumuman.length, 'Pengumuman', 'text-amber-600');
+  }
+
+  /* Tombol "Tambah ..." */
+  $$('[data-add]').forEach(b => b.addEventListener('click', () => bukaForm(b.dataset.add, null)));
+
+  /* ==========================================================================
+     § 12. MODAL FORM CRUD (dipakai bersama)
+     ========================================================================== */
+  let formSubmitHandler = null;
+
+  /** Skema field per tipe data */
+  function skema(tipe, item) {
+    if (tipe === 'materi') return [
+      { name:'judul',     label:'Judul Materi',  type:'text',     value:item ? item.judul : '', required:true },
+      { name:'kelas',     label:'Kelas',         type:'select',   value:item ? item.kelas : 'VII', options:KELAS.map(k => ({ v:k, t:'Kelas ' + k })) },
+      { name:'ikon',      label:'Ikon (Lucide)', type:'datalist', value:item ? item.ikon : 'atom', options:IKON_MATERI, hint:'Contoh: atom, dna, magnet, leaf, zap' },
+      { name:'ringkasan', label:'Ringkasan Materi', type:'textarea', rows:6, value:item ? item.ringkasan : '', required:true }
+    ];
+    if (tipe === 'media') return [
+      { name:'judul',     label:'Judul Media',  type:'text', value:item ? item.judul : '', required:true },
+      { name:'kategori',  label:'Kategori',     type:'select', value:item ? item.kategori : 'Simulasi', options:Object.keys(KATEGORI).map(k => ({ v:k, t:k })) },
+      { name:'deskripsi', label:'Deskripsi Singkat', type:'textarea', rows:3, value:item ? item.deskripsi : '' },
+      { name:'link',      label:'Link / URL',   type:'text', value:item ? item.link : '', hint:'Kosongkan atau isi "#" jika media belum tersedia.' }
+    ];
+    return [ /* pengumuman */
+      { name:'judul',   label:'Judul Pengumuman', type:'text', value:item ? item.judul : '', required:true },
+      { name:'tanggal', label:'Tanggal',          type:'date', value:item ? item.tanggal : new Date().toISOString().slice(0, 10) },
+      { name:'isi',     label:'Isi Pengumuman',   type:'textarea', rows:6, value:item ? item.isi : '', required:true }
+    ];
+  }
+
+  const JUDUL_FORM = {
+    materi:     ['Tambah Materi', 'Edit Materi'],
+    media:      ['Tambah Media', 'Edit Media'],
+    pengumuman: ['Tambah Pengumuman', 'Edit Pengumuman']
+  };
+
+  function bukaForm(tipe, id) {
+    const koleksi = data[tipe];
+    const item = id ? koleksi.find(x => x.id === id) : null;
+    const fields = skema(tipe, item);
+
+    $('#formModalTitle').textContent = JUDUL_FORM[tipe][item ? 1 : 0];
+    $('#formModalFields').innerHTML = fields.map(f => {
+      let input;
+      if (f.type === 'textarea') {
+        input = '<textarea name="' + f.name + '" rows="' + (f.rows || 3) + '" class="adm-input"' +
+                (f.required ? ' required' : '') + '>' + esc(f.value) + '</textarea>';
+      } else if (f.type === 'select') {
+        input = '<select name="' + f.name + '" class="adm-input">' +
+          f.options.map(o => '<option value="' + esc(o.v) + '"' + (o.v === f.value ? ' selected' : '') + '>' + esc(o.t) + '</option>').join('') +
+          '</select>';
+      } else if (f.type === 'datalist') {
+        input = '<input name="' + f.name + '" list="dl_' + f.name + '" value="' + esc(f.value) + '" class="adm-input" />' +
+          '<datalist id="dl_' + f.name + '">' + f.options.map(o => '<option value="' + esc(o) + '"></option>').join('') + '</datalist>';
+      } else {
+        input = '<input name="' + f.name + '" type="' + f.type + '" value="' + esc(f.value) + '" class="adm-input"' +
+                (f.required ? ' required' : '') + ' />';
+      }
+      return '<label class="block"><span class="text-xs font-semibold text-slate-600">' + esc(f.label) + '</span>' + input +
+             (f.hint ? '<span class="block mt-1 text-[11px] text-slate-400">' + esc(f.hint) + '</span>' : '') + '</label>';
+    }).join('');
+
+    // Handler submit khusus untuk pembukaan form ini
+    if (formSubmitHandler) $('#crudForm').removeEventListener('submit', formSubmitHandler);
+    formSubmitHandler = function (e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const nilai = {};
+      fields.forEach(f => nilai[f.name] = String(fd.get(f.name) || '').trim());
+
+      if (item) {
+        Object.assign(item, nilai);
+      } else {
+        data[tipe].push(Object.assign({ id: uid() }, nilai));
+      }
+
+      tutupForm();
+      if (tipe === 'materi' && nilai.kelas) kelasAktif = nilai.kelas;   // langsung tampilkan kelas terkait
+      simpanData(item ? 'Perubahan tersimpan.' : 'Data baru ditambahkan.');
+    };
+    $('#crudForm').addEventListener('submit', formSubmitHandler);
+
+    $('#formModal').classList.remove('hidden');
+    icons();
+  }
+
+  function tutupForm() { $('#formModal').classList.add('hidden'); }
+  $('#formModalClose').addEventListener('click', tutupForm);
+  $('#formModalCancel').addEventListener('click', tutupForm);
+  $('#formModal').addEventListener('click', (e) => { if (e.target === $('#formModal')) tutupForm(); });
+
+  function hapusItem(tipe, id) {
+    const item = data[tipe].find(x => x.id === id);
+    if (!item) return;
+    if (!confirm('Hapus "' + item.judul + '"? Tindakan ini tidak bisa dibatalkan.')) return;
+    data[tipe] = data[tipe].filter(x => x.id !== id);
+    simpanData('Data dihapus.');
+  }
+
+  /* ==========================================================================
+     § 13. EXPORT / IMPORT / RESET
+     ========================================================================== */
+  $('#btnExport').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data-ipa-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Data diekspor.', 'ok');
+  });
+
+  $('#btnImport').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const masuk = JSON.parse(ev.target.result);
+        if (!masuk || typeof masuk !== 'object' || !('profil' in masuk || 'materi' in masuk)) {
+          throw new Error('Struktur tidak dikenali');
+        }
+        if (!confirm('Import akan MENIMPA seluruh data saat ini. Lanjutkan?')) return;
+        data = gabungDefault(masuk);
+        isiFormProfil();
+        isiFormKontak();
+        simpanData('Data berhasil diimport.');
+      } catch (err) {
+        toast('File JSON tidak valid.', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  $('#btnReset').addEventListener('click', () => {
+    if (!confirm('Kembalikan SEMUA data ke contoh bawaan? Perubahan Anda akan hilang.')) return;
+    data = clone(DEFAULT_DATA);
+    isiFormProfil();
+    isiFormKontak();
+    simpanData('Data dikembalikan ke contoh bawaan.');
+  });
+
+  /* ==========================================================================
+     § 14. INISIALISASI
+     1) Render cepat dari cache lokal supaya halaman langsung terlihat
+     2) Tarik konten terbaru dari server di belakang layar
+     3) Tarik ulang saat tab kembali aktif, agar siswa selalu dapat versi baru
+     ========================================================================== */
+  renderPublik();
+  tarikDariServer(true);
+
+  let tarikTerakhir = Date.now();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - tarikTerakhir < 30000) return;   // jangan terlalu sering
+    tarikTerakhir = Date.now();
+    tarikDariServer(true);
+  });
+
+  // Pulihkan sesi admin bila sebelumnya sudah login di perangkat ini
+  sb.auth.getSession().then((r) => { if (r.data) sesi = r.data.session; });
+})();
+</script>
+</body>
+</html>
