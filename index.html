@@ -50,6 +50,11 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
 <!-- ============================================================
+     SUPABASE JS (CDN) — penyimpanan konten bersama + login admin
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ============================================================
      CSS KUSTOM — pattern background, animasi, utility kecil
      Semua aset visual = kode (CSS/SVG). Tidak ada file gambar eksternal.
      ============================================================ -->
@@ -426,17 +431,19 @@
       </span>
       <div>
         <h3 class="font-bold text-slate-900">Mode Admin</h3>
-        <p class="text-xs text-slate-500">Masukkan password untuk mengelola konten.</p>
+        <p class="text-xs text-slate-500">Masuk dengan akun Supabase Anda.</p>
       </div>
     </div>
 
     <form id="loginForm" class="mt-5 space-y-3">
-      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password admin"
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="Email"
              class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-sains-500 focus:ring-2 focus:ring-sains-100 outline-none text-sm" />
-      <p id="loginError" class="hidden text-xs text-red-600 font-medium">Password salah. Coba lagi.</p>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password"
+             class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-sains-500 focus:ring-2 focus:ring-sains-100 outline-none text-sm" />
+      <p id="loginError" class="hidden text-xs text-red-600 font-medium"></p>
       <div class="flex gap-2 pt-1">
         <button type="button" id="loginCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50">Batal</button>
-        <button type="submit" class="flex-1 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800">Masuk</button>
+        <button type="submit" id="loginSubmit" class="flex-1 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800 disabled:opacity-60">Masuk</button>
       </div>
     </form>
   </div>
@@ -455,14 +462,19 @@
         <span class="grid place-items-center w-9 h-9 rounded-xl bg-white/15 shrink-0"><i data-lucide="settings" class="w-5 h-5"></i></span>
         <div class="min-w-0">
           <p class="font-display font-bold text-sm leading-tight">Panel Admin</p>
-          <p class="text-[11px] text-sains-200 truncate">Kelola konten landing page</p>
+          <p id="adminAkun" class="text-[11px] text-sains-200 truncate">Kelola konten landing page</p>
         </div>
       </div>
-      <button id="exitAdmin" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white text-sains-800 text-xs sm:text-sm font-semibold hover:bg-sains-50 shrink-0">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Kembali ke tampilan publik</span>
-        <span class="sm:hidden">Publik</span>
-      </button>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="logoutAdmin" title="Keluar dari akun" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 text-white text-xs sm:text-sm font-semibold hover:bg-white/25">
+          <i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span>
+        </button>
+        <button id="exitAdmin" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white text-sains-800 text-xs sm:text-sm font-semibold hover:bg-sains-50">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Kembali ke tampilan publik</span>
+          <span class="sm:hidden">Publik</span>
+        </button>
+      </div>
     </div>
 
     <!-- Tab navigasi admin -->
@@ -575,9 +587,11 @@
       <div class="bg-white rounded-2xl border border-slate-200 p-5">
         <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="database" class="w-4.5 h-4.5 text-sains-700"></i> Cadangan Data</h3>
         <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-          Data tersimpan di <b>localStorage</b> browser ini saja. Saat file HTML di-upload ulang ke hosting atau dibuka di perangkat/browser lain,
-          data tidak ikut berpindah. Gunakan <b>Export JSON</b> untuk menyimpan cadangan, lalu <b>Import JSON</b> untuk memulihkannya.
+          Konten tersimpan di <b>database Supabase</b>, jadi setiap perubahan yang Anda simpan langsung terlihat oleh semua siswa
+          (cukup mereka muat ulang halaman). Salinan lokal tetap disimpan di browser ini sebagai cadangan saat internet putus.
+          Gunakan <b>Export JSON</b> untuk mengarsipkan konten, dan <b>Import JSON</b> untuk memulihkannya.
         </p>
+        <div id="statusServer" class="mt-4 flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border"></div>
         <div class="mt-5 grid sm:grid-cols-2 gap-3">
           <button id="btnExport" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800">
             <i data-lucide="download" class="w-4 h-4"></i> Export ke file .json
@@ -649,11 +663,21 @@
 
   /* ==========================================================================
      § 1. KONFIGURASI
-     Ubah password admin di baris berikut.
+     Konten disimpan di Supabase (tabel ipa_konten, satu baris JSON).
+     Kunci di bawah ini adalah "publishable key" yang memang boleh publik —
+     yang melindungi data adalah aturan RLS di database, bukan kunci ini:
+       · siapa pun boleh MEMBACA konten
+       · hanya akun pemilik yang boleh MENGUBAH konten
      ========================================================================== */
-  const ADMIN_PASSWORD = 'ipa2026';          // <-- GANTI PASSWORD DI SINI
-  const STORAGE_KEY    = 'ipa_landing_bayu_v1';
-  const SESSION_KEY    = 'ipa_landing_admin_session';
+  const SUPABASE_URL = 'https://riajhxegskgwytmpcvut.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kUte5XzkrxtGohaMEVNpKA_u6UkZd2g';
+  const TABEL        = 'ipa_konten';
+  const STORAGE_KEY  = 'ipa_landing_bayu_v1';   // cache lokal (cadangan offline)
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let sesi = null;          // sesi login admin (null = belum login)
+  let terhubung = false;    // apakah konten terakhir berhasil diambil dari server
 
   /* Kategori media + warna & ikonnya */
   const KATEGORI = {
@@ -840,16 +864,55 @@
   }
 
   /* ==========================================================================
-     § 4. PENYIMPANAN DATA (localStorage)
+     § 4. PENYIMPANAN DATA
+     Sumber kebenaran = Supabase. localStorage hanya cache supaya halaman
+     tetap tampil cepat (dan tetap terbaca saat internet putus).
      ========================================================================== */
-  let data = muatData();
+  let data = muatCache();
 
-  function muatData() {
+  function muatCache() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return gabungDefault(JSON.parse(raw));
-    } catch (e) { console.warn('Gagal membaca localStorage:', e); }
+    } catch (e) { console.warn('Gagal membaca cache lokal:', e); }
     return clone(DEFAULT_DATA);
+  }
+
+  function simpanCache() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (e) { console.warn('Cache lokal penuh, dilewati:', e); }
+  }
+
+  /** Ambil konten terbaru dari server lalu render ulang. */
+  async function tarikDariServer(diam) {
+    try {
+      const res = await sb.from(TABEL).select('data, updated_at').eq('id', 1).maybeSingle();
+      if (res.error) throw res.error;
+      if (res.data && res.data.data && res.data.data.profil) {
+        data = gabungDefault(res.data.data);
+        simpanCache();
+        renderPublik();
+        renderAdminLists();
+        isiFormProfil();
+        isiFormKontak();
+      }
+      terhubung = true;
+    } catch (e) {
+      terhubung = false;
+      console.warn('Tidak bisa mengambil konten dari server:', e.message || e);
+      if (!diam) toast('Gagal memuat konten terbaru. Menampilkan salinan tersimpan.', 'error');
+    }
+    perbaruiStatusServer();
+    return terhubung;
+  }
+
+  /** Kirim konten ke server. Hanya berhasil bila login sebagai pemilik. */
+  async function dorongKeServer() {
+    const res = await sb.from(TABEL).update({ data }).eq('id', 1).select('id');
+    if (res.error) throw new Error(res.error.message);
+    if (!res.data || !res.data.length) {
+      throw new Error('Akun ini tidak punya izin mengubah konten.');
+    }
   }
 
   /** Pastikan struktur data lengkap walau file lama tidak punya field baru */
@@ -866,17 +929,43 @@
     };
   }
 
-  function simpanData(pesan) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-      toast('Penyimpanan penuh. Coba gunakan foto berukuran lebih kecil.', 'error');
-      return false;
-    }
+  /**
+   * Simpan perubahan: render ulang seketika, cache lokal, lalu terbitkan ke server.
+   * Bila pengiriman ke server gagal, perubahan tetap ada di layar & cache —
+   * pengguna diberi tahu supaya bisa mencoba simpan lagi.
+   */
+  async function simpanData(pesan) {
+    simpanCache();
     renderPublik();          // tampilan publik langsung ter-update tanpa reload
     renderAdminLists();
-    if (pesan) toast(pesan, 'ok');
-    return true;
+
+    if (!sesi) { if (pesan) toast(pesan, 'ok'); return true; }
+
+    try {
+      await dorongKeServer();
+      terhubung = true;
+      perbaruiStatusServer();
+      toast(pesan ? pesan + ' Terbit ke semua siswa.' : 'Terbit ke semua siswa.', 'ok');
+      return true;
+    } catch (e) {
+      terhubung = false;
+      perbaruiStatusServer();
+      toast('Gagal menerbitkan: ' + e.message, 'error');
+      return false;
+    }
+  }
+
+  /** Panel status koneksi di tab Data */
+  function perbaruiStatusServer() {
+    const el = $('#statusServer');
+    if (!el) return;
+    const ok = terhubung;
+    el.className = 'mt-4 flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border ' +
+      (ok ? 'bg-lab-50 text-lab-600 border-lab-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+    el.innerHTML = '<i data-lucide="' + (ok ? 'cloud-check' : 'cloud-off') + '" class="w-4 h-4"></i>' +
+      (ok ? 'Tersambung ke database — perubahan langsung terbit.'
+          : 'Tidak tersambung ke database — menampilkan salinan lokal.');
+    icons();
   }
 
   /* ==========================================================================
@@ -1057,20 +1146,32 @@
     icons();
   }
 
+  /* ---- Ikon sosial media: SVG inline, karena ikon merek sudah tidak ada di Lucide ---- */
+  const SVG_SOSMED = {
+    tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" aria-hidden="true">' +
+      '<path d="M16.6 3h-3.1v13.1a2.6 2.6 0 1 1-2.2-2.6v-3.1A5.7 5.7 0 1 0 16.6 16V9.6a6.7 6.7 0 0 0 3.9 1.2V7.7a3.9 3.9 0 0 1-3.9-3.9z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="w-6 h-6" aria-hidden="true">' +
+      '<rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/>' +
+      '<circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    lynkid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6" aria-hidden="true">' +
+      '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/>' +
+      '<path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'
+  };
+
   /* ---- Tombol sosial media ---- */
   function renderSosmed() {
     const k = data.kontak;
     const items = [
-      { key:'tiktok',    label:'TikTok',    sub:'Video belajar singkat', icon:'music-2',   url:k.tiktok },
-      { key:'instagram', label:'Instagram', sub:'Dokumentasi kelas',     icon:'instagram', url:k.instagram },
-      { key:'lynkid',    label:'Lynk.id',   sub:'Produk digital & LKPD', icon:'link',      url:k.lynkid }
+      { key:'tiktok',    label:'TikTok',    sub:'Video belajar singkat', url:k.tiktok },
+      { key:'instagram', label:'Instagram', sub:'Dokumentasi kelas',     url:k.instagram },
+      { key:'lynkid',    label:'Lynk.id',   sub:'Produk digital & LKPD', url:k.lynkid }
     ].filter(i => i.url && i.url.trim());
 
     let html = items.map(i =>
       '<a href="' + esc(safeUrl(i.url)) + '" target="_blank" rel="noopener noreferrer" ' +
         'class="group flex items-center gap-4 p-5 rounded-2xl bg-white/10 hover:bg-white border border-white/20 hover:border-white transition text-left">' +
         '<span class="grid place-items-center w-12 h-12 rounded-xl bg-white/15 group-hover:bg-sains-700 text-white transition shrink-0">' +
-          '<i data-lucide="' + i.icon + '" class="w-6 h-6"></i></span>' +
+          SVG_SOSMED[i.key] + '</span>' +
         '<span class="min-w-0">' +
           '<span class="block font-display font-bold text-white group-hover:text-sains-800 transition">' + esc(i.label) + '</span>' +
           '<span class="block text-xs text-sains-100/80 group-hover:text-slate-500 transition truncate">' + esc(i.sub) + '</span>' +
@@ -1127,47 +1228,88 @@
     setTimeout(bukaLogin, 250);
   }
 
-  function bukaLogin() {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') { masukAdmin(); return; }
+  async function bukaLogin() {
+    // Sesi Supabase bertahan otomatis, jadi tidak perlu login ulang tiap buka.
+    const cek = await sb.auth.getSession();
+    if (cek.data && cek.data.session) { sesi = cek.data.session; masukAdmin(); return; }
+
     $('#loginModal').classList.remove('hidden');
     $('#loginError').classList.add('hidden');
     $('#loginPassword').value = '';
-    setTimeout(() => $('#loginPassword').focus(), 60);
+    setTimeout(() => $('#loginEmail').focus(), 60);
     icons();
   }
 
   $('#loginCancel').addEventListener('click', () => $('#loginModal').classList.add('hidden'));
   $('#loginModal').addEventListener('click', (e) => { if (e.target === $('#loginModal')) $('#loginModal').classList.add('hidden'); });
 
-  $('#loginForm').addEventListener('submit', (e) => {
+  $('#loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if ($('#loginPassword').value === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      $('#loginModal').classList.add('hidden');
-      masukAdmin();
-    } else {
-      $('#loginError').classList.remove('hidden');
-      $('#loginPassword').select();
+    const tombol = $('#loginSubmit');
+    const galat  = $('#loginError');
+    const email  = $('#loginEmail').value.trim();
+    const sandi  = $('#loginPassword').value;
+
+    if (!email || !sandi) {
+      galat.textContent = 'Email dan password harus diisi.';
+      galat.classList.remove('hidden');
+      return;
     }
+
+    tombol.disabled = true;
+    tombol.textContent = 'Memproses…';
+    galat.classList.add('hidden');
+
+    const res = await sb.auth.signInWithPassword({ email: email, password: sandi });
+
+    tombol.disabled = false;
+    tombol.textContent = 'Masuk';
+
+    if (res.error) {
+      galat.textContent = /invalid/i.test(res.error.message)
+        ? 'Email atau password salah.'
+        : 'Gagal masuk: ' + res.error.message;
+      galat.classList.remove('hidden');
+      $('#loginPassword').select();
+      return;
+    }
+
+    sesi = res.data.session;
+    $('#loginPassword').value = '';
+    $('#loginModal').classList.add('hidden');
+    masukAdmin();
   });
 
-  function masukAdmin() {
+  async function masukAdmin() {
     $('#adminView').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    $('#adminAkun').textContent = sesi && sesi.user ? sesi.user.email : 'Kelola konten landing page';
+    await tarikDariServer(true);      // pastikan mengedit versi terbaru
     isiFormProfil();
     isiFormKontak();
     renderAdminLists();
     gantiTab('profil');
+    perbaruiStatusServer();
     icons();
   }
 
-  $('#exitAdmin').addEventListener('click', () => {
+  function keluarPanel() {
     $('#adminView').classList.add('hidden');
     document.body.style.overflow = '';
     // Bersihkan ?admin=true dari URL supaya tidak terus meminta login
     if (location.search.includes('admin=true')) {
       history.replaceState(null, '', location.pathname + location.hash);
     }
+  }
+
+  $('#exitAdmin').addEventListener('click', keluarPanel);
+
+  $('#logoutAdmin').addEventListener('click', async () => {
+    if (!confirm('Keluar dari akun admin?')) return;
+    await sb.auth.signOut();
+    sesi = null;
+    keluarPanel();
+    toast('Anda sudah keluar.', 'ok');
   });
 
   /* ==========================================================================
@@ -1518,8 +1660,23 @@
 
   /* ==========================================================================
      § 14. INISIALISASI
+     1) Render cepat dari cache lokal supaya halaman langsung terlihat
+     2) Tarik konten terbaru dari server di belakang layar
+     3) Tarik ulang saat tab kembali aktif, agar siswa selalu dapat versi baru
      ========================================================================== */
   renderPublik();
+  tarikDariServer(true);
+
+  let tarikTerakhir = Date.now();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - tarikTerakhir < 30000) return;   // jangan terlalu sering
+    tarikTerakhir = Date.now();
+    tarikDariServer(true);
+  });
+
+  // Pulihkan sesi admin bila sebelumnya sudah login di perangkat ini
+  sb.auth.getSession().then((r) => { if (r.data) sesi = r.data.session; });
 })();
 </script>
 </body>
