@@ -1,0 +1,10 @@
+# Setelan lokal Claude Code
+.claude/settings.local.json
+
+# Berkas sistem
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Cadangan data admin hasil export (opsional, jangan ikut ter-commit)
+data-ipa-*.json
