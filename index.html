@@ -324,31 +324,31 @@
 
         <!-- Foto / avatar inisial -->
         <div class="reveal mx-auto md:mx-0">
-          <div class="relative w-60 h-60 sm:w-64 sm:h-64 group">
-            <!-- Cincin gradasi berputar pelan sebagai bingkai -->
-            <div class="absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-cyan-400 via-sains-600 to-violet-500 opacity-90 blur-[2px] spin-slower"></div>
-            <div class="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-tr from-emerald-400 via-sains-500 to-cyan-400"></div>
-            <!-- Bingkai kaca + bayangan lembut -->
-            <div id="fotoWrap" class="absolute inset-0 rounded-3xl overflow-hidden bg-white/60 backdrop-blur
-                        border-4 border-white shadow-2xl shadow-sains-900/25 grid place-items-center
+          <div class="relative w-60 h-60 sm:w-64 sm:h-64 mb-16 md:mb-12 group">
+            <!-- Cahaya lembut di belakang: bulat & simetris, tidak mencuat -->
+            <div class="absolute -inset-6 rounded-full bg-gradient-to-br from-cyan-300/35 via-sains-300/25 to-violet-300/35 blur-2xl"></div>
+            <!-- Cincin gradasi rapi (tanpa putar & blur, supaya bentuknya tetap cincin) -->
+            <div class="absolute -inset-1.5 rounded-[1.9rem] bg-gradient-to-br from-cyan-400 via-sains-500 to-violet-500"></div>
+            <!-- Foto + bingkai putih + bayangan lembut -->
+            <div id="fotoWrap" class="absolute inset-0 rounded-3xl overflow-hidden bg-white
+                        border-4 border-white shadow-2xl shadow-sains-900/20 grid place-items-center
                         transition duration-500 group-hover:scale-[1.02]">
               <!-- Diisi oleh JS: <img> base64 atau avatar inisial -->
             </div>
 
-            <!-- Badge dekoratif melayang -->
-            <span class="absolute -top-3 -right-3 grid place-items-center w-12 h-12 rounded-2xl bg-white
+            <!-- Badge dekoratif: di sudut & di bawah foto, tidak menutupi wajah -->
+            <span class="absolute -top-4 -right-4 grid place-items-center w-12 h-12 rounded-2xl bg-white
                          shadow-lg shadow-slate-300/60 border border-slate-100 text-cyan-600 float">
               <i data-lucide="atom" class="w-6 h-6"></i>
             </span>
-            <span class="absolute top-1/2 -left-5 grid place-items-center w-11 h-11 rounded-2xl bg-white
+            <span class="absolute -top-4 -left-4 grid place-items-center w-11 h-11 rounded-2xl bg-white
                          shadow-lg shadow-slate-300/60 border border-slate-100 text-emerald-600 float-delay">
               <i data-lucide="microscope" class="w-5 h-5"></i>
             </span>
-            <span class="absolute -bottom-3 right-6 grid place-items-center gap-1 px-3 h-11 rounded-2xl bg-white
-                         shadow-lg shadow-slate-300/60 border border-slate-100 float">
-              <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-violet-600">
-                <i data-lucide="award" class="w-4 h-4"></i> Pembina OSN
-              </span>
+            <span class="absolute -bottom-12 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5
+                         px-3.5 h-11 rounded-2xl bg-white whitespace-nowrap
+                         shadow-lg shadow-slate-300/60 border border-slate-100 text-[11px] font-bold text-violet-600 float">
+              <i data-lucide="award" class="w-4 h-4"></i> Pembina OSN
             </span>
           </div>
         </div>
@@ -908,13 +908,17 @@
   /* Kategori media + warna & ikonnya */
   const KATEGORI = {
     'Simulasi':     { icon:'flask-conical',  badge:'bg-sky-50 text-sky-700 border-sky-200',
-                      kotak:'bg-sky-100 text-sky-700',       tepi:'hover:border-sky-300',    tombol:'bg-sky-600 hover:bg-sky-700' },
+                      kotak:'bg-sky-100 text-sky-700',       tepi:'hover:border-sky-300',    tombol:'bg-sky-600 hover:bg-sky-700',
+                      garis:'border-sky-200 text-sky-700 hover:bg-sky-600 hover:border-sky-600 hover:text-white' },
     'LKPD':         { icon:'clipboard-list', badge:'bg-emerald-50 text-emerald-700 border-emerald-200',
-                      kotak:'bg-emerald-100 text-emerald-700', tepi:'hover:border-emerald-300', tombol:'bg-emerald-600 hover:bg-emerald-700' },
+                      kotak:'bg-emerald-100 text-emerald-700', tepi:'hover:border-emerald-300', tombol:'bg-emerald-600 hover:bg-emerald-700',
+                      garis:'border-emerald-200 text-emerald-700 hover:bg-emerald-600 hover:border-emerald-600 hover:text-white' },
     'Video':        { icon:'play-circle',    badge:'bg-amber-50 text-amber-700 border-amber-200',
-                      kotak:'bg-amber-100 text-amber-700',   tepi:'hover:border-amber-300',  tombol:'bg-amber-600 hover:bg-amber-700' },
+                      kotak:'bg-amber-100 text-amber-700',   tepi:'hover:border-amber-300',  tombol:'bg-amber-600 hover:bg-amber-700',
+                      garis:'border-amber-200 text-amber-700 hover:bg-amber-600 hover:border-amber-600 hover:text-white' },
     'Latihan Soal': { icon:'pencil-ruler',   badge:'bg-violet-50 text-violet-700 border-violet-200',
-                      kotak:'bg-violet-100 text-violet-700', tepi:'hover:border-violet-300', tombol:'bg-violet-600 hover:bg-violet-700' }
+                      kotak:'bg-violet-100 text-violet-700', tepi:'hover:border-violet-300', tombol:'bg-violet-600 hover:bg-violet-700',
+                      garis:'border-violet-200 text-violet-700 hover:bg-violet-600 hover:border-violet-600 hover:text-white' }
   };
   const KELAS = ['VII','VIII','IX'];
 
@@ -1468,22 +1472,27 @@
       const aksi = m.kategori === 'Video' ? 'Tonton Video'
                  : m.kategori === 'Simulasi' ? 'Lihat Simulasi'
                  : m.kategori === 'LKPD' ? 'Buka LKPD' : 'Kerjakan Latihan';
-      return '<article class="group flex flex-col bg-white rounded-2xl border border-slate-200 p-5 ' +
+      // Kartu dibuat ringkas: ikon sebaris dengan judul, deskripsi dibatasi dua
+      // baris, dan tombol bergaya garis tepi supaya deretan kartu tidak menjadi
+      // "tembok tombol" saat ditumpuk satu kolom di layar HP.
+      return '<article class="group flex flex-col bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 ' +
           'hover:-translate-y-1.5 hover:shadow-xl transition duration-300 ' + kat.tepi + '">' +
-        '<div class="flex items-center justify-between gap-2">' +
-          '<span class="grid place-items-center w-12 h-12 rounded-xl transition group-hover:scale-110 ' + kat.kotak + '">' +
-            '<i data-lucide="' + kat.icon + '" class="w-6 h-6"></i></span>' +
-          '<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold border ' + kat.badge + '">' + esc(m.kategori) + '</span>' +
+        '<div class="flex items-start gap-3">' +
+          '<span class="grid place-items-center w-10 h-10 rounded-xl shrink-0 transition group-hover:scale-110 ' + kat.kotak + '">' +
+            '<i data-lucide="' + kat.icon + '" class="w-5 h-5"></i></span>' +
+          '<div class="min-w-0 flex-1">' +
+            '<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ' + kat.badge + '">' + esc(m.kategori) + '</span>' +
+            '<h3 class="mt-1 font-display font-bold text-slate-900 text-[15px] leading-snug">' + esc(m.judul) + '</h3>' +
+          '</div>' +
         '</div>' +
-        '<h3 class="mt-4 font-display font-bold text-slate-900 text-[15px] sm:text-base leading-snug">' + esc(m.judul) + '</h3>' +
-        '<p class="mt-2 text-[15px] sm:text-sm text-slate-600 leading-relaxed flex-1">' + esc(m.deskripsi) + '</p>' +
+        '<p class="mt-2.5 text-sm text-slate-600 leading-relaxed line-clamp-2 flex-1">' + esc(m.deskripsi) + '</p>' +
         (adaLink
           ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" ' +
-              'class="mt-5 inline-flex items-center justify-center gap-2 px-4 py-3.5 sm:py-3 rounded-xl text-white ' +
-              'text-sm font-semibold shadow-md transition active:scale-[.98] ' + kat.tombol + '">' +
-              aksi + ' <i data-lucide="external-link" class="w-4 h-4"></i></a>'
-          : '<span class="mt-5 inline-flex items-center justify-center gap-2 px-4 py-3.5 sm:py-3 rounded-xl ' +
-              'bg-slate-100 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
+              'class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border bg-white ' +
+              'text-sm font-semibold transition active:scale-[.98] ' + kat.garis + '">' +
+              aksi + ' <i data-lucide="arrow-up-right" class="w-4 h-4"></i></a>'
+          : '<span class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl ' +
+              'border border-slate-200 bg-slate-50 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
       '</article>';
     }).join('');
 
