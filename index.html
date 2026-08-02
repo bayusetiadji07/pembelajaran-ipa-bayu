@@ -101,6 +101,15 @@
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
   .reveal.show{ opacity:1; transform:none; }
 
+  /* --- Tipografi: nyaman dibaca siswa dari layar kecil --- */
+  body{ -webkit-text-size-adjust:100%; text-rendering:optimizeLegibility; }
+  h1,h2{ letter-spacing:-.02em; }
+  h3{ letter-spacing:-.01em; }
+  @media (max-width:640px){
+    section > div > .text-center > h2{ line-height:1.25; }
+    p{ line-height:1.7; }        /* jarak baris lebih lega di HP */
+  }
+
   /* --- Kartu materi: transisi expand/collapse --- */
   .card-body{ max-height:0; overflow:hidden; transition:max-height .35s ease, opacity .3s ease; opacity:0; }
   .card-open .card-body{ max-height:680px; opacity:1; }
@@ -130,7 +139,7 @@
        NAVBAR
        ------------------------------------------------------------------ -->
   <header class="fixed top-0 inset-x-0 z-40 bg-white/85 backdrop-blur border-b border-slate-200/80">
-    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <nav class="max-w-6xl mx-auto px-5 sm:px-6 h-16 flex items-center justify-between">
       <!-- Logo + nama: klik 5x untuk membuka akses admin tersembunyi -->
       <button id="logoTrigger" class="flex items-center gap-2.5 group" title="Beranda">
         <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-sains-800 to-sains-500 text-white shadow-sm">
@@ -172,12 +181,36 @@
   <!-- ------------------------------------------------------------------
        1. HERO SECTION
        ------------------------------------------------------------------ -->
-  <section class="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24 pattern-grid">
+  <section class="relative overflow-hidden pt-28 pb-24 sm:pt-36 sm:pb-32 pattern-grid bg-gradient-to-b from-white via-sains-50/40 to-slate-50">
     <!-- Dekorasi glow -->
     <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 glow-blue"></div>
     <div class="pointer-events-none absolute -bottom-32 -right-24 w-96 h-96 glow-green"></div>
 
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+    <!-- Ornamen molekul transparan -->
+    <svg class="pointer-events-none absolute top-24 right-6 w-40 h-40 opacity-[0.07] text-sains-800 float" viewBox="0 0 200 200" aria-hidden="true">
+      <g stroke="currentColor" stroke-width="4" fill="none">
+        <line x1="60" y1="55" x2="130" y2="40"/><line x1="60" y1="55" x2="45" y2="135"/>
+        <line x1="130" y1="40" x2="165" y2="105"/><line x1="45" y1="135" x2="120" y2="155"/>
+        <line x1="165" y1="105" x2="120" y2="155"/>
+      </g>
+      <g fill="currentColor">
+        <circle cx="60" cy="55" r="13"/><circle cx="130" cy="40" r="9"/><circle cx="45" cy="135" r="11"/>
+        <circle cx="165" cy="105" r="8"/><circle cx="120" cy="155" r="12"/>
+      </g>
+    </svg>
+    <svg class="pointer-events-none absolute bottom-32 left-4 w-28 h-28 opacity-[0.06] text-lab-600 float-delay" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="16" fill="currentColor"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(60 50 50)"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(120 50 50)"/>
+    </svg>
+
+    <!-- Pemisah gelombang ke seksi berikutnya -->
+    <svg class="pointer-events-none absolute inset-x-0 bottom-0 w-full h-12 sm:h-20 text-white" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="currentColor" d="M0,64 C240,120 480,8 720,40 C960,72 1200,120 1440,72 L1440,120 L0,120 Z"/>
+    </svg>
+
+    <div class="relative max-w-6xl mx-auto px-5 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
       <!-- Teks -->
       <div class="reveal">
         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lab-50 text-lab-600 text-xs font-semibold border border-lab-200">
@@ -204,18 +237,18 @@
         </div>
 
         <!-- Statistik ringkas -->
-        <div class="mt-10 grid grid-cols-3 gap-3 max-w-md">
-          <div class="rounded-xl bg-white border border-slate-200 px-3 py-3 text-center">
-            <div class="text-xl font-display font-bold text-sains-700" data-bind="statMateri">0</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Topik Materi</div>
+        <div class="mt-10 grid grid-cols-3 gap-2.5 sm:gap-3 max-w-md">
+          <div class="rounded-2xl bg-white/80 backdrop-blur border border-slate-200/80 shadow-sm px-2 py-3.5 text-center">
+            <div class="text-2xl font-display font-bold text-cyan-600 tabular-nums leading-none" data-bind="statMateri">—</div>
+            <div class="text-[11px] text-slate-500 mt-1.5 leading-tight">Topik Materi</div>
           </div>
-          <div class="rounded-xl bg-white border border-slate-200 px-3 py-3 text-center">
-            <div class="text-xl font-display font-bold text-lab-500" data-bind="statMedia">0</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Media Belajar</div>
+          <div class="rounded-2xl bg-white/80 backdrop-blur border border-slate-200/80 shadow-sm px-2 py-3.5 text-center">
+            <div class="text-2xl font-display font-bold text-emerald-600 tabular-nums leading-none" data-bind="statMedia">—</div>
+            <div class="text-[11px] text-slate-500 mt-1.5 leading-tight">Media Belajar</div>
           </div>
-          <div class="rounded-xl bg-white border border-slate-200 px-3 py-3 text-center">
-            <div class="text-xl font-display font-bold text-sains-700">3</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Kelas VII–IX</div>
+          <div class="rounded-2xl bg-white/80 backdrop-blur border border-slate-200/80 shadow-sm px-2 py-3.5 text-center">
+            <div class="text-2xl font-display font-bold text-violet-600 tabular-nums leading-none">3</div>
+            <div class="text-[11px] text-slate-500 mt-1.5 leading-tight">Kelas VII–IX</div>
           </div>
         </div>
       </div>
@@ -284,16 +317,37 @@
        2. TENTANG GURU
        ------------------------------------------------------------------ -->
   <section id="tentang" class="py-16 sm:py-24 bg-white scroll-mt-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="grid md:grid-cols-[280px_1fr] gap-10 items-start">
 
         <!-- Foto / avatar inisial -->
         <div class="reveal mx-auto md:mx-0">
-          <div class="relative w-56 h-56 sm:w-64 sm:h-64">
-            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-sains-700 to-lab-500 rotate-6"></div>
-            <div id="fotoWrap" class="absolute inset-0 rounded-3xl overflow-hidden bg-slate-100 border-4 border-white shadow-xl grid place-items-center">
+          <div class="relative w-60 h-60 sm:w-64 sm:h-64 group">
+            <!-- Cincin gradasi berputar pelan sebagai bingkai -->
+            <div class="absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-cyan-400 via-sains-600 to-violet-500 opacity-90 blur-[2px] spin-slower"></div>
+            <div class="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-tr from-emerald-400 via-sains-500 to-cyan-400"></div>
+            <!-- Bingkai kaca + bayangan lembut -->
+            <div id="fotoWrap" class="absolute inset-0 rounded-3xl overflow-hidden bg-white/60 backdrop-blur
+                        border-4 border-white shadow-2xl shadow-sains-900/25 grid place-items-center
+                        transition duration-500 group-hover:scale-[1.02]">
               <!-- Diisi oleh JS: <img> base64 atau avatar inisial -->
             </div>
+
+            <!-- Badge dekoratif melayang -->
+            <span class="absolute -top-3 -right-3 grid place-items-center w-12 h-12 rounded-2xl bg-white
+                         shadow-lg shadow-slate-300/60 border border-slate-100 text-cyan-600 float">
+              <i data-lucide="atom" class="w-6 h-6"></i>
+            </span>
+            <span class="absolute top-1/2 -left-5 grid place-items-center w-11 h-11 rounded-2xl bg-white
+                         shadow-lg shadow-slate-300/60 border border-slate-100 text-emerald-600 float-delay">
+              <i data-lucide="microscope" class="w-5 h-5"></i>
+            </span>
+            <span class="absolute -bottom-3 right-6 grid place-items-center gap-1 px-3 h-11 rounded-2xl bg-white
+                         shadow-lg shadow-slate-300/60 border border-slate-100 float">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-violet-600">
+                <i data-lucide="award" class="w-4 h-4"></i> Pembina OSN
+              </span>
+            </span>
           </div>
         </div>
 
@@ -317,7 +371,7 @@
        3. MATERI / RINGKASAN BAB IPA
        ------------------------------------------------------------------ -->
   <section id="materi" class="py-16 sm:py-24 pattern-dots bg-slate-50 scroll-mt-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
           <i data-lucide="book-open-check" class="w-4 h-4"></i> Materi IPA
@@ -338,7 +392,7 @@
        4. MEDIA PEMBELAJARAN
        ------------------------------------------------------------------ -->
   <section id="media" class="py-16 sm:py-24 bg-white scroll-mt-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
           <i data-lucide="monitor-play" class="w-4 h-4"></i> Media Pembelajaran
@@ -359,7 +413,7 @@
        5. PENGUMUMAN KELAS
        ------------------------------------------------------------------ -->
   <section id="pengumuman" class="py-16 sm:py-24 bg-slate-50 pattern-grid scroll-mt-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
           <i data-lucide="megaphone" class="w-4 h-4"></i> Papan Pengumuman
@@ -389,7 +443,7 @@
       </g>
     </svg>
 
-    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
+    <div class="relative max-w-4xl mx-auto px-5 sm:px-6 text-center reveal">
       <span class="inline-flex items-center gap-2 text-lab-300 text-xs font-bold uppercase tracking-widest">
         <i data-lucide="share-2" class="w-4 h-4"></i> Terhubung
       </span>
@@ -404,7 +458,7 @@
        7. FOOTER
        ------------------------------------------------------------------ -->
   <footer class="bg-slate-900 text-slate-400 py-10">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-center sm:text-left">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-center sm:text-left">
       <div class="flex items-center gap-3">
         <span class="grid place-items-center w-9 h-9 rounded-xl bg-sains-700 text-white shrink-0">
           <i data-lucide="atom" class="w-5 h-5"></i>
@@ -457,7 +511,7 @@
 
   <!-- Header admin -->
   <header class="sticky top-0 z-10 bg-sains-800 text-white shadow-lg">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+    <div class="max-w-5xl mx-auto px-5 sm:px-6 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="grid place-items-center w-9 h-9 rounded-xl bg-white/15 shrink-0"><i data-lucide="settings" class="w-5 h-5"></i></span>
         <div class="min-w-0">
@@ -481,7 +535,7 @@
     <div class="max-w-5xl mx-auto px-2 sm:px-6 pb-2 flex gap-1 overflow-x-auto thin-scroll" id="adminTabs"></div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-24">
+  <main class="max-w-5xl mx-auto px-5 sm:px-6 py-6 pb-24">
 
     <!-- ===== TAB: PROFIL ===== -->
     <section data-tab-panel="profil" class="admin-panel space-y-4">
@@ -727,12 +781,41 @@
 
   /* Kategori media + warna & ikonnya */
   const KATEGORI = {
-    'Simulasi':     { icon:'flask-conical', badge:'bg-sains-50 text-sains-700 border-sains-200' },
-    'LKPD':         { icon:'clipboard-list', badge:'bg-lab-50 text-lab-600 border-lab-200' },
-    'Video':        { icon:'play-circle',   badge:'bg-amber-50 text-amber-700 border-amber-200' },
-    'Latihan Soal': { icon:'pencil-ruler',  badge:'bg-purple-50 text-purple-700 border-purple-200' }
+    'Simulasi':     { icon:'flask-conical',  badge:'bg-sky-50 text-sky-700 border-sky-200',
+                      kotak:'bg-sky-100 text-sky-700',       tepi:'hover:border-sky-300',    tombol:'bg-sky-600 hover:bg-sky-700' },
+    'LKPD':         { icon:'clipboard-list', badge:'bg-emerald-50 text-emerald-700 border-emerald-200',
+                      kotak:'bg-emerald-100 text-emerald-700', tepi:'hover:border-emerald-300', tombol:'bg-emerald-600 hover:bg-emerald-700' },
+    'Video':        { icon:'play-circle',    badge:'bg-amber-50 text-amber-700 border-amber-200',
+                      kotak:'bg-amber-100 text-amber-700',   tepi:'hover:border-amber-300',  tombol:'bg-amber-600 hover:bg-amber-700' },
+    'Latihan Soal': { icon:'pencil-ruler',   badge:'bg-violet-50 text-violet-700 border-violet-200',
+                      kotak:'bg-violet-100 text-violet-700', tepi:'hover:border-violet-300', tombol:'bg-violet-600 hover:bg-violet-700' }
   };
   const KELAS = ['VII','VIII','IX'];
+
+  /* Warna pembeda tiap tingkatan kelas (dipakai di tab & kartu materi) */
+  const WARNA_KELAS = {
+    'VII':  { label:'text-cyan-700',    kotak:'bg-cyan-100 text-cyan-700 border-cyan-200',
+              tepi:'hover:border-cyan-400', bayang:'hover:shadow-cyan-200/70',
+              tabAktif:'bg-cyan-600 border-cyan-600 shadow-cyan-600/25', tabHover:'hover:border-cyan-400 hover:text-cyan-700',
+              garis:'bg-cyan-500', tombol:'bg-cyan-600 hover:bg-cyan-700' },
+    'VIII': { label:'text-emerald-700', kotak:'bg-emerald-100 text-emerald-700 border-emerald-200',
+              tepi:'hover:border-emerald-400', bayang:'hover:shadow-emerald-200/70',
+              tabAktif:'bg-emerald-600 border-emerald-600 shadow-emerald-600/25', tabHover:'hover:border-emerald-400 hover:text-emerald-700',
+              garis:'bg-emerald-500', tombol:'bg-emerald-600 hover:bg-emerald-700' },
+    'IX':   { label:'text-violet-700',  kotak:'bg-violet-100 text-violet-700 border-violet-200',
+              tepi:'hover:border-violet-400', bayang:'hover:shadow-violet-200/70',
+              tabAktif:'bg-violet-600 border-violet-600 shadow-violet-600/25', tabHover:'hover:border-violet-400 hover:text-violet-700',
+              garis:'bg-violet-500', tombol:'bg-violet-600 hover:bg-violet-700' }
+  };
+  const warnaKelas = (k) => WARNA_KELAS[k] || WARNA_KELAS['VII'];
+
+  /* Kategori pengumuman + gaya badge-nya */
+  const KAT_PENGUMUMAN = {
+    'PENTING':    { badge:'bg-red-100 text-red-700 border-red-200',       garis:'bg-red-500',    ikon:'alert-triangle' },
+    'INFO':       { badge:'bg-sky-100 text-sky-700 border-sky-200',       garis:'bg-sky-500',    ikon:'info' },
+    'TIPS SAINS': { badge:'bg-emerald-100 text-emerald-700 border-emerald-200', garis:'bg-emerald-500', ikon:'lightbulb' }
+  };
+  const katPengumuman = (k) => KAT_PENGUMUMAN[k] || KAT_PENGUMUMAN['INFO'];
 
   /* Pilihan ikon materi (nama ikon Lucide) */
   const IKON_MATERI = ['atom','microscope','flask-conical','test-tube','dna','thermometer','leaf','trees',
@@ -833,13 +916,13 @@
     ],
 
     pengumuman: [
-      { id:'p1', tanggal:'2026-07-28', judul:'Praktikum Uji Makanan Kelas VIII',
+      { id:'p1', tanggal:'2026-07-28', kategori:'PENTING', judul:'Praktikum Uji Makanan Kelas VIII',
         isi:'Praktikum uji kandungan zat makanan dilaksanakan Kamis, 31 Juli 2026 di laboratorium IPA. Setiap kelompok membawa: nasi, tahu, putih telur rebus, dan pisang. Jangan lupa memakai jas lab dan mengumpulkan laporan sementara sebelum meninggalkan lab.' },
-      { id:'p2', tanggal:'2026-07-22', judul:'Seleksi OSN IPA Tingkat Sekolah',
+      { id:'p2', tanggal:'2026-07-22', kategori:'PENTING', judul:'Seleksi OSN IPA Tingkat Sekolah',
         isi:'Siswa kelas VII dan VIII yang berminat mengikuti seleksi OSN IPA dapat mendaftar ke Pak Bayu paling lambat 5 Agustus 2026. Seleksi meliputi tes tulis dan wawancara singkat. Materi seleksi: Biologi, Fisika, dan Kimia dasar Fase D.' },
-      { id:'p3', tanggal:'2026-07-15', judul:'Pengumpulan Proyek Poster Ekosistem',
+      { id:'p3', tanggal:'2026-07-15', kategori:'INFO', judul:'Pengumpulan Proyek Poster Ekosistem',
         isi:'Proyek poster rantai makanan dan jaring-jaring makanan untuk kelas VII dikumpulkan paling lambat Jumat, 25 Juli 2026. Poster dibuat manual di kertas A3 atau digital (kirim file PDF). Penilaian mencakup ketepatan konsep, kelengkapan, dan kreativitas.' },
-      { id:'p4', tanggal:'2026-07-08', judul:'Selamat Datang Tahun Ajaran 2026/2027',
+      { id:'p4', tanggal:'2026-07-08', kategori:'TIPS SAINS', judul:'Selamat Datang Tahun Ajaran 2026/2027',
         isi:'Selamat datang kembali di kelas IPA! Silakan pelajari ringkasan materi dan media pembelajaran di halaman ini sebagai persiapan sebelum tatap muka. Sampai jumpa di laboratorium!' }
     ],
 
@@ -1058,8 +1141,10 @@
     set('aboutNama',    p.nama);
     set('aboutJabatan', p.jabatan + ' · ' + p.sekolah);
     set('aboutDeskripsi', p.deskripsi);
-    set('statMateri',   data.materi.length);
-    set('statMedia',    data.media.length);
+    // Hitungannya tetap apa adanya; hanya tampilannya yang dirapikan bila masih kosong.
+    const angkaStat = (n) => n > 0 ? n.toLocaleString('id-ID') : '—';
+    set('statMateri',   angkaStat(data.materi.length));
+    set('statMedia',    angkaStat(data.media.length));
 
     // Foto profil (base64) atau avatar inisial
     $('#fotoWrap').innerHTML = p.foto
@@ -1080,9 +1165,10 @@
     $('#kelasTabs').innerHTML = KELAS.map(k => {
       const jml = data.materi.filter(m => m.kelas === k).length;
       const aktif = k === kelasAktif;
-      return '<button data-kelas="' + k + '" class="px-5 py-2.5 rounded-xl text-sm font-semibold border transition ' +
-        (aktif ? 'bg-sains-700 text-white border-sains-700 shadow-lg shadow-sains-700/20'
-               : 'bg-white text-slate-600 border-slate-200 hover:border-sains-300 hover:text-sains-700') +
+      const w = warnaKelas(k);
+      return '<button data-kelas="' + k + '" class="px-5 py-3 sm:py-2.5 rounded-xl text-sm font-semibold border transition ' +
+        (aktif ? 'text-white shadow-lg ' + w.tabAktif
+               : 'bg-white text-slate-600 border-slate-200 ' + w.tabHover) +
         '">Kelas ' + k + ' <span class="opacity-70 text-xs">(' + jml + ')</span></button>';
     }).join('');
 
@@ -1163,25 +1249,31 @@
       icons(); return;
     }
 
-    grid.innerHTML = list.map(m =>
-      '<article class="materi-card group bg-white rounded-2xl border border-slate-200 hover:border-sains-300 hover:shadow-lg hover:shadow-slate-200/60 transition cursor-pointer overflow-hidden">' +
-        '<div class="p-5 flex items-start gap-4">' +
-          '<span class="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-sains-50 to-lab-50 text-sains-700 border border-sains-100 shrink-0">' +
+    grid.innerHTML = list.map(m => {
+      const w = warnaKelas(m.kelas);
+      return '<article class="materi-card group relative bg-white rounded-2xl border border-slate-200 ' +
+          'hover:-translate-y-1.5 hover:shadow-xl transition duration-300 cursor-pointer overflow-hidden ' +
+          w.tepi + ' ' + w.bayang + '">' +
+        // Garis aksen warna kelas di sisi atas kartu
+        '<span class="absolute inset-x-0 top-0 h-1 ' + w.garis + ' opacity-70 group-hover:opacity-100 transition"></span>' +
+        '<div class="p-5 pt-6 flex items-start gap-4">' +
+          '<span class="grid place-items-center w-11 h-11 rounded-xl border shrink-0 transition group-hover:scale-110 ' + w.kotak + '">' +
             '<i data-lucide="' + esc(m.ikon || 'atom') + '" class="w-5 h-5"></i>' +
           '</span>' +
           '<div class="min-w-0 flex-1">' +
-            '<span class="text-[10px] font-bold uppercase tracking-wider text-lab-600">Kelas ' + esc(m.kelas) + '</span>' +
-            '<h3 class="mt-0.5 font-display font-bold text-slate-900 leading-snug">' + esc(m.judul) + '</h3>' +
+            '<span class="text-[10px] font-bold uppercase tracking-wider ' + w.label + '">Kelas ' + esc(m.kelas) + '</span>' +
+            '<h3 class="mt-0.5 font-display font-bold text-slate-900 text-[15px] sm:text-base leading-snug">' + esc(m.judul) + '</h3>' +
           '</div>' +
           '<i data-lucide="chevron-down" class="card-chevron w-5 h-5 text-slate-400 shrink-0 mt-1"></i>' +
         '</div>' +
         '<div class="card-body px-5">' +
           '<div class="pb-5 pt-4 border-t border-slate-100">' +
-            '<p class="text-sm text-slate-600 leading-relaxed">' + esc(m.ringkasan) + '</p>' +
+            '<p class="text-[15px] sm:text-sm text-slate-600 leading-relaxed">' + esc(m.ringkasan) + '</p>' +
             tombolLampiran(m) +
           '</div>' +
         '</div>' +
-      '</article>').join('');
+      '</article>';
+    }).join('');
 
     // Klik kartu = buka/tutup ringkasan
     $$('.materi-card', grid).forEach(card =>
@@ -1201,9 +1293,10 @@
   function tombolLampiran(m) {
     const info = analisisLampiran(m.lampiran);
     if (!info) return '';
+    const w = warnaKelas(m.kelas);
     return '<button data-preview="' + esc(m.id) + '" ' +
-      'class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl ' +
-      'bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800 transition">' +
+      'class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 sm:py-3 rounded-xl ' +
+      'text-white text-sm font-semibold shadow-md transition active:scale-[.98] ' + w.tombol + '">' +
       '<i data-lucide="' + info.ikon + '" class="w-4 h-4"></i> Lihat Materi' +
       '<span class="text-[11px] font-normal opacity-75">· ' + esc(info.jenis) + '</span>' +
     '</button>';
@@ -1216,10 +1309,14 @@
       const aktif = k === kategoriAktif;
       const ic = k === 'Semua' ? 'layout-grid' : KATEGORI[k].icon;
       const jml = k === 'Semua' ? data.media.length : data.media.filter(x => x.kategori === k).length;
-      return '<button data-kat="' + esc(k) + '" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition ' +
-        (aktif ? 'bg-lab-500 text-white border-lab-500 shadow-lg shadow-lab-500/20'
-               : 'bg-white text-slate-600 border-slate-200 hover:border-lab-300 hover:text-lab-600') +
-        '"><i data-lucide="' + ic + '" class="w-4 h-4"></i>' + esc(k) + ' <span class="opacity-70 text-xs">(' + jml + ')</span></button>';
+      const kat = KATEGORI[k];
+      const gaya = aktif
+        ? (kat ? kat.tombol + ' text-white border-transparent shadow-lg'
+               : 'bg-sains-700 text-white border-sains-700 shadow-lg')
+        : 'bg-white text-slate-600 border-slate-200 ' + (kat ? kat.tepi : 'hover:border-sains-300');
+      return '<button data-kat="' + esc(k) + '" class="inline-flex items-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold border transition ' + gaya + '">' +
+        '<i data-lucide="' + ic + '" class="w-4 h-4"></i>' + esc(k) +
+        ' <span class="opacity-70 text-xs">(' + jml + ')</span></button>';
     }).join('');
 
     $$('#mediaFilters button').forEach(b => b.addEventListener('click', () => {
@@ -1242,18 +1339,25 @@
       const kat = KATEGORI[m.kategori] || KATEGORI['Simulasi'];
       const url = safeUrl(m.link);
       const adaLink = url !== '#';
-      return '<article class="flex flex-col bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-slate-200/60 hover:border-lab-300 transition">' +
+      const aksi = m.kategori === 'Video' ? 'Tonton Video'
+                 : m.kategori === 'Simulasi' ? 'Lihat Simulasi'
+                 : m.kategori === 'LKPD' ? 'Buka LKPD' : 'Kerjakan Latihan';
+      return '<article class="group flex flex-col bg-white rounded-2xl border border-slate-200 p-5 ' +
+          'hover:-translate-y-1.5 hover:shadow-xl transition duration-300 ' + kat.tepi + '">' +
         '<div class="flex items-center justify-between gap-2">' +
-          '<span class="grid place-items-center w-11 h-11 rounded-xl bg-slate-50 text-sains-700 border border-slate-100">' +
-            '<i data-lucide="' + kat.icon + '" class="w-5 h-5"></i></span>' +
+          '<span class="grid place-items-center w-12 h-12 rounded-xl transition group-hover:scale-110 ' + kat.kotak + '">' +
+            '<i data-lucide="' + kat.icon + '" class="w-6 h-6"></i></span>' +
           '<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold border ' + kat.badge + '">' + esc(m.kategori) + '</span>' +
         '</div>' +
-        '<h3 class="mt-4 font-display font-bold text-slate-900 leading-snug">' + esc(m.judul) + '</h3>' +
-        '<p class="mt-2 text-sm text-slate-600 leading-relaxed flex-1">' + esc(m.deskripsi) + '</p>' +
+        '<h3 class="mt-4 font-display font-bold text-slate-900 text-[15px] sm:text-base leading-snug">' + esc(m.judul) + '</h3>' +
+        '<p class="mt-2 text-[15px] sm:text-sm text-slate-600 leading-relaxed flex-1">' + esc(m.deskripsi) + '</p>' +
         (adaLink
-          ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sains-50 text-sains-700 text-sm font-semibold border border-sains-100 hover:bg-sains-700 hover:text-white transition">' +
-              'Buka Media <i data-lucide="external-link" class="w-4 h-4"></i></a>'
-          : '<span class="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
+          ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" ' +
+              'class="mt-5 inline-flex items-center justify-center gap-2 px-4 py-3.5 sm:py-3 rounded-xl text-white ' +
+              'text-sm font-semibold shadow-md transition active:scale-[.98] ' + kat.tombol + '">' +
+              aksi + ' <i data-lucide="external-link" class="w-4 h-4"></i></a>'
+          : '<span class="mt-5 inline-flex items-center justify-center gap-2 px-4 py-3.5 sm:py-3 rounded-xl ' +
+              'bg-slate-100 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
       '</article>';
     }).join('');
 
@@ -1266,23 +1370,40 @@
     const wrap = $('#pengumumanList');
 
     if (!list.length) {
+      wrap.className = 'mt-10';           // lepas gaya timeline saat kosong
       wrap.innerHTML = kosong('megaphone', 'Belum ada pengumuman.');
       icons(); return;
     }
 
-    wrap.innerHTML = list.map((p, i) =>
-      '<article class="relative bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 hover:shadow-lg hover:shadow-slate-200/60 transition">' +
-        '<span class="absolute left-0 top-6 bottom-6 w-1 rounded-r-full ' + (i === 0 ? 'bg-lab-500' : 'bg-sains-200') + '"></span>' +
-        '<div class="pl-3 sm:pl-4">' +
-          '<div class="flex flex-wrap items-center gap-2">' +
-            '<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">' +
-              '<i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>' + esc(formatTanggal(p.tanggal)) + '</span>' +
-            (i === 0 ? '<span class="px-2 py-0.5 rounded-md bg-lab-50 text-lab-600 text-[10px] font-bold border border-lab-200 uppercase tracking-wide">Terbaru</span>' : '') +
+    // Gaya timeline: satu garis vertikal dengan titik penanda di tiap kartu
+    wrap.className = 'mt-10 relative pl-7 sm:pl-9 space-y-5';
+    wrap.innerHTML =
+      '<span class="absolute left-2.5 sm:left-3.5 top-4 bottom-4 w-0.5 rounded-full ' +
+        'bg-gradient-to-b from-sains-300 via-slate-200 to-transparent"></span>' +
+      list.map((p, i) => {
+        const kat = katPengumuman(p.kategori);
+        const nama = KAT_PENGUMUMAN[p.kategori] ? p.kategori : 'INFO';
+        return '<article class="relative bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm ' +
+            'hover:shadow-xl hover:-translate-y-1 transition duration-300 overflow-hidden">' +
+          // Titik penanda pada garis timeline
+          '<span class="absolute -left-[27px] sm:-left-[31px] top-6 grid place-items-center w-5 h-5 rounded-full ' +
+            'bg-white border-2 border-slate-200 shadow-sm">' +
+            '<span class="w-2 h-2 rounded-full ' + kat.garis + '"></span></span>' +
+          // Aksen warna kategori di tepi kiri kartu
+          '<span class="absolute inset-y-0 left-0 w-1.5 ' + kat.garis + '"></span>' +
+          '<div class="pl-3 sm:pl-4">' +
+            '<div class="flex flex-wrap items-center gap-2">' +
+              '<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wide ' + kat.badge + '">' +
+                '<i data-lucide="' + kat.ikon + '" class="w-3 h-3"></i>' + esc(nama) + '</span>' +
+              (i === 0 ? '<span class="px-2 py-1 rounded-md bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wide">Terbaru</span>' : '') +
+              '<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400">' +
+                '<i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>' + esc(formatTanggal(p.tanggal)) + '</span>' +
+            '</div>' +
+            '<h3 class="mt-2.5 font-display font-bold text-slate-900 text-lg sm:text-xl leading-snug">' + esc(p.judul) + '</h3>' +
+            '<p class="mt-2 text-[15px] sm:text-base text-slate-600 leading-relaxed whitespace-pre-line">' + esc(p.isi) + '</p>' +
           '</div>' +
-          '<h3 class="mt-2 font-display font-bold text-slate-900 text-lg leading-snug">' + esc(p.judul) + '</h3>' +
-          '<p class="mt-2 text-sm text-slate-600 leading-relaxed whitespace-pre-line">' + esc(p.isi) + '</p>' +
-        '</div>' +
-      '</article>').join('');
+        '</article>';
+      }).join('');
 
     icons();
   }
@@ -1742,9 +1863,12 @@
       { name:'link',      label:'Link / URL',   type:'text', value:item ? item.link : '', hint:'Kosongkan atau isi "#" jika media belum tersedia.' }
     ];
     return [ /* pengumuman */
-      { name:'judul',   label:'Judul Pengumuman', type:'text', value:item ? item.judul : '', required:true },
-      { name:'tanggal', label:'Tanggal',          type:'date', value:item ? item.tanggal : new Date().toISOString().slice(0, 10) },
-      { name:'isi',     label:'Isi Pengumuman',   type:'textarea', rows:6, value:item ? item.isi : '', required:true }
+      { name:'judul',    label:'Judul Pengumuman', type:'text', value:item ? item.judul : '', required:true },
+      { name:'kategori', label:'Kategori', type:'select', value:item ? (item.kategori || 'INFO') : 'INFO',
+        options:Object.keys(KAT_PENGUMUMAN).map(k => ({ v:k, t:k })),
+        hint:'Menentukan warna badge: PENTING merah, INFO biru, TIPS SAINS hijau.' },
+      { name:'tanggal',  label:'Tanggal',          type:'date', value:item ? item.tanggal : new Date().toISOString().slice(0, 10) },
+      { name:'isi',      label:'Isi Pengumuman',   type:'textarea', rows:6, value:item ? item.isi : '', required:true }
     ];
   }
 
