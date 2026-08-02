@@ -678,6 +678,7 @@
 
   let sesi = null;          // sesi login admin (null = belum login)
   let terhubung = false;    // apakah konten terakhir berhasil diambil dari server
+  let tarikTerakhir = 0;    // waktu penarikan terakhir (untuk membatasi frekuensi)
 
   /* Kategori media + warna & ikonnya */
   const KATEGORI = {
@@ -883,8 +884,21 @@
     catch (e) { console.warn('Cache lokal penuh, dilewati:', e); }
   }
 
-  /** Ambil konten terbaru dari server lalu render ulang. */
-  async function tarikDariServer(diam) {
+  /** Admin sedang membuka panel atau form? Kalau ya, data jangan ditimpa. */
+  function sedangMengedit() {
+    return !$('#adminView').classList.contains('hidden') ||
+           !$('#formModal').classList.contains('hidden');
+  }
+
+  /**
+   * Ambil konten terbaru dari server lalu render ulang.
+   * `paksa` dipakai saat admin baru masuk panel — selain itu penarikan
+   * dilewati bila admin sedang mengedit, supaya pekerjaan yang belum
+   * disimpan tidak tertimpa versi server.
+   */
+  async function tarikDariServer(diam, paksa) {
+    if (!paksa && sedangMengedit()) return terhubung;
+    tarikTerakhir = Date.now();
     try {
       const res = await sb.from(TABEL).select('data, updated_at').eq('id', 1).maybeSingle();
       if (res.error) throw res.error;
@@ -1281,10 +1295,12 @@
   });
 
   async function masukAdmin() {
+    // Ambil versi terbaru DULU, baru tampilkan panel. Kalau urutannya dibalik,
+    // penarikan ini bisa mengganti objek data saat form sudah dibuka.
+    await tarikDariServer(true, true);
     $('#adminView').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     $('#adminAkun').textContent = sesi && sesi.user ? sesi.user.email : 'Kelola konten landing page';
-    await tarikDariServer(true);      // pastikan mengedit versi terbaru
     isiFormProfil();
     isiFormKontak();
     renderAdminLists();
@@ -1584,8 +1600,17 @@
       const nilai = {};
       fields.forEach(f => nilai[f.name] = String(fd.get(f.name) || '').trim());
 
-      if (item) {
-        Object.assign(item, nilai);
+      if (id) {
+        // Cari ulang berdasarkan id, jangan pakai referensi yang ditangkap saat
+        // form dibuka: objek `data` bisa saja sudah diganti oleh penarikan dari
+        // server, sehingga referensi lama menjadi yatim dan suntingan hilang.
+        const sasaran = data[tipe].find(x => x.id === id);
+        if (!sasaran) {
+          tutupForm();
+          toast('Data ini sudah berubah dari perangkat lain. Muat ulang halaman lalu coba lagi.', 'error');
+          return;
+        }
+        Object.assign(sasaran, nilai);
       } else {
         data[tipe].push(Object.assign({ id: uid() }, nilai));
       }
@@ -1667,11 +1692,10 @@
   renderPublik();
   tarikDariServer(true);
 
-  let tarikTerakhir = Date.now();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
+    if (sedangMengedit()) return;                     // jangan ganggu admin yang sedang menyunting
     if (Date.now() - tarikTerakhir < 30000) return;   // jangan terlalu sering
-    tarikTerakhir = Date.now();
     tarikDariServer(true);
   });
 
