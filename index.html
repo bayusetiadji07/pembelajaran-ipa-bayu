@@ -157,6 +157,7 @@
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#materi">Materi</a></li>
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#media">Media</a></li>
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#pengumuman">Pengumuman</a></li>
+        <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#interaksi">Interaksi</a></li>
         <li><a class="ml-2 px-4 py-2 rounded-lg bg-sains-700 text-white hover:bg-sains-800 transition shadow-sm" href="#kontak">Kontak</a></li>
       </ul>
 
@@ -173,6 +174,7 @@
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#materi">Materi IPA</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#media">Media Pembelajaran</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#pengumuman">Pengumuman</a></li>
+        <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#interaksi">Interaksi & Saran</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg bg-sains-700 text-white text-center" href="#kontak">Kontak</a></li>
       </ul>
     </div>
@@ -427,7 +429,89 @@
   </section>
 
   <!-- ------------------------------------------------------------------
-       6. KONTAK & SOSIAL MEDIA
+       6. RUANG INTERAKSI — komentar publik + kotak saran privat
+       ------------------------------------------------------------------ -->
+  <section id="interaksi" class="py-16 sm:py-24 bg-white scroll-mt-20">
+    <div class="max-w-6xl mx-auto px-5 sm:px-6">
+      <div class="text-center max-w-2xl mx-auto reveal">
+        <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
+          <i data-lucide="messages-square" class="w-4 h-4"></i> Ruang Interaksi
+        </span>
+        <h2 class="mt-3 text-2xl sm:text-3xl font-bold text-slate-900">Tanya, Berkomentar, atau Beri Saran</h2>
+        <p class="mt-3 text-slate-600">Punya pertanyaan tentang materi? Tulis di kolom komentar. Ada masukan khusus untuk Pak Bayu? Kirim lewat kotak saran.</p>
+      </div>
+
+      <div class="mt-10 grid lg:grid-cols-[1.3fr_1fr] gap-6">
+
+        <!-- ===== Kolom komentar publik ===== -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 overflow-hidden reveal">
+          <div class="flex items-center gap-3 px-5 py-4 bg-white border-b border-slate-200">
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 shrink-0">
+              <i data-lucide="message-circle" class="w-5 h-5"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+              <h3 class="font-display font-bold text-slate-900">Komentar & Diskusi</h3>
+              <p class="text-[11px] text-slate-500">Terlihat oleh semua pengunjung setelah disetujui guru.</p>
+            </div>
+            <span id="komentarJumlah" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold shrink-0">0</span>
+          </div>
+
+          <!-- Daftar komentar -->
+          <div id="komentarList" class="max-h-[420px] overflow-y-auto thin-scroll p-5 space-y-3"></div>
+
+          <!-- Form kirim komentar -->
+          <form id="komentarForm" class="p-5 border-t border-slate-200 bg-white space-y-3">
+            <div class="grid sm:grid-cols-[1fr_auto] gap-3">
+              <input id="komentarNama" maxlength="40" placeholder="Nama kamu (mis. Rani – VII A)"
+                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none text-sm" />
+              <span id="komentarSisa" class="hidden sm:grid place-items-center px-3 text-xs text-slate-400 tabular-nums">500</span>
+            </div>
+            <textarea id="komentarPesan" rows="3" maxlength="500" placeholder="Tulis pertanyaan atau komentarmu di sini…"
+                      class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none text-sm resize-y"></textarea>
+            <p id="komentarPesanStatus" class="hidden text-xs font-semibold"></p>
+            <button type="submit" id="komentarKirim"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cyan-600 text-white text-sm font-semibold hover:bg-cyan-700 shadow-md transition active:scale-[.98] disabled:opacity-60">
+              <i data-lucide="send" class="w-4 h-4"></i> Kirim Komentar
+            </button>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Komentar ditinjau Pak Bayu dulu sebelum tampil. Jangan menulis nomor HP, alamat, atau data pribadi lain.
+            </p>
+          </form>
+        </div>
+
+        <!-- ===== Kotak saran privat ===== -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 h-fit reveal">
+          <div class="flex items-center gap-3">
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 shrink-0">
+              <i data-lucide="inbox" class="w-5 h-5"></i>
+            </span>
+            <div>
+              <h3 class="font-display font-bold text-slate-900">Kotak Saran</h3>
+              <p class="text-[11px] text-slate-500">Hanya dibaca Pak Bayu, tidak tampil di halaman.</p>
+            </div>
+          </div>
+
+          <form id="saranForm" class="mt-5 space-y-3">
+            <input id="saranNama" maxlength="60" placeholder="Nama (boleh dikosongkan)"
+                   class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm" />
+            <textarea id="saranPesan" rows="5" maxlength="1000" placeholder="Tulis saran, kritik, atau kesulitan belajarmu…"
+                      class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none text-sm resize-y"></textarea>
+            <p id="saranStatus" class="hidden text-xs font-semibold"></p>
+            <button type="submit" id="saranKirim"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 shadow-md transition active:scale-[.98] disabled:opacity-60">
+              <i data-lucide="send" class="w-4 h-4"></i> Kirim Saran
+            </button>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Saranmu bersifat tertutup. Kalau ingin dibalas, sertakan nama atau kelasmu.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       7. KONTAK & SOSIAL MEDIA
        ------------------------------------------------------------------ -->
   <section id="kontak" class="py-16 sm:py-24 bg-gradient-to-br from-sains-800 via-sains-700 to-sains-800 text-white scroll-mt-20 relative overflow-hidden">
     <!-- Dekorasi molekul SVG -->
@@ -468,6 +552,14 @@
           <p class="text-xs" data-bind="footerTahun">Tahun Ajaran 2025/2026</p>
         </div>
       </div>
+
+      <!-- Penghitung pengunjung -->
+      <div class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10">
+        <i data-lucide="eye" class="w-4 h-4 text-sains-300"></i>
+        <span class="text-xs">Pengunjung</span>
+        <span id="statKunjungan" class="font-display font-bold text-white tabular-nums">—</span>
+      </div>
+
       <p class="text-xs" data-bind="footerCredit">© 2026 Bayu Setiadji, S.Pd., Gr.</p>
     </div>
   </footer>
@@ -616,6 +708,40 @@
         </button>
       </div>
       <div id="admPengumumanList" class="space-y-2"></div>
+    </section>
+
+    <!-- ===== TAB: KOMENTAR (moderasi) ===== -->
+    <section data-tab-panel="komentar" class="admin-panel hidden space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="message-circle" class="w-4.5 h-4.5 text-sains-700"></i> Komentar Pengunjung
+        </h3>
+        <button id="muatKomentar" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i> Muat Ulang
+        </button>
+      </div>
+      <p class="flex items-start gap-2 text-xs text-slate-500 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
+        <i data-lucide="shield-check" class="w-4 h-4 text-amber-600 shrink-0 mt-px"></i>
+        <span>Komentar baru <b>tidak langsung tampil</b> di halaman. Tekan Setujui agar bisa dibaca siswa lain, atau Hapus bila tidak pantas.</span>
+      </p>
+      <div id="admKomentarList" class="space-y-2"></div>
+    </section>
+
+    <!-- ===== TAB: SARAN (privat) ===== -->
+    <section data-tab-panel="saran" class="admin-panel hidden space-y-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="inbox" class="w-4.5 h-4.5 text-sains-700"></i> Kotak Saran Masuk
+        </h3>
+        <button id="muatSaran" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i> Muat Ulang
+        </button>
+      </div>
+      <p class="flex items-start gap-2 text-xs text-slate-500 bg-lab-50 border border-lab-200 rounded-xl px-3 py-2.5">
+        <i data-lucide="lock" class="w-4 h-4 text-lab-600 shrink-0 mt-px"></i>
+        <span>Saran hanya bisa dibaca oleh akun Anda. Tidak pernah tampil di halaman publik.</span>
+      </p>
+      <div id="admSaranList" class="space-y-2"></div>
     </section>
 
     <!-- ===== TAB: KONTAK ===== -->
@@ -1463,6 +1589,152 @@
   }
 
   /* ==========================================================================
+     § 5b. PENGUNJUNG, KOMENTAR, DAN KOTAK SARAN
+     Ketiganya hidup di tabel Supabase terpisah, bukan di JSON konten.
+     ========================================================================== */
+  const KUNCI_SESI_KUNJUNGAN = 'ipa_kunjungan_tercatat';
+
+  /** Format tanggal + jam untuk komentar/saran */
+  function formatWaktu(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) +
+           ' · ' + d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  /** Inisial untuk avatar komentar */
+  function hurufAwal(nama) {
+    const t = String(nama || '?').trim();
+    return (t[0] || '?').toUpperCase();
+  }
+
+  /* ---- Penghitung pengunjung (satu kali per sesi browser) ---- */
+  async function catatKunjungan() {
+    try {
+      let jumlah;
+      if (sessionStorage.getItem(KUNCI_SESI_KUNJUNGAN)) {
+        // Sesi ini sudah dihitung — cukup baca angkanya.
+        const res = await sb.from('ipa_statistik').select('kunjungan').eq('id', 1).maybeSingle();
+        if (res.error) throw res.error;
+        jumlah = res.data && res.data.kunjungan;
+      } else {
+        const res = await sb.rpc('ipa_tambah_kunjungan');
+        if (res.error) throw res.error;
+        jumlah = res.data;
+        sessionStorage.setItem(KUNCI_SESI_KUNJUNGAN, '1');
+      }
+      const el = $('#statKunjungan');
+      if (el && jumlah != null) el.textContent = Number(jumlah).toLocaleString('id-ID');
+    } catch (e) {
+      console.warn('Penghitung pengunjung tidak aktif:', e.message || e);
+    }
+  }
+
+  /* ---- Komentar publik ---- */
+  async function muatKomentarPublik() {
+    const wrap = $('#komentarList');
+    try {
+      const res = await sb.from('ipa_komentar')
+        .select('id, nama, pesan, dibuat_pada')
+        .eq('tampil', true)
+        .order('dibuat_pada', { ascending: false })
+        .limit(100);
+      if (res.error) throw res.error;
+
+      const list = res.data || [];
+      $('#komentarJumlah').textContent = list.length;
+
+      if (!list.length) {
+        wrap.innerHTML = '<div class="py-10 text-center">' +
+          '<span class="inline-grid place-items-center w-12 h-12 rounded-2xl bg-white text-slate-300 border border-slate-200 mb-2">' +
+            '<i data-lucide="message-circle" class="w-6 h-6"></i></span>' +
+          '<p class="text-sm text-slate-400">Belum ada komentar. Jadilah yang pertama!</p></div>';
+        icons(); return;
+      }
+
+      wrap.innerHTML = list.map(k =>
+        '<div class="flex gap-3 bg-white rounded-xl border border-slate-200 p-3.5">' +
+          '<span class="grid place-items-center w-9 h-9 rounded-full bg-cyan-100 text-cyan-700 font-display font-bold text-sm shrink-0">' +
+            esc(hurufAwal(k.nama)) + '</span>' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex flex-wrap items-baseline gap-x-2">' +
+              '<span class="text-sm font-semibold text-slate-800">' + esc(k.nama) + '</span>' +
+              '<span class="text-[11px] text-slate-400">' + esc(formatWaktu(k.dibuat_pada)) + '</span>' +
+            '</div>' +
+            '<p class="mt-1 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(k.pesan) + '</p>' +
+          '</div>' +
+        '</div>').join('');
+      icons();
+    } catch (e) {
+      wrap.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Komentar belum bisa dimuat.</p>';
+      console.warn('Gagal memuat komentar:', e.message || e);
+    }
+  }
+
+  /** Tampilkan pesan status pada form (komentar / saran) */
+  function statusForm(sel, teks, jenis) {
+    const el = $(sel);
+    if (!el) return;
+    el.textContent = teks;
+    el.className = 'text-xs font-semibold ' +
+      (jenis === 'ok' ? 'text-lab-600' : jenis === 'error' ? 'text-red-600' : 'text-slate-500');
+    el.classList.remove('hidden');
+  }
+
+  /* Sisa karakter komentar */
+  $('#komentarPesan').addEventListener('input', (e) => {
+    const sisa = 500 - e.target.value.length;
+    const el = $('#komentarSisa');
+    if (el) { el.textContent = sisa; el.className = 'hidden sm:grid place-items-center px-3 text-xs tabular-nums ' +
+      (sisa < 50 ? 'text-amber-600 font-semibold' : 'text-slate-400'); }
+  });
+
+  $('#komentarForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nama  = $('#komentarNama').value.trim();
+    const pesan = $('#komentarPesan').value.trim();
+    const tombol = $('#komentarKirim');
+
+    if (nama.length < 2)  { statusForm('#komentarPesanStatus', 'Isi nama kamu dulu (minimal 2 huruf).', 'error'); return; }
+    if (pesan.length < 2) { statusForm('#komentarPesanStatus', 'Komentarnya masih kosong.', 'error'); return; }
+
+    tombol.disabled = true;
+    statusForm('#komentarPesanStatus', 'Mengirim…', 'info');
+    try {
+      const res = await sb.from('ipa_komentar').insert({ nama: nama, pesan: pesan });
+      if (res.error) throw new Error(res.error.message);
+      $('#komentarPesan').value = '';
+      statusForm('#komentarPesanStatus',
+        'Terkirim! Komentarmu tampil setelah ditinjau Pak Bayu.', 'ok');
+    } catch (err) {
+      statusForm('#komentarPesanStatus', 'Gagal mengirim: ' + err.message, 'error');
+    }
+    tombol.disabled = false;
+  });
+
+  /* ---- Kotak saran ---- */
+  $('#saranForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nama  = $('#saranNama').value.trim();
+    const pesan = $('#saranPesan').value.trim();
+    const tombol = $('#saranKirim');
+
+    if (pesan.length < 3) { statusForm('#saranStatus', 'Tulis dulu saranmu (minimal 3 huruf).', 'error'); return; }
+
+    tombol.disabled = true;
+    statusForm('#saranStatus', 'Mengirim…', 'info');
+    try {
+      const res = await sb.from('ipa_saran').insert({ nama: nama || null, pesan: pesan });
+      if (res.error) throw new Error(res.error.message);
+      $('#saranNama').value = ''; $('#saranPesan').value = '';
+      statusForm('#saranStatus', 'Terima kasih, saranmu sudah terkirim ke Pak Bayu.', 'ok');
+    } catch (err) {
+      statusForm('#saranStatus', 'Gagal mengirim: ' + err.message, 'error');
+    }
+    tombol.disabled = false;
+  });
+
+  /* ==========================================================================
      § 6. INTERAKSI UMUM (menu mobile, reveal on scroll)
      ========================================================================== */
   $('#mobileMenuBtn').addEventListener('click', () => $('#mobileMenu').classList.toggle('hidden'));
@@ -1584,6 +1856,8 @@
     { id:'materi',     label:'Materi',     icon:'book-open' },
     { id:'media',      label:'Media',      icon:'monitor-play' },
     { id:'pengumuman', label:'Pengumuman', icon:'megaphone' },
+    { id:'komentar',   label:'Komentar',   icon:'message-circle' },
+    { id:'saran',      label:'Saran',      icon:'inbox' },
     { id:'kontak',     label:'Kontak',     icon:'share-2' },
     { id:'data',       label:'Data',       icon:'database' }
   ];
@@ -1599,7 +1873,9 @@
     $$('#adminTabs button').forEach(b => b.addEventListener('click', () => gantiTab(b.dataset.tab)));
     $$('.admin-panel').forEach(p => p.classList.toggle('hidden', p.dataset.tabPanel !== id));
 
-    if (id === 'data') renderAdminStats();
+    if (id === 'data')     renderAdminStats();
+    if (id === 'komentar') muatAdminKomentar();
+    if (id === 'saran')    muatAdminSaran();
     icons();
   }
 
@@ -1840,6 +2116,150 @@
   $$('[data-add]').forEach(b => b.addEventListener('click', () => bukaForm(b.dataset.add, null)));
 
   /* ==========================================================================
+     § 11b. ADMIN — MODERASI KOMENTAR & KOTAK SARAN
+     Keduanya membaca langsung dari Supabase, bukan dari JSON konten.
+     ========================================================================== */
+  async function muatAdminKomentar() {
+    const wrap = $('#admKomentarList');
+    if (!sesi) { wrap.innerHTML = pesanAdmin('Masuk dulu untuk melihat komentar.'); icons(); return; }
+    wrap.innerHTML = pesanAdmin('Memuat…');
+    try {
+      const res = await sb.from('ipa_komentar')
+        .select('id, nama, pesan, dibuat_pada, tampil')
+        .order('dibuat_pada', { ascending: false }).limit(200);
+      if (res.error) throw new Error(res.error.message);
+
+      const list = res.data || [];
+      const menunggu = list.filter(k => !k.tampil).length;
+      if (!list.length) { wrap.innerHTML = pesanAdmin('Belum ada komentar masuk.'); icons(); return; }
+
+      wrap.innerHTML =
+        (menunggu ? '<p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">' +
+                    menunggu + ' komentar menunggu persetujuan.</p>' : '') +
+        list.map(k =>
+        '<div class="bg-white rounded-xl border ' + (k.tampil ? 'border-slate-200' : 'border-amber-300 bg-amber-50/40') + ' p-3.5">' +
+          '<div class="flex items-start gap-3">' +
+            '<span class="grid place-items-center w-9 h-9 rounded-full bg-cyan-100 text-cyan-700 font-display font-bold text-sm shrink-0">' +
+              esc(hurufAwal(k.nama)) + '</span>' +
+            '<div class="min-w-0 flex-1">' +
+              '<div class="flex flex-wrap items-center gap-x-2 gap-y-1">' +
+                '<span class="text-sm font-semibold text-slate-800">' + esc(k.nama) + '</span>' +
+                '<span class="text-[11px] text-slate-400">' + esc(formatWaktu(k.dibuat_pada)) + '</span>' +
+                (k.tampil
+                  ? '<span class="px-2 py-0.5 rounded-md bg-lab-50 text-lab-600 text-[10px] font-bold border border-lab-200 uppercase">Tampil</span>'
+                  : '<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200 uppercase">Menunggu</span>') +
+              '</div>' +
+              '<p class="mt-1.5 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(k.pesan) + '</p>' +
+              '<div class="mt-3 flex flex-wrap gap-2">' +
+                (k.tampil
+                  ? '<button data-komentar-sembunyi="' + esc(k.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200">' +
+                    '<i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Sembunyikan</button>'
+                  : '<button data-komentar-setuju="' + esc(k.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-lab-500 text-white text-xs font-semibold hover:bg-lab-600">' +
+                    '<i data-lucide="check" class="w-3.5 h-3.5"></i> Setujui</button>') +
+                '<button data-komentar-hapus="' + esc(k.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100">' +
+                  '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>').join('');
+
+      $$('[data-komentar-setuju]').forEach(b => b.addEventListener('click', () => ubahKomentar(b.dataset.komentarSetuju, true)));
+      $$('[data-komentar-sembunyi]').forEach(b => b.addEventListener('click', () => ubahKomentar(b.dataset.komentarSembunyi, false)));
+      $$('[data-komentar-hapus]').forEach(b => b.addEventListener('click', () => hapusKomentar(b.dataset.komentarHapus)));
+      icons();
+    } catch (e) {
+      wrap.innerHTML = pesanAdmin('Gagal memuat: ' + e.message);
+      icons();
+    }
+  }
+
+  async function ubahKomentar(id, tampil) {
+    const res = await sb.from('ipa_komentar').update({ tampil: tampil }).eq('id', id).select('id');
+    if (res.error || !res.data || !res.data.length) {
+      toast('Gagal mengubah komentar.', 'error'); return;
+    }
+    toast(tampil ? 'Komentar disetujui dan kini tampil.' : 'Komentar disembunyikan.', 'ok');
+    muatAdminKomentar();
+    muatKomentarPublik();
+  }
+
+  async function hapusKomentar(id) {
+    if (!confirm('Hapus komentar ini secara permanen?')) return;
+    const res = await sb.from('ipa_komentar').delete().eq('id', id).select('id');
+    if (res.error || !res.data || !res.data.length) { toast('Gagal menghapus.', 'error'); return; }
+    toast('Komentar dihapus.', 'ok');
+    muatAdminKomentar();
+    muatKomentarPublik();
+  }
+
+  async function muatAdminSaran() {
+    const wrap = $('#admSaranList');
+    if (!sesi) { wrap.innerHTML = pesanAdmin('Masuk dulu untuk membaca saran.'); icons(); return; }
+    wrap.innerHTML = pesanAdmin('Memuat…');
+    try {
+      const res = await sb.from('ipa_saran')
+        .select('id, nama, pesan, dibuat_pada, dibaca')
+        .order('dibuat_pada', { ascending: false }).limit(200);
+      if (res.error) throw new Error(res.error.message);
+
+      const list = res.data || [];
+      const baru = list.filter(s => !s.dibaca).length;
+      if (!list.length) { wrap.innerHTML = pesanAdmin('Belum ada saran masuk.'); icons(); return; }
+
+      wrap.innerHTML =
+        (baru ? '<p class="text-xs font-semibold text-sains-700 bg-sains-50 border border-sains-200 rounded-lg px-3 py-2">' +
+                baru + ' saran belum dibaca.</p>' : '') +
+        list.map(s =>
+        '<div class="bg-white rounded-xl border ' + (s.dibaca ? 'border-slate-200' : 'border-sains-300') + ' p-3.5">' +
+          '<div class="flex flex-wrap items-center gap-x-2 gap-y-1">' +
+            '<span class="text-sm font-semibold text-slate-800">' + esc(s.nama || 'Tanpa nama') + '</span>' +
+            '<span class="text-[11px] text-slate-400">' + esc(formatWaktu(s.dibuat_pada)) + '</span>' +
+            (s.dibaca ? '' : '<span class="px-2 py-0.5 rounded-md bg-sains-100 text-sains-700 text-[10px] font-bold border border-sains-200 uppercase">Baru</span>') +
+          '</div>' +
+          '<p class="mt-1.5 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(s.pesan) + '</p>' +
+          '<div class="mt-3 flex flex-wrap gap-2">' +
+            (s.dibaca
+              ? '<button data-saran-belum="' + esc(s.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200">' +
+                '<i data-lucide="mail" class="w-3.5 h-3.5"></i> Tandai belum dibaca</button>'
+              : '<button data-saran-dibaca="' + esc(s.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-lab-500 text-white text-xs font-semibold hover:bg-lab-600">' +
+                '<i data-lucide="check" class="w-3.5 h-3.5"></i> Tandai sudah dibaca</button>') +
+            '<button data-saran-hapus="' + esc(s.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100">' +
+              '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus</button>' +
+          '</div>' +
+        '</div>').join('');
+
+      $$('[data-saran-dibaca]').forEach(b => b.addEventListener('click', () => tandaiSaran(b.dataset.saranDibaca, true)));
+      $$('[data-saran-belum]').forEach(b => b.addEventListener('click', () => tandaiSaran(b.dataset.saranBelum, false)));
+      $$('[data-saran-hapus]').forEach(b => b.addEventListener('click', () => hapusSaran(b.dataset.saranHapus)));
+      icons();
+    } catch (e) {
+      wrap.innerHTML = pesanAdmin('Gagal memuat: ' + e.message);
+      icons();
+    }
+  }
+
+  async function tandaiSaran(id, dibaca) {
+    const res = await sb.from('ipa_saran').update({ dibaca: dibaca }).eq('id', id).select('id');
+    if (res.error || !res.data || !res.data.length) { toast('Gagal memperbarui.', 'error'); return; }
+    muatAdminSaran();
+  }
+
+  async function hapusSaran(id) {
+    if (!confirm('Hapus saran ini secara permanen?')) return;
+    const res = await sb.from('ipa_saran').delete().eq('id', id).select('id');
+    if (res.error || !res.data || !res.data.length) { toast('Gagal menghapus.', 'error'); return; }
+    toast('Saran dihapus.', 'ok');
+    muatAdminSaran();
+  }
+
+  function pesanAdmin(teks) {
+    return '<p class="py-8 text-center text-sm text-slate-400">' + esc(teks) + '</p>';
+  }
+
+  $('#muatKomentar').addEventListener('click', muatAdminKomentar);
+  $('#muatSaran').addEventListener('click', muatAdminSaran);
+
+  /* ==========================================================================
      § 12. MODAL FORM CRUD (dipakai bersama)
      ========================================================================== */
   let formSubmitHandler = null;
@@ -2062,6 +2482,8 @@
      ========================================================================== */
   renderPublik();
   tarikDariServer(true);
+  catatKunjungan();        // hitung sekali per sesi browser
+  muatKomentarPublik();    // komentar yang sudah disetujui
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
