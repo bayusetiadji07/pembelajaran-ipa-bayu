@@ -103,7 +103,7 @@
 
   /* --- Kartu materi: transisi expand/collapse --- */
   .card-body{ max-height:0; overflow:hidden; transition:max-height .35s ease, opacity .3s ease; opacity:0; }
-  .card-open .card-body{ max-height:520px; opacity:1; }
+  .card-open .card-body{ max-height:680px; opacity:1; }
   .card-open .card-chevron{ transform:rotate(180deg); }
   .card-chevron{ transition:transform .3s ease; }
 
@@ -641,6 +641,46 @@
   </div>
 </div>
 
+<!-- ============================================================================
+     ██ MODAL PREVIEW MATERI (PDF / Drive / YouTube / web)
+     ============================================================================ -->
+<div id="previewModal" class="hidden fixed inset-0 z-[80] bg-slate-900/70 backdrop-blur-sm p-3 sm:p-6">
+  <div class="w-full h-full max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div class="flex items-center gap-3 px-4 sm:px-5 py-3 border-b border-slate-100 shrink-0">
+      <span id="previewIkon" class="grid place-items-center w-10 h-10 rounded-xl bg-sains-50 text-sains-700 shrink-0"></span>
+      <div class="min-w-0 flex-1">
+        <h3 id="previewJudul" class="font-display font-bold text-slate-900 text-sm sm:text-base truncate"></h3>
+        <p id="previewJenis" class="text-[11px] text-slate-400 truncate"></p>
+      </div>
+      <a id="previewBuka" href="#" target="_blank" rel="noopener noreferrer"
+         class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-sains-50 text-sains-700 text-xs font-semibold border border-sains-100 hover:bg-sains-700 hover:text-white transition shrink-0">
+        <i data-lucide="external-link" class="w-4 h-4"></i> Buka di tab baru
+      </a>
+      <button id="previewTutup" class="grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500 shrink-0">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="relative flex-1 bg-slate-100 min-h-0">
+      <!-- Jangan pasang referrerpolicy="no-referrer": YouTube menolak embed
+           (Error 153) bila referrer disembunyikan. -->
+      <iframe id="previewFrame" class="w-full h-full border-0" title="Preview materi"
+              allow="fullscreen; encrypted-media; picture-in-picture"
+              allowfullscreen></iframe>
+    </div>
+
+    <div class="px-4 sm:px-5 py-2.5 border-t border-slate-100 flex items-center gap-2 shrink-0">
+      <p class="text-[11px] text-slate-400 flex-1 leading-snug">
+        Tampilan di atas kosong? Berarti situsnya menolak ditampilkan di dalam halaman lain — buka saja di tab baru.
+      </p>
+      <a id="previewBukaHp" href="#" target="_blank" rel="noopener noreferrer"
+         class="sm:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sains-700 text-white text-xs font-semibold shrink-0">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Tab baru
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- Toast notifikasi -->
 <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] px-5 py-3 rounded-xl bg-slate-900 text-white text-sm font-medium shadow-2xl"></div>
 
@@ -1047,6 +1087,67 @@
     }));
   }
 
+  /* ==========================================================================
+     LAMPIRAN MATERI
+     Mengenali jenis tautan dan mengubahnya ke bentuk yang bisa ditampilkan
+     di dalam halaman (embed). Situs biasa umumnya menolak ditampilkan di
+     dalam iframe, jadi ditandai `bisaEmbed:false` dan diberi catatan.
+     ========================================================================== */
+  function analisisLampiran(url) {
+    const u = String(url || '').trim();
+    if (!u || u === '#') return null;
+
+    // Google Drive: .../file/d/ID/view  ->  .../file/d/ID/preview
+    let m = u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+    if (m) return { jenis:'Google Drive', ikon:'file-text', bisaEmbed:true, buka:u,
+                    embed:'https://drive.google.com/file/d/' + m[1] + '/preview' };
+
+    // Google Docs / Slides / Sheets  ->  /preview
+    m = u.match(/docs\.google\.com\/(document|presentation|spreadsheets)\/d\/([^/?#]+)/);
+    if (m) return { jenis:'Google ' + (m[1] === 'document' ? 'Docs' : m[1] === 'presentation' ? 'Slides' : 'Sheets'),
+                    ikon:'file-text', bisaEmbed:true, buka:u,
+                    embed:'https://docs.google.com/' + m[1] + '/d/' + m[2] + '/preview' };
+
+    // YouTube
+    m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+    if (m) return { jenis:'Video YouTube', ikon:'play-circle', bisaEmbed:true, buka:u,
+                    embed:'https://www.youtube.com/embed/' + m[1] };
+
+    if (/\.pdf($|[?#])/i.test(u))
+      return { jenis:'Dokumen PDF', ikon:'file-text', bisaEmbed:true, embed:u, buka:u };
+
+    if (/\.(png|jpe?g|webp|gif)($|[?#])/i.test(u))
+      return { jenis:'Gambar', ikon:'image', bisaEmbed:true, embed:u, buka:u };
+
+    return { jenis:'Tautan web', ikon:'link', bisaEmbed:false, embed:u, buka:u };
+  }
+
+  function bukaPreview(judul, url) {
+    const info = analisisLampiran(url);
+    if (!info) return;
+    $('#previewJudul').textContent = judul;
+    $('#previewJenis').textContent = info.jenis + (info.bisaEmbed ? '' : ' — mungkin perlu dibuka di tab baru');
+    $('#previewIkon').innerHTML = '<i data-lucide="' + info.ikon + '" class="w-5 h-5"></i>';
+    $('#previewBuka').href   = safeUrl(info.buka);
+    $('#previewBukaHp').href = safeUrl(info.buka);
+    $('#previewFrame').src   = safeUrl(info.embed);
+    $('#previewModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    icons();
+  }
+
+  function tutupPreview() {
+    $('#previewModal').classList.add('hidden');
+    $('#previewFrame').src = 'about:blank';   // hentikan video/PDF yang sedang berjalan
+    if ($('#adminView').classList.contains('hidden')) document.body.style.overflow = '';
+  }
+
+  $('#previewTutup').addEventListener('click', tutupPreview);
+  $('#previewModal').addEventListener('click', (e) => { if (e.target === $('#previewModal')) tutupPreview(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('#previewModal').classList.contains('hidden')) tutupPreview();
+  });
+
   /* ---- Kartu materi (expand/collapse) ---- */
   function renderMateri() {
     const list = data.materi.filter(m => m.kelas === kelasAktif);
@@ -1070,16 +1171,37 @@
           '<i data-lucide="chevron-down" class="card-chevron w-5 h-5 text-slate-400 shrink-0 mt-1"></i>' +
         '</div>' +
         '<div class="card-body px-5">' +
-          '<p class="pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100 mt-0">' +
-            '<span class="block pt-4">' + esc(m.ringkasan) + '</span>' +
-          '</p>' +
+          '<div class="pb-5 pt-4 border-t border-slate-100">' +
+            '<p class="text-sm text-slate-600 leading-relaxed">' + esc(m.ringkasan) + '</p>' +
+            tombolLampiran(m) +
+          '</div>' +
         '</div>' +
       '</article>').join('');
 
+    // Klik kartu = buka/tutup ringkasan
     $$('.materi-card', grid).forEach(card =>
       card.addEventListener('click', () => card.classList.toggle('card-open')));
 
+    // Klik tombol lampiran = buka preview (jangan ikut menutup kartunya)
+    $$('[data-preview]', grid).forEach(b => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = data.materi.find(x => x.id === b.dataset.preview);
+      if (item) bukaPreview(item.judul, item.lampiran);
+    }));
+
     icons();
+  }
+
+  /** Tombol "Lihat Materi" pada kartu, hanya bila materi punya lampiran. */
+  function tombolLampiran(m) {
+    const info = analisisLampiran(m.lampiran);
+    if (!info) return '';
+    return '<button data-preview="' + esc(m.id) + '" ' +
+      'class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl ' +
+      'bg-sains-700 text-white text-sm font-semibold hover:bg-sains-800 transition">' +
+      '<i data-lucide="' + info.ikon + '" class="w-4 h-4"></i> Lihat Materi' +
+      '<span class="text-[11px] font-normal opacity-75">· ' + esc(info.jenis) + '</span>' +
+    '</button>';
   }
 
   /* ---- Filter kategori media ---- */
@@ -1462,12 +1584,16 @@
     KELAS.forEach(k => {
       const list = data.materi.filter(m => m.kelas === k);
       html += '<div class="pt-2"><p class="px-1 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Kelas ' + k + ' · ' + list.length + ' topik</p>';
-      html += list.length ? list.map(m => barisAdmin({
-        id: m.id, tipe: 'materi',
-        icon: m.ikon || 'atom',
-        judul: m.judul,
-        sub: (m.ringkasan || '').slice(0, 90) + ((m.ringkasan || '').length > 90 ? '…' : '')
-      })).join('') : '<p class="px-1 pb-2 text-xs text-slate-400 italic">Belum ada materi.</p>';
+      html += list.length ? list.map(m => {
+        const lam = analisisLampiran(m.lampiran);
+        const ringkas = (m.ringkasan || '').slice(0, 70) + ((m.ringkasan || '').length > 70 ? '…' : '');
+        return barisAdmin({
+          id: m.id, tipe: 'materi',
+          icon: m.ikon || 'atom',
+          judul: m.judul,
+          sub: (lam ? '📎 ' + lam.jenis + ' · ' : '') + ringkas
+        });
+      }).join('') : '<p class="px-1 pb-2 text-xs text-slate-400 italic">Belum ada materi.</p>';
       html += '</div>';
     });
     $('#admMateriList').innerHTML = html;
@@ -1545,7 +1671,11 @@
       { name:'judul',     label:'Judul Materi',  type:'text',     value:item ? item.judul : '', required:true },
       { name:'kelas',     label:'Kelas',         type:'select',   value:item ? item.kelas : 'VII', options:KELAS.map(k => ({ v:k, t:'Kelas ' + k })) },
       { name:'ikon',      label:'Ikon (Lucide)', type:'datalist', value:item ? item.ikon : 'atom', options:IKON_MATERI, hint:'Contoh: atom, dna, magnet, leaf, zap' },
-      { name:'ringkasan', label:'Ringkasan Materi', type:'textarea', rows:6, value:item ? item.ringkasan : '', required:true }
+      { name:'ringkasan', label:'Ringkasan Materi', type:'textarea', rows:6, value:item ? item.ringkasan : '', required:true },
+      { name:'lampiran',  label:'Lampiran materi (opsional)', type:'text', value:item ? (item.lampiran || '') : '',
+        hint:'Tempel tautan PDF, Google Drive, Google Slides, YouTube, atau alamat web. Kosongkan bila tidak ada.' },
+      { name:'_unggah',   label:'atau unggah berkas PDF', type:'berkas',
+        hint:'Maksimal 20 MB. Setelah selesai, kolom lampiran di atas terisi otomatis.' }
     ];
     if (tipe === 'media') return [
       { name:'judul',     label:'Judul Media',  type:'text', value:item ? item.judul : '', required:true },
@@ -1584,6 +1714,15 @@
       } else if (f.type === 'datalist') {
         input = '<input name="' + f.name + '" list="dl_' + f.name + '" value="' + esc(f.value) + '" class="adm-input" />' +
           '<datalist id="dl_' + f.name + '">' + f.options.map(o => '<option value="' + esc(o) + '"></option>').join('') + '</datalist>';
+      } else if (f.type === 'berkas') {
+        input = '<div class="mt-1.5 flex flex-wrap items-center gap-2">' +
+            '<label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-50 text-sains-700 ' +
+                   'text-xs font-semibold border border-sains-200 hover:bg-sains-100">' +
+              '<i data-lucide="upload" class="w-4 h-4"></i> Pilih berkas PDF' +
+              '<input type="file" accept="application/pdf" class="hidden" data-unggah />' +
+            '</label>' +
+            '<span data-unggah-status class="text-xs text-slate-400"></span>' +
+          '</div>';
       } else {
         input = '<input name="' + f.name + '" type="' + f.type + '" value="' + esc(f.value) + '" class="adm-input"' +
                 (f.required ? ' required' : '') + ' />';
@@ -1592,13 +1731,26 @@
              (f.hint ? '<span class="block mt-1 text-[11px] text-slate-400">' + esc(f.hint) + '</span>' : '') + '</label>';
     }).join('');
 
+    // Tombol unggah berkas (bila skema form ini memilikinya)
+    const inputBerkas = $('[data-unggah]', $('#formModalFields'));
+    if (inputBerkas) inputBerkas.addEventListener('change', (ev) => {
+      const berkas = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (berkas) unggahLampiran(berkas);
+    });
+
     // Handler submit khusus untuk pembukaan form ini
     if (formSubmitHandler) $('#crudForm').removeEventListener('submit', formSubmitHandler);
     formSubmitHandler = function (e) {
       e.preventDefault();
       const fd = new FormData(e.target);
       const nilai = {};
-      fields.forEach(f => nilai[f.name] = String(fd.get(f.name) || '').trim());
+      // Field berawalan "_" hanya alat bantu di form (mis. tombol unggah),
+      // bukan bagian dari data yang disimpan.
+      fields.forEach(f => {
+        if (f.name.charAt(0) === '_') return;
+        nilai[f.name] = String(fd.get(f.name) || '').trim();
+      });
 
       if (id) {
         // Cari ulang berdasarkan id, jangan pakai referensi yang ditangkap saat
@@ -1623,6 +1775,43 @@
 
     $('#formModal').classList.remove('hidden');
     icons();
+  }
+
+  /**
+   * Unggah PDF ke bucket `ipa-materi`, lalu isikan URL publiknya ke kolom
+   * lampiran. Berkas tidak disimpan ke dalam JSON konten supaya baris data
+   * tetap ringan dan halaman tetap cepat dibuka siswa.
+   */
+  const BATAS_BERKAS = 20 * 1024 * 1024;   // 20 MB, samakan dengan batas bucket
+
+  async function unggahLampiran(berkas) {
+    const status = $('[data-unggah-status]', $('#formModalFields'));
+    const setStatus = (teks, warna) => {
+      if (status) { status.textContent = teks; status.className = 'text-xs font-semibold ' + warna; }
+    };
+
+    if (!sesi) { setStatus('Harus masuk sebagai admin dulu.', 'text-red-600'); return; }
+    if (berkas.size > BATAS_BERKAS) {
+      setStatus('Ukuran ' + (berkas.size / 1048576).toFixed(1) + ' MB melebihi batas 20 MB.', 'text-red-600');
+      return;
+    }
+
+    setStatus('Mengunggah…', 'text-slate-500');
+    try {
+      const namaBersih = berkas.name.replace(/[^\w.\-]+/g, '-').toLowerCase();
+      const jalur = Date.now().toString(36) + '-' + namaBersih;
+
+      const naik = await sb.storage.from('ipa-materi')
+        .upload(jalur, berkas, { contentType: berkas.type || 'application/pdf', upsert: false });
+      if (naik.error) throw new Error(naik.error.message);
+
+      const url = sb.storage.from('ipa-materi').getPublicUrl(jalur).data.publicUrl;
+      const kolom = $('#crudForm').elements.lampiran;
+      if (kolom) kolom.value = url;
+      setStatus('Berhasil diunggah.', 'text-lab-600');
+    } catch (e) {
+      setStatus('Gagal mengunggah: ' + e.message, 'text-red-600');
+    }
   }
 
   function tutupForm() { $('#formModal').classList.add('hidden'); }
