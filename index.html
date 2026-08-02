@@ -534,6 +534,11 @@
           <i data-lucide="plus" class="w-4 h-4"></i> Tambah Materi
         </button>
       </div>
+      <p class="flex items-start gap-2 text-xs text-slate-500 bg-sains-50 border border-sains-100 rounded-xl px-3 py-2.5">
+        <i data-lucide="arrow-up-down" class="w-4 h-4 text-sains-700 shrink-0 mt-px"></i>
+        <span>Pakai tombol panah di kiri tiap baris untuk mengatur urutan materi. Urutan diatur di dalam
+        kelasnya masing-masing, dan langsung mengikuti pada tampilan siswa.</span>
+      </p>
       <div id="admMateriList" class="space-y-2"></div>
     </section>
 
@@ -1584,14 +1589,18 @@
     KELAS.forEach(k => {
       const list = data.materi.filter(m => m.kelas === k);
       html += '<div class="pt-2"><p class="px-1 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Kelas ' + k + ' · ' + list.length + ' topik</p>';
-      html += list.length ? list.map(m => {
+      html += list.length ? list.map((m, i) => {
         const lam = analisisLampiran(m.lampiran);
         const ringkas = (m.ringkasan || '').slice(0, 70) + ((m.ringkasan || '').length > 70 ? '…' : '');
         return barisAdmin({
           id: m.id, tipe: 'materi',
           icon: m.ikon || 'atom',
           judul: m.judul,
-          sub: (lam ? '📎 ' + lam.jenis + ' · ' : '') + ringkas
+          sub: (lam ? '📎 ' + lam.jenis + ' · ' : '') + ringkas,
+          urut: true,                      // tampilkan tombol naik/turun
+          nomor: i + 1,
+          pertama: i === 0,
+          terakhir: i === list.length - 1
         });
       }).join('') : '<p class="px-1 pb-2 text-xs text-slate-400 italic">Belum ada materi.</p>';
       html += '</div>';
@@ -1622,16 +1631,65 @@
     /* Pasang event tombol edit & hapus */
     $$('[data-edit]').forEach(b => b.addEventListener('click', () => bukaForm(b.dataset.tipe, b.dataset.edit)));
     $$('[data-del]').forEach(b => b.addEventListener('click', () => hapusItem(b.dataset.tipe, b.dataset.del)));
+    $$('[data-naik]').forEach(b => b.addEventListener('click', () => pindahMateri(b.dataset.naik, -1)));
+    $$('[data-turun]').forEach(b => b.addEventListener('click', () => pindahMateri(b.dataset.turun, 1)));
 
     renderAdminStats();
     icons();
   }
 
+  /**
+   * Geser satu materi ke atas (-1) atau ke bawah (+1).
+   * Pertukaran hanya dilakukan dengan materi pada kelas yang sama, sebab
+   * materi ditampilkan per kelas. Urutan tampil = urutan di dalam array,
+   * jadi yang ditukar adalah posisinya di array data.materi.
+   */
+  function pindahMateri(id, arah) {
+    const item = data.materi.find(m => m.id === id);
+    if (!item) return;
+
+    // Posisi semua materi sekelas, dalam urutan array
+    const posisiSekelas = [];
+    data.materi.forEach((m, i) => { if (m.kelas === item.kelas) posisiSekelas.push(i); });
+
+    const kini = posisiSekelas.indexOf(data.materi.indexOf(item));
+    const tuju = kini + arah;
+    if (tuju < 0 || tuju >= posisiSekelas.length) return;   // sudah di ujung
+
+    const a = posisiSekelas[kini], b = posisiSekelas[tuju];
+    const simpan = data.materi[a];
+    data.materi[a] = data.materi[b];
+    data.materi[b] = simpan;
+
+    kelasAktif = item.kelas;      // tampilan publik ikut menyorot kelas terkait
+    simpanData('Urutan materi diperbarui.');
+  }
+
   /** Satu baris item di panel admin */
   function barisAdmin(o) {
-    return '<div class="flex items-center gap-3 bg-white rounded-xl border border-slate-200 p-3">' +
-      '<span class="grid place-items-center w-10 h-10 rounded-lg bg-sains-50 text-sains-700 shrink-0">' +
-        '<i data-lucide="' + esc(o.icon) + '" class="w-4.5 h-4.5"></i></span>' +
+    // Tombol naik/turun (hanya untuk daftar yang urutannya bisa diatur)
+    const tombolUrut = !o.urut ? '' :
+      '<div class="flex flex-col gap-0.5 shrink-0">' +
+        '<button data-naik="' + esc(o.id) + '" title="Pindah ke atas"' + (o.pertama ? ' disabled' : '') +
+          ' class="grid place-items-center w-8 h-6 rounded-t-md bg-slate-50 text-slate-500 ' +
+          'hover:bg-sains-50 hover:text-sains-700 disabled:opacity-30 disabled:hover:bg-slate-50 disabled:cursor-not-allowed">' +
+          '<i data-lucide="chevron-up" class="w-3.5 h-3.5"></i></button>' +
+        '<button data-turun="' + esc(o.id) + '" title="Pindah ke bawah"' + (o.terakhir ? ' disabled' : '') +
+          ' class="grid place-items-center w-8 h-6 rounded-b-md bg-slate-50 text-slate-500 ' +
+          'hover:bg-sains-50 hover:text-sains-700 disabled:opacity-30 disabled:hover:bg-slate-50 disabled:cursor-not-allowed">' +
+          '<i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>' +
+      '</div>';
+
+    // Nomor urut tampil di dalam kotak ikon supaya baris tidak makin panjang
+    const nomor = o.nomor
+      ? '<span class="absolute -top-1.5 -left-1.5 grid place-items-center min-w-[18px] h-[18px] px-1 ' +
+        'rounded-full bg-sains-700 text-white text-[10px] font-bold">' + o.nomor + '</span>'
+      : '';
+
+    return '<div class="flex items-center gap-2.5 bg-white rounded-xl border border-slate-200 p-3">' +
+      tombolUrut +
+      '<span class="relative grid place-items-center w-10 h-10 rounded-lg bg-sains-50 text-sains-700 shrink-0">' +
+        nomor + '<i data-lucide="' + esc(o.icon) + '" class="w-4.5 h-4.5"></i></span>' +
       '<div class="min-w-0 flex-1">' +
         '<p class="text-sm font-semibold text-slate-800 truncate">' + esc(o.judul) + '</p>' +
         '<p class="text-xs text-slate-400 truncate">' + esc(o.sub) + '</p>' +
