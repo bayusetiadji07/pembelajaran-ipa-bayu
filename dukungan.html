@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dukungan Sukarela — Bayu Setiadji, S.Pd.</title>
+<meta name="description" content="Halaman dukungan sukarela untuk portal pembelajaran IPA SMP Negeri 3 Besuki, Situbondo." />
+<meta name="robots" content="noindex" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        sains: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',
+                 500:'#2563eb',700:'#1e40af',800:'#1e3a8a',900:'#172554' },
+        lab:   { 50:'#ecfdf5',200:'#a7f3d0',300:'#6ee7b7',500:'#059669',600:'#047857' }
+      },
+      fontFamily: {
+        display: ['Poppins','system-ui','sans-serif'],
+        sans: ['Inter','system-ui','sans-serif']
+      }
+    } }
+  }
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  body { font-family:'Inter',system-ui,sans-serif; }
+  h1,h2,h3 { font-family:'Poppins',system-ui,sans-serif; letter-spacing:-.02em; }
+  .pattern-grid{
+    background-image:
+      linear-gradient(rgba(37,99,235,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,.06) 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+</style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-700 antialiased pattern-grid">
+
+<main class="max-w-lg mx-auto px-5 sm:px-6 py-10 sm:py-16">
+
+  <!-- Kembali ke halaman utama -->
+  <a href="index.html"
+     class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-sains-700 transition">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke halaman pembelajaran
+  </a>
+
+  <div id="isi" class="mt-8">
+    <!-- Diisi oleh JS -->
+    <div class="rounded-2xl bg-white border border-slate-200 p-8 text-center">
+      <p class="text-sm text-slate-400">Memuat…</p>
+    </div>
+  </div>
+
+  <footer class="mt-10 text-center">
+    <p class="text-xs text-slate-400" id="kredit">SMP Negeri 3 Besuki, Situbondo</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Kunci publishable — sama dengan halaman utama. Yang menjaga data adalah
+     aturan RLS di database: siapa pun boleh membaca, hanya pemilik yang
+     boleh mengubah. */
+  const SUPABASE_URL = 'https://riajhxegskgwytmpcvut.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kUte5XzkrxtGohaMEVNpKA_u6UkZd2g';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+  /** Hanya izinkan URL aman (blokir javascript:) */
+  function safeUrl(u) {
+    const v = String(u || '').trim();
+    if (!v) return '';
+    if (/^(https?:|\.|\/)/i.test(v)) return v;
+    return '';
+  }
+
+  const icons = () => { if (window.lucide) window.lucide.createIcons(); };
+
+  function kartuPesan(ikon, judul, pesan) {
+    return '<div class="rounded-2xl bg-white border border-slate-200 p-8 text-center">' +
+      '<span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 mb-4">' +
+        '<i data-lucide="' + ikon + '" class="w-7 h-7"></i></span>' +
+      '<h1 class="font-display font-bold text-slate-900 text-lg">' + esc(judul) + '</h1>' +
+      '<p class="mt-2 text-sm text-slate-500 leading-relaxed">' + esc(pesan) + '</p>' +
+    '</div>';
+  }
+
+  async function muat() {
+    let d = null, profil = null, footer = null;
+    try {
+      const res = await sb.from('ipa_konten').select('data').eq('id', 1).maybeSingle();
+      if (res.error) throw res.error;
+      const isi = res.data && res.data.data;
+      d = isi && isi.dukungan;
+      profil = isi && isi.profil;
+      footer = isi && isi.footer;
+    } catch (e) {
+      $('#isi').innerHTML = kartuPesan('cloud-off', 'Gagal memuat',
+        'Halaman dukungan belum bisa ditampilkan. Coba muat ulang sebentar lagi.');
+      icons(); return;
+    }
+
+    if (footer && footer.sekolah) $('#kredit').textContent = footer.sekolah;
+
+    const qris = d && safeUrl(d.qris);
+    if (!d || !d.aktif || !qris) {
+      $('#isi').innerHTML = kartuPesan('heart-handshake', 'Belum tersedia',
+        'Saat ini belum ada kanal dukungan yang dibuka. Terima kasih atas perhatiannya.');
+      icons(); return;
+    }
+
+    $('#isi').innerHTML =
+      '<div class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">' +
+        '<div class="px-6 sm:px-8 pt-8 text-center">' +
+          '<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lab-50 border border-lab-200">' +
+            '<i data-lucide="heart-handshake" class="w-3.5 h-3.5 text-lab-600"></i>' +
+            '<span class="text-[11px] font-bold text-lab-600 uppercase tracking-wide">Sukarela</span>' +
+          '</span>' +
+          '<h1 class="mt-4 font-display font-bold text-slate-900 text-xl sm:text-2xl leading-snug">' +
+            esc(d.judul || 'Dukung Halaman Ini') + '</h1>' +
+          (profil && profil.nama
+            ? '<p class="mt-1.5 text-sm text-slate-500">untuk ' + esc(profil.nama) + '</p>' : '') +
+          (d.keterangan
+            ? '<p class="mt-4 text-[15px] leading-relaxed text-slate-600">' + esc(d.keterangan) + '</p>' : '') +
+        '</div>' +
+
+        '<div class="mt-7 px-6 sm:px-8">' +
+          '<div class="mx-auto w-fit bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">' +
+            '<img src="' + esc(qris) + '" alt="Kode QRIS untuk dukungan sukarela" ' +
+                 'class="w-56 h-56 sm:w-64 sm:h-64 object-contain" />' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="mt-6 px-6 sm:px-8 pb-8">' +
+          '<div class="rounded-xl bg-slate-50 border border-slate-200 p-4">' +
+            '<p class="flex items-start gap-2.5 text-sm text-slate-600 leading-relaxed">' +
+              '<i data-lucide="scan-line" class="w-4 h-4 text-sains-700 shrink-0 mt-0.5"></i>' +
+              '<span>Pindai dengan aplikasi bank atau e-wallet apa pun yang mendukung QRIS.' +
+              (d.namaMerchant
+                ? ' Pastikan nama penerima yang muncul adalah <b class="text-slate-800">' + esc(d.namaMerchant) + '</b>.'
+                : '') +
+              '</span></p>' +
+          '</div>' +
+          (d.catatan
+            ? '<p class="mt-4 text-xs leading-relaxed text-slate-400 text-center">' + esc(d.catatan) + '</p>' : '') +
+        '</div>' +
+      '</div>';
+    icons();
+  }
+
+  icons();
+  muat();
+})();
+</script>
+</body>
+</html>

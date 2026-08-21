@@ -79,6 +79,26 @@
      beserta glow-nya sudah dilepas: hero kini memakai foto latar dan dibuat
      tenang tanpa gerakan. */
 
+  /* --- Lapisan keterbacaan hero ---
+     Putih pekat hanya di area teks lalu tuntas memudar, supaya fotonya
+     tetap terbaca jelas alih-alih tertutup kabut putih menyeluruh. --- */
+  .scrim-hero{
+    background:linear-gradient(to bottom,
+      rgba(255,255,255,.96) 0%,
+      rgba(255,255,255,.88) 38%,
+      rgba(255,255,255,.42) 64%,
+      rgba(255,255,255,0)   88%);
+  }
+  @media (min-width:1024px){
+    .scrim-hero{
+      background:linear-gradient(to right,
+        rgba(255,255,255,.97) 0%,
+        rgba(255,255,255,.90) 30%,
+        rgba(255,255,255,.45) 50%,
+        rgba(255,255,255,0)   70%);
+    }
+  }
+
   /* --- Float lembut (dipakai badge pada foto profil) --- */
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   .float{ animation: float 6s ease-in-out infinite; }
@@ -181,11 +201,11 @@
            fetchpriority="high" decoding="async" />
     </picture>
 
-    <!-- Lapisan keterbacaan: putih pekat di kiri, memudar ke kanan.
-         Di layar kecil arahnya dari bawah agar teks tetap terbaca. -->
-    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white/85 to-white/40 lg:bg-gradient-to-r lg:from-white lg:via-white/85 lg:to-transparent"></div>
+    <!-- Lapisan keterbacaan (lihat .scrim-hero): pekat hanya di area teks,
+         lalu tuntas memudar agar lanskapnya tampil jelas. -->
+    <div class="pointer-events-none absolute inset-0 scrim-hero"></div>
 
-    <div class="relative max-w-6xl mx-auto px-5 sm:px-6 pt-28 pb-24 sm:pt-36 sm:pb-32 lg:pb-40 grid lg:grid-cols-2 gap-12 items-center">
+    <div class="relative max-w-6xl mx-auto px-5 sm:px-6 pt-28 pb-28 sm:pt-36 sm:pb-36 lg:pb-44 min-h-[620px] sm:min-h-[680px] lg:min-h-[720px] grid lg:grid-cols-2 gap-12 items-center">
       <!-- Teks -->
       <div>
         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lab-50 text-lab-600 text-xs font-semibold border border-lab-200">
@@ -324,8 +344,9 @@
       <!-- Filter kategori -->
       <div id="mediaFilters" class="mt-8 flex flex-wrap justify-center gap-2"></div>
 
-      <!-- Grid media -->
+      <!-- Grid media (hanya pratinjau; sisanya dibuka lewat tombol di bawah) -->
       <div id="mediaGrid" class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      <div id="mediaLainnya" class="mt-8 text-center"></div>
     </div>
   </section>
 
@@ -700,7 +721,9 @@
         </div>
 
         <p class="mt-2 text-xs text-slate-500 leading-relaxed">
-          Blok ini hanya muncul di halaman bila kotak di atas dicentang <b>dan</b> gambar QRIS sudah diunggah.
+          Kode QRIS <b>tidak ditampilkan</b> di halaman pembelajaran. Halaman utama hanya memuat satu tautan
+          tenang menuju <a href="dukungan.html" target="_blank" rel="noopener" class="text-sains-700 font-semibold underline">halaman dukungan terpisah</a>,
+          dan di sanalah QRIS-nya tampil. Tautan itu baru muncul bila kotak di atas dicentang <b>dan</b> gambar QRIS sudah diunggah.
         </p>
 
         <div class="mt-4 grid sm:grid-cols-2 gap-4">
@@ -1448,19 +1471,30 @@
 
     $$('#mediaFilters button').forEach(b => b.addEventListener('click', () => {
       kategoriAktif = b.dataset.kat;
+      mediaTampilSemua = false;      // tiap kategori mulai dari pratinjau lagi
       renderFilterMedia(); renderMedia(); icons();
     }));
   }
 
-  /* ---- Grid media pembelajaran ---- */
-  function renderMedia() {
-    const list = kategoriAktif === 'Semua' ? data.media : data.media.filter(m => m.kategori === kategoriAktif);
-    const grid = $('#mediaGrid');
+  /* ---- Grid media pembelajaran ----
+     Hanya sebagian ditampilkan sebagai pratinjau; sisanya dibuka lewat
+     tombol, supaya seksi ini tidak menjadi daftar panjang di layar HP. */
+  const PRATINJAU_MEDIA = 6;
+  let mediaTampilSemua = false;
 
-    if (!list.length) {
+  function renderMedia() {
+    const semua = kategoriAktif === 'Semua' ? data.media : data.media.filter(m => m.kategori === kategoriAktif);
+    const grid = $('#mediaGrid');
+    const lainnya = $('#mediaLainnya');
+
+    if (!semua.length) {
       grid.innerHTML = kosong('monitor-play', 'Belum ada media pada kategori ini.');
+      if (lainnya) lainnya.innerHTML = '';
       icons(); return;
     }
+
+    const list = mediaTampilSemua ? semua : semua.slice(0, PRATINJAU_MEDIA);
+    const tersisa = semua.length - list.length;
 
     grid.innerHTML = list.map(m => {
       const kat = KATEGORI[m.kategori] || KATEGORI['Simulasi'];
@@ -1490,6 +1524,33 @@
               'border border-slate-200 bg-slate-50 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
       '</article>';
     }).join('');
+
+    // Tombol buka/tutup sisa media
+    if (lainnya) {
+      if (tersisa > 0) {
+        lainnya.innerHTML =
+          '<button id="btnMediaSemua" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white ' +
+            'border border-slate-200 text-sains-800 text-sm font-semibold hover:border-sains-300 hover:bg-sains-50 ' +
+            'shadow-sm transition active:scale-[.98]">' +
+            '<i data-lucide="chevron-down" class="w-4 h-4"></i> Lihat ' + tersisa + ' media lainnya</button>' +
+          '<p class="mt-3 text-xs text-slate-400">Menampilkan ' + list.length + ' dari ' + semua.length + ' media</p>';
+      } else if (mediaTampilSemua && semua.length > PRATINJAU_MEDIA) {
+        lainnya.innerHTML =
+          '<button id="btnMediaSemua" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white ' +
+            'border border-slate-200 text-slate-600 text-sm font-semibold hover:border-slate-300 ' +
+            'shadow-sm transition active:scale-[.98]">' +
+            '<i data-lucide="chevron-up" class="w-4 h-4"></i> Ringkaskan lagi</button>';
+      } else {
+        lainnya.innerHTML = '';
+      }
+
+      const tombol = $('#btnMediaSemua');
+      if (tombol) tombol.addEventListener('click', () => {
+        mediaTampilSemua = !mediaTampilSemua;
+        renderMedia();
+        if (!mediaTampilSemua) $('#media').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
 
     icons();
   }
@@ -1588,31 +1649,18 @@
     // Tanpa gambar QRIS atau saat dimatikan, blok tidak ditampilkan sama sekali.
     if (!d.aktif || !d.qris) { blok.classList.add('hidden'); blok.innerHTML = ''; return; }
 
+    // Halaman ini sengaja TIDAK memuat kode QR-nya. Yang tampil hanya tautan
+    // tenang menuju halaman dukungan terpisah, supaya ajakan menyumbang tidak
+    // menumpang di halaman belajar siswa.
     blok.classList.remove('hidden');
     blok.innerHTML =
-      '<div class="rounded-2xl bg-white/10 border border-white/20 p-5 sm:p-6 text-left">' +
-        '<div class="grid sm:grid-cols-[auto_1fr] gap-5 sm:gap-6 items-center">' +
-          '<div class="mx-auto sm:mx-0 bg-white rounded-2xl p-3 shadow-lg">' +
-            '<img src="' + esc(safeUrl(d.qris)) + '" alt="Kode QRIS untuk dukungan sukarela" ' +
-                 'class="w-44 h-44 sm:w-40 sm:h-40 object-contain" />' +
-          '</div>' +
-          '<div class="min-w-0 text-center sm:text-left">' +
-            '<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-lab-500/20 border border-lab-300/30">' +
-              '<i data-lucide="heart-handshake" class="w-3.5 h-3.5 text-lab-300"></i>' +
-              '<span class="text-[11px] font-bold text-lab-300 uppercase tracking-wide">Sukarela</span>' +
-            '</div>' +
-            '<h3 class="mt-3 font-display font-bold text-white text-lg sm:text-xl">' + esc(d.judul || 'Dukung Halaman Ini') + '</h3>' +
-            (d.keterangan ? '<p class="mt-2 text-sm leading-relaxed text-sains-100/85">' + esc(d.keterangan) + '</p>' : '') +
-            (d.namaMerchant
-              ? '<p class="mt-3 inline-flex items-center gap-2 text-xs text-sains-100/70">' +
-                  '<i data-lucide="scan-line" class="w-3.5 h-3.5"></i>' +
-                  'Pindai dengan aplikasi bank atau e-wallet. Pastikan nama yang muncul: <b class="text-white">' + esc(d.namaMerchant) + '</b>' +
-                '</p>'
-              : '') +
-            (d.catatan ? '<p class="mt-3 text-[11px] leading-snug text-sains-100/60">' + esc(d.catatan) + '</p>' : '') +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      '<a href="dukungan.html" ' +
+         'class="group inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white/5 border border-white/15 ' +
+         'hover:bg-white/10 hover:border-white/30 transition text-sains-100/80 hover:text-white">' +
+        '<i data-lucide="heart-handshake" class="w-4 h-4 text-lab-300"></i>' +
+        '<span class="text-sm font-medium">' + esc(d.judul || 'Dukung halaman ini') + '</span>' +
+        '<i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition"></i>' +
+      '</a>';
     icons();
   }
 
