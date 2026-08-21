@@ -62,6 +62,45 @@
   body { font-family:'Inter',system-ui,sans-serif; }
   h1,h2,h3,h4,.font-display { font-family:'Poppins',system-ui,sans-serif; }
 
+  /* ============================================================
+     PERALIHAN LATAR ANTAR SEKSI
+     Tiap seksi berakhir tepat pada warna awal seksi berikutnya,
+     sehingga sambungannya berupa gradasi, bukan garis potong.
+     Dua nada dasar dipakai bergantian: putih dan kabut biru muda.
+     ============================================================ */
+  :root{ --putih:#ffffff; --kabut:#f2f6fb; --kabut-tua:#e8f0fa; }
+
+  .ground-materi{
+    background-color:var(--kabut);
+    background-image:
+      radial-gradient(rgba(5,150,105,.15) 1.5px, transparent 1.6px),
+      linear-gradient(to bottom, var(--kabut-tua) 0%, var(--kabut) 26%, #f8fbfe 68%, var(--putih) 100%);
+    background-size:22px 22px, 100% 100%;
+  }
+  .ground-media{
+    background-image:linear-gradient(to bottom, var(--putih) 0%, #fbfdfe 55%, var(--kabut) 100%);
+  }
+  .ground-pengumuman{
+    background-color:var(--kabut);
+    background-image:
+      linear-gradient(rgba(37,99,235,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,.05) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--kabut) 0%, #f8fbfe 45%, var(--putih) 100%);
+    background-size:28px 28px, 28px 28px, 100% 100%;
+  }
+  .ground-interaksi{
+    background-image:linear-gradient(to bottom, var(--putih) 0%, #f7fafd 50%, var(--kabut-tua) 100%);
+  }
+  /* Masuk ke bidang gelap secara berangsur, bukan lompat mendadak */
+  .ground-kontak{
+    background-image:linear-gradient(to bottom,
+      var(--kabut-tua) 0%, #c2d5ee 5%, #7b9ad2 11%, #35539f 17%,
+      #1e3a8a 26%, #1e40af 60%, #1c3578 100%);
+  }
+  .ground-footer{
+    background-image:linear-gradient(to bottom, #1c3578 0%, #14224e 26%, #0f172a 62%);
+  }
+
   /* --- Pattern grid halus ala kertas milimeter laboratorium --- */
   .pattern-grid{
     background-image:
@@ -269,6 +308,13 @@
            decoding="async" />
     </picture>
 
+    <!-- Peluruhan tepi: sisi atas menyambung gelombang putih hero, sisi bawah
+         melarut ke warna awal seksi materi agar tidak ada garis potong. -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-32
+                bg-gradient-to-b from-white to-transparent"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 sm:h-40
+                bg-gradient-to-t from-[#e8f0fa] to-transparent"></div>
+
     <div class="relative max-w-6xl mx-auto px-5 sm:px-6">
       <div class="grid md:grid-cols-[280px_1fr] gap-10 items-start">
 
@@ -322,7 +368,7 @@
   <!-- ------------------------------------------------------------------
        3. MATERI / RINGKASAN BAB IPA
        ------------------------------------------------------------------ -->
-  <section id="materi" class="py-16 sm:py-24 pattern-dots bg-slate-50 scroll-mt-20">
+  <section id="materi" class="py-16 sm:py-24 ground-materi scroll-mt-20">
     <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
@@ -343,7 +389,7 @@
   <!-- ------------------------------------------------------------------
        4. MEDIA PEMBELAJARAN
        ------------------------------------------------------------------ -->
-  <section id="media" class="py-16 sm:py-24 bg-white scroll-mt-20">
+  <section id="media" class="py-16 sm:py-24 ground-media scroll-mt-20">
     <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
@@ -365,7 +411,7 @@
   <!-- ------------------------------------------------------------------
        5. PENGUMUMAN KELAS
        ------------------------------------------------------------------ -->
-  <section id="pengumuman" class="py-16 sm:py-24 bg-slate-50 pattern-grid scroll-mt-20">
+  <section id="pengumuman" class="py-16 sm:py-24 ground-pengumuman scroll-mt-20">
     <div class="max-w-4xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
@@ -382,7 +428,7 @@
   <!-- ------------------------------------------------------------------
        6. RUANG INTERAKSI — komentar publik + kotak saran privat
        ------------------------------------------------------------------ -->
-  <section id="interaksi" class="py-16 sm:py-24 bg-white scroll-mt-20">
+  <section id="interaksi" class="py-16 sm:py-24 ground-interaksi scroll-mt-20">
     <div class="max-w-6xl mx-auto px-5 sm:px-6">
       <div class="text-center max-w-2xl mx-auto reveal">
         <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
@@ -464,7 +510,7 @@
   <!-- ------------------------------------------------------------------
        7. KONTAK & SOSIAL MEDIA
        ------------------------------------------------------------------ -->
-  <section id="kontak" class="py-16 sm:py-24 bg-gradient-to-br from-sains-800 via-sains-700 to-sains-800 text-white scroll-mt-20 relative overflow-hidden">
+  <section id="kontak" class="pt-24 pb-16 sm:pt-32 sm:pb-24 ground-kontak text-white scroll-mt-20 relative overflow-hidden">
     <!-- Dekorasi molekul SVG -->
     <svg class="absolute -right-10 -top-10 w-72 h-72 opacity-10" viewBox="0 0 200 200" aria-hidden="true">
       <g stroke="#fff" stroke-width="3" fill="none">
@@ -495,7 +541,7 @@
   <!-- ------------------------------------------------------------------
        7. FOOTER
        ------------------------------------------------------------------ -->
-  <footer class="bg-slate-900 text-slate-400 py-10">
+  <footer class="ground-footer text-slate-400 py-10">
     <div class="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-center sm:text-left">
       <div class="flex items-center gap-3">
         <span class="grid place-items-center w-9 h-9 rounded-xl bg-sains-700 text-white shrink-0">
@@ -583,10 +629,16 @@
 
   <main class="max-w-5xl mx-auto px-5 sm:px-6 py-6 pb-24">
 
-    <!-- ===== TAB: PROFIL ===== -->
-    <section data-tab-panel="profil" class="admin-panel space-y-4">
+    <!-- ===== TAB: HERO (halaman paling atas) ===== -->
+    <section data-tab-panel="hero" class="admin-panel space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2"><i data-lucide="user-round" class="w-4.5 h-4.5 text-sains-700"></i> Profil Guru</h3>
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="panel-top" class="w-4.5 h-4.5 text-sains-700"></i> Hero — Tampilan Paling Atas
+        </h3>
+        <p class="mt-2 text-xs text-slate-500 leading-relaxed">
+          Yang pertama dilihat pengunjung saat halaman dibuka: nama besar, jabatan, dan kalimat pembuka di atas foto latar.
+        </p>
+
         <div class="mt-4 grid sm:grid-cols-2 gap-4">
           <label class="block"><span class="text-xs font-semibold text-slate-600">Nama Lengkap</span>
             <input id="pfNama" class="adm-input" /></label>
@@ -594,16 +646,34 @@
             <input id="pfJabatan" class="adm-input" /></label>
           <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Sekolah</span>
             <input id="pfSekolah" class="adm-input" /></label>
-          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Tagline (Hero)</span>
-            <textarea id="pfTagline" rows="2" class="adm-input"></textarea></label>
-          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Deskripsi Singkat</span>
-            <textarea id="pfDeskripsi" rows="4" class="adm-input"></textarea></label>
-          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Peran / Keahlian <span class="font-normal text-slate-400">(pisahkan dengan koma)</span></span>
-            <input id="pfPeran" class="adm-input" placeholder="Guru IPA, Pembina OSN IPA, ..." /></label>
+          <label class="block sm:col-span-2"><span class="text-xs font-semibold text-slate-600">Kalimat Pembuka
+            <span class="font-normal text-slate-400">— hanya tampil di hero</span></span>
+            <textarea id="pfTagline" rows="3" class="adm-input"></textarea></label>
         </div>
 
+        <p class="mt-4 flex items-start gap-2 text-[11px] text-slate-500 bg-sains-50 border border-sains-100 rounded-xl px-3 py-2.5 leading-relaxed">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-sains-700 shrink-0 mt-px"></i>
+          <span>Nama, jabatan, dan sekolah juga dipakai di seksi Tentang Guru serta judul halaman, jadi cukup diisi sekali di sini.</span>
+        </p>
+
+        <button id="pfSimpan" class="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Hero
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== TAB: TENTANG GURU ===== -->
+    <section data-tab-panel="tentang" class="admin-panel hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="user-round" class="w-4.5 h-4.5 text-sains-700"></i> Tentang Guru
+        </h3>
+        <p class="mt-2 text-xs text-slate-500 leading-relaxed">
+          Seksi perkenalan tepat di bawah hero: foto, cerita singkat, dan daftar peran.
+        </p>
+
         <!-- Upload foto -> base64 -->
-        <div class="mt-5 pt-5 border-t border-slate-100">
+        <div class="mt-5">
           <span class="text-xs font-semibold text-slate-600">Foto Profil</span>
           <div class="mt-2 flex items-center gap-4 flex-wrap">
             <div id="pfPreview" class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 grid place-items-center shrink-0"></div>
@@ -617,11 +687,19 @@
               </button>
             </div>
           </div>
-          <p class="mt-2 text-[11px] text-slate-400">Gambar otomatis dikompres & disimpan sebagai base64 di localStorage. Disarankan foto persegi, maks ~2 MB.</p>
+          <p class="mt-2 text-[11px] text-slate-400">Gambar otomatis dikompres. Disarankan foto persegi, maks ~2 MB.</p>
         </div>
 
-        <button id="pfSimpan" class="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
-          <i data-lucide="save" class="w-4 h-4"></i> Simpan Profil
+        <div class="mt-5 pt-5 border-t border-slate-100 grid gap-4">
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Cerita Singkat
+            <span class="font-normal text-slate-400">— hanya tampil di seksi Tentang</span></span>
+            <textarea id="pfDeskripsi" rows="6" class="adm-input"></textarea></label>
+          <label class="block"><span class="text-xs font-semibold text-slate-600">Peran / Keahlian <span class="font-normal text-slate-400">(pisahkan dengan koma)</span></span>
+            <input id="pfPeran" class="adm-input" placeholder="Guru IPA, Pembina OSN IPA, ..." /></label>
+        </div>
+
+        <button id="pfSimpanTentang" class="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-lab-500 text-white text-sm font-semibold hover:bg-lab-600">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Tentang Guru
         </button>
       </div>
     </section>
@@ -1926,7 +2004,7 @@
     isiFormProfil();
     isiFormKontak();
     renderAdminLists();
-    gantiTab('profil');
+    gantiTab('hero');
     perbaruiStatusServer();
     icons();
   }
@@ -1954,7 +2032,8 @@
      § 8. TAB PANEL ADMIN
      ========================================================================== */
   const TABS = [
-    { id:'profil',     label:'Profil',     icon:'user-round' },
+    { id:'hero',       label:'Hero',       icon:'panel-top' },
+    { id:'tentang',    label:'Tentang',    icon:'user-round' },
     { id:'materi',     label:'Materi',     icon:'book-open' },
     { id:'media',      label:'Media',      icon:'monitor-play' },
     { id:'pengumuman', label:'Pengumuman', icon:'megaphone' },
@@ -1963,7 +2042,7 @@
     { id:'kontak',     label:'Kontak',     icon:'share-2' },
     { id:'data',       label:'Data',       icon:'database' }
   ];
-  let tabAktif = 'profil';
+  let tabAktif = 'hero';
 
   function gantiTab(id) {
     tabAktif = id;
@@ -2037,18 +2116,27 @@
     simpanData('Foto profil dihapus.');
   });
 
+  /* Tab Hero menyimpan identitas & kalimat pembuka saja. */
   $('#pfSimpan').addEventListener('click', () => {
     const nama = $('#pfNama').value.trim();
     if (!nama) { toast('Nama tidak boleh kosong.', 'error'); return; }
     Object.assign(data.profil, {
       nama,
-      jabatan:   $('#pfJabatan').value.trim(),
-      sekolah:   $('#pfSekolah').value.trim(),
-      tagline:   $('#pfTagline').value.trim(),
+      jabatan: $('#pfJabatan').value.trim(),
+      sekolah: $('#pfSekolah').value.trim(),
+      tagline: $('#pfTagline').value.trim()
+    });
+    simpanData('Hero tersimpan.');
+  });
+
+  /* Tab Tentang menyimpan cerita & peran saja; fotonya sudah tersimpan
+     seketika saat diunggah. */
+  $('#pfSimpanTentang').addEventListener('click', () => {
+    Object.assign(data.profil, {
       deskripsi: $('#pfDeskripsi').value.trim(),
       peran:     $('#pfPeran').value.split(',').map(s => s.trim()).filter(Boolean)
     });
-    simpanData('Profil tersimpan.');
+    simpanData('Tentang Guru tersimpan.');
   });
 
   /* ==========================================================================
