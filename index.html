@@ -91,14 +91,11 @@
   .ground-interaksi{
     background-image:linear-gradient(to bottom, var(--putih) 0%, #f7fafd 50%, var(--kabut-tua) 100%);
   }
-  /* Masuk ke bidang gelap secara berangsur, bukan lompat mendadak */
-  .ground-kontak{
-    background-image:linear-gradient(to bottom,
-      var(--kabut-tua) 0%, #c2d5ee 5%, #7b9ad2 11%, #35539f 17%,
-      #1e3a8a 26%, #1e40af 60%, #1c3578 100%);
-  }
+  /* Seksi kontak kini bernada terang mengikuti gambar latarnya; peluruhan
+     ke bidang gelap ditangani lapisan gradasi di dalam seksinya sendiri,
+     berakhir pada #1e3a8a — warna tempat footer di bawah ini bermula. */
   .ground-footer{
-    background-image:linear-gradient(to bottom, #1c3578 0%, #14224e 26%, #0f172a 62%);
+    background-image:linear-gradient(to bottom, #1e3a8a 0%, #16265c 30%, #0f172a 68%);
   }
 
   /* --- Pattern grid halus ala kertas milimeter laboratorium --- */
@@ -510,26 +507,33 @@
   <!-- ------------------------------------------------------------------
        7. KONTAK & SOSIAL MEDIA
        ------------------------------------------------------------------ -->
-  <section id="kontak" class="pt-24 pb-16 sm:pt-32 sm:pb-24 ground-kontak text-white scroll-mt-20 relative overflow-hidden">
-    <!-- Dekorasi molekul SVG -->
-    <svg class="absolute -right-10 -top-10 w-72 h-72 opacity-10" viewBox="0 0 200 200" aria-hidden="true">
-      <g stroke="#fff" stroke-width="3" fill="none">
-        <line x1="60" y1="60" x2="120" y2="40"/><line x1="60" y1="60" x2="50" y2="130"/>
-        <line x1="120" y1="40" x2="160" y2="95"/><line x1="50" y1="130" x2="120" y2="150"/>
-        <line x1="160" y1="95" x2="120" y2="150"/>
-      </g>
-      <g fill="#fff">
-        <circle cx="60" cy="60" r="12"/><circle cx="120" cy="40" r="9"/>
-        <circle cx="50" cy="130" r="10"/><circle cx="160" cy="95" r="8"/><circle cx="120" cy="150" r="11"/>
-      </g>
-    </svg>
+  <!-- Jarak bawah sengaja lebih besar dari tinggi lapisan peluruhan, supaya
+       isi seksi tidak pernah jatuh di area yang sudah menggelap. -->
+  <section id="kontak" class="relative overflow-hidden pt-24 pb-44 sm:pt-32 sm:pb-56 bg-sains-50 scroll-mt-20">
+
+    <!-- Latar seksi kontak. Gambarnya bernada terang, jadi seksi ini memakai
+         teks gelap — sekaligus menghapus satu-satunya blok gelap yang dulu
+         memutus alur halaman. -->
+    <picture>
+      <source srcset="kontak-bg.webp" type="image/webp">
+      <img src="kontak-bg.jpg" alt=""
+           class="absolute inset-0 w-full h-full object-cover object-center"
+           decoding="async" />
+    </picture>
+
+    <!-- Peluruhan tepi: sisi atas menyambung warna akhir seksi interaksi,
+         sisi bawah melarut ke nada awal footer. -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-32
+                bg-gradient-to-b from-[#e8f0fa] to-transparent"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-32 sm:h-44
+                bg-gradient-to-t from-sains-800 via-sains-800/60 to-transparent"></div>
 
     <div class="relative max-w-4xl mx-auto px-5 sm:px-6 text-center reveal">
-      <span class="inline-flex items-center gap-2 text-lab-300 text-xs font-bold uppercase tracking-widest">
+      <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
         <i data-lucide="share-2" class="w-4 h-4"></i> Terhubung
       </span>
-      <h2 class="mt-3 text-2xl sm:text-3xl font-bold">Ikuti & Hubungi Pak Bayu</h2>
-      <p class="mt-3 text-sains-100/90 max-w-xl mx-auto">Konten belajar IPA ringan, tips sains, dan produk digital pembelajaran.</p>
+      <h2 class="mt-3 text-2xl sm:text-3xl font-bold text-slate-900">Ikuti &amp; Hubungi Pak Bayu</h2>
+      <p class="mt-3 text-slate-600 max-w-xl mx-auto">Konten belajar IPA ringan, tips sains, dan produk digital pembelajaran.</p>
 
       <div id="sosmedGrid" class="mt-10 grid sm:grid-cols-3 gap-4"></div>
 
@@ -1712,21 +1716,24 @@
 
     let html = items.map(i =>
       '<a href="' + esc(safeUrl(i.url)) + '" target="_blank" rel="noopener noreferrer" ' +
-        'class="group flex items-center gap-4 p-5 rounded-2xl bg-white/10 hover:bg-white border border-white/20 hover:border-white transition text-left">' +
-        '<span class="grid place-items-center w-12 h-12 rounded-xl bg-white/15 group-hover:bg-sains-700 text-white transition shrink-0">' +
+        'class="group flex items-center gap-4 p-5 rounded-2xl bg-white/80 backdrop-blur border border-white/70 ' +
+        'shadow-sm hover:bg-white hover:border-sains-200 hover:shadow-lg hover:-translate-y-0.5 transition text-left">' +
+        '<span class="grid place-items-center w-12 h-12 rounded-xl bg-sains-700 group-hover:bg-sains-800 text-white transition shrink-0">' +
           SVG_SOSMED[i.key] + '</span>' +
         '<span class="min-w-0">' +
-          '<span class="block font-display font-bold text-white group-hover:text-sains-800 transition">' + esc(i.label) + '</span>' +
-          '<span class="block text-xs text-sains-100/80 group-hover:text-slate-500 transition truncate">' + esc(i.sub) + '</span>' +
+          '<span class="block font-display font-bold text-slate-900">' + esc(i.label) + '</span>' +
+          '<span class="block text-xs text-slate-500 truncate">' + esc(i.sub) + '</span>' +
         '</span>' +
       '</a>').join('');
 
     if (k.email && k.email.trim()) {
-      html += '<a href="mailto:' + esc(k.email) + '" class="sm:col-span-3 inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white hover:text-sains-800 text-white text-sm font-semibold transition">' +
+      html += '<a href="mailto:' + esc(k.email) + '" class="sm:col-span-3 inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 rounded-xl ' +
+              'bg-white/80 backdrop-blur border border-white/70 shadow-sm hover:bg-white hover:border-sains-200 ' +
+              'text-sains-800 text-sm font-semibold transition">' +
               '<i data-lucide="mail" class="w-4 h-4"></i>' + esc(k.email) + '</a>';
     }
 
-    $('#sosmedGrid').innerHTML = html || '<p class="sm:col-span-3 text-sains-100/70 text-sm">Belum ada tautan sosial media.</p>';
+    $('#sosmedGrid').innerHTML = html || '<p class="sm:col-span-3 text-slate-500 text-sm">Belum ada tautan sosial media.</p>';
     renderDukungan();
   }
 
@@ -1745,9 +1752,9 @@
     blok.classList.remove('hidden');
     blok.innerHTML =
       '<a href="dukungan.html" ' +
-         'class="group inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white/5 border border-white/15 ' +
-         'hover:bg-white/10 hover:border-white/30 transition text-sains-100/80 hover:text-white">' +
-        '<i data-lucide="heart-handshake" class="w-4 h-4 text-lab-300"></i>' +
+         'class="group inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white/60 backdrop-blur ' +
+         'border border-white/70 hover:bg-white hover:border-lab-200 transition text-slate-600 hover:text-slate-900">' +
+        '<i data-lucide="heart-handshake" class="w-4 h-4 text-lab-600"></i>' +
         '<span class="text-sm font-medium">' + esc(d.judul || 'Dukung halaman ini') + '</span>' +
         '<i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition"></i>' +
       '</a>';
