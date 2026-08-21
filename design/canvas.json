@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 4800, "title": "Halaman penuh (HP)" },
+    { "file": "Media.dc.html", "x": 500, "y": 0, "w": 1100, "h": 1180, "title": "Media — band gelap (desktop)" },
+    { "file": "Ritme.dc.html", "x": 500, "y": 1280, "w": 760, "h": 680, "title": "Ritme latar antar seksi" }
+  ],
+  "annotations": [
+    {
+      "id": "catatan-arah",
+      "x": 500,
+      "y": 2020,
+      "w": 400,
+      "text": "Dua masalah yang dijawab kanvas ini:\n\n1. Seksi Media terlalu dominan — 15 kartu ditumpuk satu kolom. Diganti baris geser per jenis, tingginya turun sekitar 56%.\n\n2. Halaman terasa seperti tumpukan kartu putih seragam. Latar tiap seksi kini berselang-seling terang - putih - abu - gelap, jadi ada tanda pergantian babak.\n\nWarna, font, dan komponen tetap memakai sistem yang sudah jalan. Tidak ada fungsi yang berubah."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

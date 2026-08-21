@@ -1,0 +1,526 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap">
+  <style>
+    body { margin:0; font-family:'Inter',system-ui,sans-serif; color:#334155; background:#f8fafc; }
+    h1,h2,h3 { font-family:'Poppins',system-ui,sans-serif; margin:0; letter-spacing:-.02em; }
+    p { margin:0; }
+    a { color:#1e40af; } a:hover { color:#1e3a8a; }
+    .grid-pat {
+      background-image:
+        linear-gradient(rgba(37,99,235,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,.07) 1px, transparent 1px);
+      background-size:28px 28px;
+    }
+    .dot-pat { background-image:radial-gradient(rgba(5,150,105,.16) 1.5px, transparent 1.6px); background-size:22px 22px; }
+    .rail { display:flex; gap:12px; overflow-x:auto; padding:0 20px 4px; scrollbar-width:none; }
+    .rail::-webkit-scrollbar { display:none; }
+  </style>
+</helmet>
+
+<div style="width:390px; background:#f8fafc">
+
+  <!-- ============ NAV ============ -->
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:rgba(255,255,255,.92); border-bottom:1px solid #e2e8f0; position:relative; z-index:5">
+    <div style="display:flex; align-items:center; gap:10px">
+      <div style="width:36px; height:36px; border-radius:12px; background:linear-gradient(135deg,#1e3a8a,#2563eb); display:flex; align-items:center; justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="2.6"/><ellipse cx="12" cy="12" rx="10" ry="4.4"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(120 12 12)"/></svg>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1px">
+        <span style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#1e3a8a">Bayu Setiadji</span>
+        <span style="font-size:10px; color:#64748b">Guru IPA · SMPN 3 Besuki</span>
+      </div>
+    </div>
+    <div style="width:40px; height:40px; border-radius:10px; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </div>
+  </div>
+
+  <!-- ============ 1. HERO — ground terang, berpola ============ -->
+  <div class="grid-pat" style="position:relative; padding:32px 20px 0; background:linear-gradient(180deg,#ffffff 0%, #eff6ff 55%, #f8fafc 100%); overflow:hidden">
+    <div style="position:absolute; top:60px; right:-30px; width:180px; height:180px; opacity:.07">
+      <svg viewBox="0 0 200 200" fill="none"><g stroke="#1e3a8a" stroke-width="4"><path d="M60 55 130 40M60 55 45 135M130 40 165 105M45 135 120 155M165 105 120 155"/></g><g fill="#1e3a8a"><circle cx="60" cy="55" r="13"/><circle cx="130" cy="40" r="9"/><circle cx="45" cy="135" r="11"/><circle cx="165" cy="105" r="8"/><circle cx="120" cy="155" r="12"/></g></svg>
+    </div>
+
+    <div style="position:relative; display:flex; flex-direction:column; gap:16px">
+      <div style="display:inline-flex; align-items:center; gap:7px; align-self:flex-start; padding:6px 12px; border-radius:999px; background:#ecfdf5; border:1px solid #a7f3d0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M6 18h8M9 3v6l-5 9a2 2 0 0 0 1.8 3h8.4a2 2 0 0 0 1.8-3l-5-9V3"/></svg>
+        <span style="font-size:11px; font-weight:600; color:#047857">Kurikulum Merdeka · Fase D</span>
+      </div>
+
+      <h1 style="font-size:32px; font-weight:800; color:#0f172a; line-height:1.15">Bayu Setiadji, S.Pd.</h1>
+      <p style="font-size:14px; font-weight:600; color:#1e40af; line-height:1.4">Guru Mata Pelajaran IPA · SMP Negeri 3 Besuki, Situbondo</p>
+      <p style="font-size:15px; line-height:1.7; color:#475569">Belajar IPA itu seperti membuka pintu laboratorium: penuh rasa penasaran, percobaan, dan penemuan. Yuk, jelajahi sains bersama!</p>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px">
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:50px; border-radius:14px; background:#1e40af; box-shadow:0 10px 20px -8px rgba(30,64,175,.6)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9"><path d="M2 4h7a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2zM22 4h-7a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+          <span style="font-size:15px; font-weight:600; color:#fff">Jelajahi Materi</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:50px; border-radius:14px; background:#fff; border:1px solid #e2e8f0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="1.9"><path d="M9 3h6M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/></svg>
+          <span style="font-size:15px; font-weight:600; color:#1e3a8a">Media Pembelajaran</span>
+        </div>
+      </div>
+
+      <!-- Statistik -->
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:8px">
+        <div style="background:rgba(255,255,255,.85); border:1px solid #e2e8f0; border-radius:16px; padding:14px 6px; text-align:center">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; color:#0891b2; line-height:1">25</div>
+          <div style="font-size:10.5px; color:#64748b; margin-top:6px">Topik Materi</div>
+        </div>
+        <div style="background:rgba(255,255,255,.85); border:1px solid #e2e8f0; border-radius:16px; padding:14px 6px; text-align:center">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; color:#059669; line-height:1">15</div>
+          <div style="font-size:10.5px; color:#64748b; margin-top:6px">Media Belajar</div>
+        </div>
+        <div style="background:rgba(255,255,255,.85); border:1px solid #e2e8f0; border-radius:16px; padding:14px 6px; text-align:center">
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; color:#7c3aed; line-height:1">3</div>
+          <div style="font-size:10.5px; color:#64748b; margin-top:6px">Kelas VII–IX</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pemisah gelombang -->
+    <div style="margin:24px -20px 0">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style="display:block; width:100%; height:34px"><path fill="#ffffff" d="M0,64 C240,120 480,8 720,40 C960,72 1200,120 1440,72 L1440,120 L0,120 Z"/></svg>
+    </div>
+  </div>
+
+  <!-- ============ 2. TENTANG — ground putih ============ -->
+  <div style="background:#fff; padding:8px 20px 44px">
+    <div style="display:flex; justify-content:center; padding:8px 0 30px">
+      <div style="position:relative; width:200px; height:200px">
+        <div style="position:absolute; inset:-6px; border-radius:30px; background:linear-gradient(135deg,#22d3ee,#2563eb 55%,#8b5cf6)"></div>
+        <div style="position:absolute; inset:0; border-radius:24px; border:4px solid #fff; background:linear-gradient(135deg,#1e3a8a,#059669); box-shadow:0 22px 40px -18px rgba(30,58,138,.55); display:flex; align-items:center; justify-content:center">
+          <span style="font-family:'Poppins',sans-serif; font-weight:800; font-size:52px; color:rgba(255,255,255,.92)">BS</span>
+        </div>
+        <div style="position:absolute; top:-14px; right:-14px; width:44px; height:44px; border-radius:14px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 8px 18px -6px rgba(100,116,139,.5); display:flex; align-items:center; justify-content:center">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.7"><circle cx="12" cy="12" r="2.6"/><ellipse cx="12" cy="12" rx="10" ry="4.4"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(60 12 12)"/></svg>
+        </div>
+        <div style="position:absolute; top:-14px; left:-14px; width:40px; height:40px; border-radius:14px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 8px 18px -6px rgba(100,116,139,.5); display:flex; align-items:center; justify-content:center">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.7"><path d="M6 18h8M14 21H4M9 3h4v6l3 5H6l3-5V3z"/></svg>
+        </div>
+        <div style="position:absolute; bottom:-46px; left:50%; transform:translateX(-50%); display:inline-flex; align-items:center; gap:6px; height:42px; padding:0 14px; border-radius:14px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 8px 18px -6px rgba(100,116,139,.5); white-space:nowrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 22l5-2.5L17 22l-1.5-9.5"/></svg>
+          <span style="font-size:11px; font-weight:700; color:#7c3aed">Pembina OSN</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:26px">
+      <div style="display:inline-flex; align-items:center; gap:7px; align-self:flex-start">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span style="font-size:11px; font-weight:700; color:#047857; letter-spacing:.12em">TENTANG GURU</span>
+      </div>
+      <h2 style="font-size:24px; font-weight:700; color:#0f172a">Bayu Setiadji, S.Pd.</h2>
+      <p style="font-size:14px; font-weight:600; color:#1e40af">Guru Mata Pelajaran IPA · SMP Negeri 3 Besuki</p>
+      <p style="font-size:15px; line-height:1.75; color:#475569; margin-top:4px">Saya mengajar IPA untuk kelas VII, VIII, dan IX dengan kerangka Kurikulum Merdeka Fase D. Pembelajaran saya menekankan proses inkuiri: siswa mengamati, bertanya, mencoba, lalu menyimpulkan sendiri.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px">
+        <span style="padding:7px 12px; border-radius:10px; background:#eff6ff; border:1px solid #dbeafe; font-size:11.5px; font-weight:600; color:#1e40af">Guru IPA Fase D</span>
+        <span style="padding:7px 12px; border-radius:10px; background:#eff6ff; border:1px solid #dbeafe; font-size:11.5px; font-weight:600; color:#1e40af">Pembina OSN IPA</span>
+        <span style="padding:7px 12px; border-radius:10px; background:#eff6ff; border:1px solid #dbeafe; font-size:11.5px; font-weight:600; color:#1e40af">Literasi Sains</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3. MATERI — ground bertitik, kartu ber-rel warna kelas ============ -->
+  <div class="dot-pat" style="background:#f1f5f9; padding:44px 0">
+    <div style="padding:0 20px; text-align:center; display:flex; flex-direction:column; gap:10px">
+      <span style="font-size:11px; font-weight:700; color:#047857; letter-spacing:.12em">MATERI IPA</span>
+      <h2 style="font-size:24px; font-weight:700; color:#0f172a; line-height:1.25">Ringkasan Bab per Kelas</h2>
+      <p style="font-size:14.5px; line-height:1.7; color:#475569">Ketuk kartu untuk membuka ringkasannya.</p>
+    </div>
+
+    <div style="display:flex; gap:8px; padding:22px 20px 0; justify-content:center">
+      <div style="flex:1; text-align:center; padding:12px 4px; border-radius:14px; background:#0891b2; box-shadow:0 10px 18px -8px rgba(8,145,178,.65)">
+        <span style="font-size:13px; font-weight:600; color:#fff">Kelas VII</span>
+        <span style="font-size:11px; color:rgba(255,255,255,.7)"> (9)</span>
+      </div>
+      <div style="flex:1; text-align:center; padding:12px 4px; border-radius:14px; background:#fff; border:1px solid #e2e8f0">
+        <span style="font-size:13px; font-weight:600; color:#475569">Kelas VIII</span>
+        <span style="font-size:11px; color:#94a3b8"> (7)</span>
+      </div>
+      <div style="flex:1; text-align:center; padding:12px 4px; border-radius:14px; background:#fff; border:1px solid #e2e8f0">
+        <span style="font-size:13px; font-weight:600; color:#475569">Kelas IX</span>
+        <span style="font-size:11px; color:#94a3b8"> (9)</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; padding:20px 20px 0">
+      <div style="display:flex; background:#fff; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden; box-shadow:0 2px 6px -2px rgba(15,23,42,.06)">
+        <div style="width:5px; background:#06b6d4"></div>
+        <div style="flex:1; display:flex; align-items:center; gap:13px; padding:15px 16px">
+          <div style="width:42px; height:42px; border-radius:13px; background:#cffafe; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8"><path d="M3 17 17 3l4 4L7 21H3z"/><path d="M9 11l1.5 1.5M12 8l1.5 1.5"/></svg>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="font-size:9.5px; font-weight:700; color:#0e7490; letter-spacing:.1em">KELAS VII</div>
+            <h3 style="font-size:15px; font-weight:700; color:#0f172a; line-height:1.3; margin-top:3px">Pengukuran Aspek Fisis</h3>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- kartu terbuka: memberi variasi tinggi (ritme) -->
+      <div style="display:flex; background:#fff; border:1px solid #a5f3fc; border-radius:18px; overflow:hidden; box-shadow:0 14px 26px -14px rgba(8,145,178,.45)">
+        <div style="width:5px; background:#06b6d4"></div>
+        <div style="flex:1; padding:15px 16px">
+          <div style="display:flex; align-items:center; gap:13px">
+            <div style="width:42px; height:42px; border-radius:13px; background:#cffafe; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8"><path d="M9 3h6M10 3v5.5L5 18.5A2 2 0 0 0 6.8 21h10.4a2 2 0 0 0 1.8-2.5L14 8.5V3"/></svg>
+            </div>
+            <div style="flex:1; min-width:0">
+              <div style="font-size:9.5px; font-weight:700; color:#0e7490; letter-spacing:.1em">KELAS VII</div>
+              <h3 style="font-size:15px; font-weight:700; color:#0f172a; line-height:1.3; margin-top:3px">Klasifikasi Materi</h3>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="2" style="flex-shrink:0; transform:rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div style="border-top:1px solid #f1f5f9; margin-top:14px; padding-top:14px">
+            <p style="font-size:14px; line-height:1.7; color:#475569">Mencakup klasifikasi materi berdasarkan wujud dan komposisinya, perbedaan unsur, senyawa, dan campuran, serta cara pemisahan campuran sederhana.</p>
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:46px; border-radius:14px; background:#0891b2; margin-top:14px; box-shadow:0 8px 16px -8px rgba(8,145,178,.7)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span style="font-size:14px; font-weight:600; color:#fff">Lihat Materi</span>
+              <span style="font-size:10.5px; color:rgba(255,255,255,.75)">· Google Drive</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; background:#fff; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden; box-shadow:0 2px 6px -2px rgba(15,23,42,.06)">
+        <div style="width:5px; background:#06b6d4"></div>
+        <div style="flex:1; display:flex; align-items:center; gap:13px; padding:15px 16px">
+          <div style="width:42px; height:42px; border-radius:13px; background:#cffafe; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8"><path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/><path d="M10 9h4"/></svg>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="font-size:9.5px; font-weight:700; color:#0e7490; letter-spacing:.1em">KELAS VII</div>
+            <h3 style="font-size:15px; font-weight:700; color:#0f172a; line-height:1.3; margin-top:3px">Suhu, Kalor, dan Pemuaian</h3>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 4. MEDIA — BAND GELAP + rel geser per kategori ============ -->
+  <div style="background:linear-gradient(180deg,#0f2557 0%, #16337a 45%, #0f2557 100%); padding:44px 0 40px; position:relative; overflow:hidden">
+    <div style="position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.4px); background-size:26px 26px"></div>
+
+    <div style="position:relative; padding:0 20px; text-align:center; display:flex; flex-direction:column; gap:10px">
+      <span style="font-size:11px; font-weight:700; color:#6ee7b7; letter-spacing:.12em">MEDIA PEMBELAJARAN</span>
+      <h2 style="font-size:24px; font-weight:700; color:#fff; line-height:1.25">Simulasi, LKPD, Video &amp; Latihan Soal</h2>
+      <p style="font-size:14.5px; line-height:1.7; color:rgba(219,234,254,.8)">Geser tiap baris untuk melihat semuanya.</p>
+    </div>
+
+    <!-- Rel 1: Simulasi -->
+    <div style="position:relative; margin-top:26px">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 20px 12px">
+        <div style="display:flex; align-items:center; gap:9px">
+          <div style="width:30px; height:30px; border-radius:9px; background:rgba(56,189,248,.22); display:flex; align-items:center; justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="1.9"><path d="M9 3h6M10 3v5.5L5 18.5A2 2 0 0 0 6.8 21h10.4a2 2 0 0 0 1.8-2.5L14 8.5V3"/></svg>
+          </div>
+          <span style="font-size:14px; font-weight:700; color:#fff; font-family:'Poppins',sans-serif">Simulasi</span>
+          <span style="font-size:11px; color:rgba(219,234,254,.6)">5</span>
+        </div>
+        <span style="font-size:12px; font-weight:600; color:#7dd3fc">Semua ›</span>
+      </div>
+      <div class="rail">
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,.2); font-size:9.5px; font-weight:700; color:#7dd3fc">SIMULASI</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">PhET — Rangkaian Listrik Sederhana</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Rakit rangkaian seri dan paralel secara virtual.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(125,211,252,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#7dd3fc">Lihat Simulasi</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(56,189,248,.2); font-size:9.5px; font-weight:700; color:#7dd3fc">SIMULASI</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">PhET — Bentuk &amp; Perubahan Energi</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Amati energi berubah bentuk antar sistem.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(125,211,252,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#7dd3fc">Lihat Simulasi</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:40px; flex-shrink:0"></div>
+      </div>
+    </div>
+
+    <!-- Rel 2: Video -->
+    <div style="position:relative; margin-top:26px">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 20px 12px">
+        <div style="display:flex; align-items:center; gap:9px">
+          <div style="width:30px; height:30px; border-radius:9px; background:rgba(251,191,36,.22); display:flex; align-items:center; justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+          </div>
+          <span style="font-size:14px; font-weight:700; color:#fff; font-family:'Poppins',sans-serif">Video</span>
+          <span style="font-size:11px; color:rgba(219,234,254,.6)">4</span>
+        </div>
+        <span style="font-size:12px; font-weight:600; color:#fcd34d">Semua ›</span>
+      </div>
+      <div class="rail">
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(251,191,36,.2); font-size:9.5px; font-weight:700; color:#fcd34d">VIDEO</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">Metode Ilmiah</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Penjelasan tentang metode ilmiah.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(252,211,77,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#fcd34d">Tonton Video</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(251,191,36,.2); font-size:9.5px; font-weight:700; color:#fcd34d">VIDEO</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">Sistem Hormon pada Manusia</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Menjelaskan sistem hormon pada manusia.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(252,211,77,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#fcd34d">Tonton Video</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:40px; flex-shrink:0"></div>
+      </div>
+    </div>
+
+    <!-- Rel 3: LKPD + Latihan digabung -->
+    <div style="position:relative; margin-top:26px">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 20px 12px">
+        <div style="display:flex; align-items:center; gap:9px">
+          <div style="width:30px; height:30px; border-radius:9px; background:rgba(167,139,250,.22); display:flex; align-items:center; justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="1.9"><path d="M4 4h11l5 5v11H4z"/><path d="M8 12h8M8 16h5"/></svg>
+          </div>
+          <span style="font-size:14px; font-weight:700; color:#fff; font-family:'Poppins',sans-serif">LKPD &amp; Latihan</span>
+          <span style="font-size:11px; color:rgba(219,234,254,.6)">6</span>
+        </div>
+        <span style="font-size:12px; font-weight:600; color:#c4b5fd">Semua ›</span>
+      </div>
+      <div class="rail">
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(167,139,250,.2); font-size:9.5px; font-weight:700; color:#c4b5fd">LATIHAN SOAL</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">Latihan Soal Sistem Saraf</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Soal bertingkat dari dasar sampai HOTS.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(196,181,253,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#c4b5fd">Kerjakan Latihan</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:224px; flex-shrink:0; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px">
+          <div style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(52,211,153,.2); font-size:9.5px; font-weight:700; color:#6ee7b7">LKPD</div>
+          <h3 style="font-size:14px; font-weight:700; color:#fff; line-height:1.35; margin-top:9px">LKPD Klasifikasi Makhluk Hidup</h3>
+          <p style="font-size:12.5px; line-height:1.6; color:rgba(219,234,254,.7); margin-top:6px">Lembar kerja dengan kunci dikotomi.</p>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:11px; border:1px solid rgba(110,231,183,.45); margin-top:12px">
+            <span style="font-size:12.5px; font-weight:600; color:#6ee7b7">Buka LKPD</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </div>
+        </div>
+        <div style="width:40px; flex-shrink:0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 5. PENGUMUMAN — ground putih hangat, timeline ============ -->
+  <div style="background:#fffdf8; padding:44px 20px">
+    <div style="text-align:center; display:flex; flex-direction:column; gap:10px">
+      <span style="font-size:11px; font-weight:700; color:#047857; letter-spacing:.12em">PAPAN PENGUMUMAN</span>
+      <h2 style="font-size:24px; font-weight:700; color:#0f172a; line-height:1.25">Pengumuman Kelas</h2>
+    </div>
+
+    <div style="position:relative; padding-left:26px; margin-top:26px; display:flex; flex-direction:column; gap:16px">
+      <div style="position:absolute; left:9px; top:14px; bottom:14px; width:2px; border-radius:2px; background:linear-gradient(180deg,#93c5fd,#e2e8f0,transparent)"></div>
+
+      <div style="position:relative; background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:18px 18px 18px 20px; box-shadow:0 3px 10px -4px rgba(15,23,42,.08); overflow:hidden">
+        <div style="position:absolute; left:0; top:0; bottom:0; width:5px; background:#ef4444"></div>
+        <div style="position:absolute; left:-25px; top:22px; width:20px; height:20px; border-radius:50%; background:#fff; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center">
+          <div style="width:8px; height:8px; border-radius:50%; background:#ef4444"></div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:7px">
+          <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:6px; background:#fee2e2; border:1px solid #fecaca; font-size:9.5px; font-weight:700; color:#b91c1c; letter-spacing:.06em">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17v.5"/></svg>PENTING
+          </span>
+          <span style="padding:4px 8px; border-radius:6px; background:#0f172a; font-size:9.5px; font-weight:700; color:#fff; letter-spacing:.06em">TERBARU</span>
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#94a3b8">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.9"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>2 Agustus 2026
+          </span>
+        </div>
+        <h3 style="font-size:18px; font-weight:700; color:#0f172a; line-height:1.3; margin-top:11px">Praktikum Uji Makanan Kelas VIII</h3>
+        <p style="font-size:14.5px; line-height:1.7; color:#475569; margin-top:8px">Dilaksanakan Kamis di laboratorium IPA. Tiap kelompok membawa nasi, tahu, putih telur rebus, dan pisang. Jangan lupa memakai jas lab.</p>
+      </div>
+
+      <div style="position:relative; background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:18px 18px 18px 20px; box-shadow:0 3px 10px -4px rgba(15,23,42,.08); overflow:hidden">
+        <div style="position:absolute; left:0; top:0; bottom:0; width:5px; background:#059669"></div>
+        <div style="position:absolute; left:-25px; top:22px; width:20px; height:20px; border-radius:50%; background:#fff; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center">
+          <div style="width:8px; height:8px; border-radius:50%; background:#059669"></div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:7px">
+          <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:6px; background:#d1fae5; border:1px solid #a7f3d0; font-size:9.5px; font-weight:700; color:#047857; letter-spacing:.06em">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 4 10.5V16H8v-2.5A6 6 0 0 1 12 3z"/></svg>TIPS SAINS
+          </span>
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#94a3b8">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.9"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>28 Juli 2026
+          </span>
+        </div>
+        <h3 style="font-size:18px; font-weight:700; color:#0f172a; line-height:1.3; margin-top:11px">Cara Cepat Menghafal Tabel Periodik</h3>
+        <p style="font-size:14.5px; line-height:1.7; color:#475569; margin-top:8px">Kelompokkan unsur per golongan, lalu buat jembatan keledai dari huruf depannya.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 6. INTERAKSI — ground tinted ============ -->
+  <div style="background:#f1f5f9; padding:44px 20px">
+    <div style="text-align:center; display:flex; flex-direction:column; gap:10px">
+      <span style="font-size:11px; font-weight:700; color:#047857; letter-spacing:.12em">RUANG INTERAKSI</span>
+      <h2 style="font-size:24px; font-weight:700; color:#0f172a; line-height:1.25">Tanya, Berkomentar, atau Beri Saran</h2>
+    </div>
+
+    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:20px; overflow:hidden; margin-top:24px; box-shadow:0 3px 10px -4px rgba(15,23,42,.08)">
+      <div style="display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid #f1f5f9">
+        <div style="width:40px; height:40px; border-radius:13px; background:#cffafe; display:flex; align-items:center; justify-content:center">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.9"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/></svg>
+        </div>
+        <div style="flex:1">
+          <h3 style="font-size:15px; font-weight:700; color:#0f172a">Komentar &amp; Diskusi</h3>
+          <p style="font-size:10.5px; color:#64748b; margin-top:2px">Tampil setelah disetujui guru.</p>
+        </div>
+        <span style="padding:4px 9px; border-radius:8px; background:#f1f5f9; font-size:11.5px; font-weight:700; color:#475569">3</span>
+      </div>
+
+      <div style="padding:16px; display:flex; flex-direction:column; gap:11px; background:#f8fafc">
+        <div style="display:flex; gap:11px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:13px">
+          <div style="width:34px; height:34px; border-radius:50%; background:#cffafe; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <span style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#0e7490">R</span>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:7px">
+              <span style="font-size:13.5px; font-weight:600; color:#1e293b">Rani VII A</span>
+              <span style="font-size:10.5px; color:#94a3b8">2 Agu · 15.05</span>
+            </div>
+            <p style="font-size:13.5px; line-height:1.65; color:#475569; margin-top:4px">Pak, materi kalor bagian pemuaian masih bingung. Boleh dibahas ulang?</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:11px; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:13px">
+          <div style="width:34px; height:34px; border-radius:50%; background:#cffafe; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <span style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#0e7490">D</span>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:7px">
+              <span style="font-size:13.5px; font-weight:600; color:#1e293b">Dimas VIII B</span>
+              <span style="font-size:10.5px; color:#94a3b8">1 Agu · 09.20</span>
+            </div>
+            <p style="font-size:13.5px; line-height:1.65; color:#475569; margin-top:4px">Kapan praktikum listrik statis, Pak?</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px; display:flex; flex-direction:column; gap:11px; border-top:1px solid #f1f5f9">
+        <div style="height:46px; border-radius:13px; border:1px solid #e2e8f0; display:flex; align-items:center; padding:0 14px">
+          <span style="font-size:13.5px; color:#94a3b8">Nama kamu (mis. Rani – VII A)</span>
+        </div>
+        <div style="height:74px; border-radius:13px; border:1px solid #e2e8f0; padding:12px 14px">
+          <span style="font-size:13.5px; color:#94a3b8">Tulis pertanyaan atau komentarmu…</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:13px; background:#0891b2; box-shadow:0 8px 16px -8px rgba(8,145,178,.7)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4z"/></svg>
+          <span style="font-size:14px; font-weight:600; color:#fff">Kirim Komentar</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:18px; margin-top:14px; box-shadow:0 3px 10px -4px rgba(15,23,42,.08)">
+      <div style="display:flex; align-items:center; gap:12px">
+        <div style="width:40px; height:40px; border-radius:13px; background:#d1fae5; display:flex; align-items:center; justify-content:center">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="1.9"><path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v7H3v-7z"/></svg>
+        </div>
+        <div style="flex:1">
+          <h3 style="font-size:15px; font-weight:700; color:#0f172a">Kotak Saran</h3>
+          <p style="font-size:10.5px; color:#64748b; margin-top:2px">Hanya dibaca Pak Bayu.</p>
+        </div>
+      </div>
+      <div style="height:46px; border-radius:13px; border:1px solid #e2e8f0; display:flex; align-items:center; padding:0 14px; margin-top:14px">
+        <span style="font-size:13.5px; color:#94a3b8">Nama (boleh dikosongkan)</span>
+      </div>
+      <div style="height:88px; border-radius:13px; border:1px solid #e2e8f0; padding:12px 14px; margin-top:11px">
+        <span style="font-size:13.5px; color:#94a3b8">Tulis saran, kritik, atau kesulitan belajarmu…</span>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:13px; background:#059669; margin-top:11px; box-shadow:0 8px 16px -8px rgba(5,150,105,.7)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4z"/></svg>
+        <span style="font-size:14px; font-weight:600; color:#fff">Kirim Saran</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 7. KONTAK — band navy ============ -->
+  <div style="background:linear-gradient(135deg,#1e3a8a,#1e40af 50%,#1e3a8a); padding:44px 20px; position:relative; overflow:hidden">
+    <div style="position:absolute; top:-20px; right:-30px; width:190px; height:190px; opacity:.1">
+      <svg viewBox="0 0 200 200" fill="none"><g stroke="#fff" stroke-width="4"><path d="M60 60 120 40M60 60 50 130M120 40 160 95M50 130 120 150M160 95 120 150"/></g><g fill="#fff"><circle cx="60" cy="60" r="12"/><circle cx="120" cy="40" r="9"/><circle cx="50" cy="130" r="10"/><circle cx="160" cy="95" r="8"/><circle cx="120" cy="150" r="11"/></g></svg>
+    </div>
+    <div style="position:relative; text-align:center; display:flex; flex-direction:column; gap:10px">
+      <span style="font-size:11px; font-weight:700; color:#6ee7b7; letter-spacing:.12em">TERHUBUNG</span>
+      <h2 style="font-size:24px; font-weight:700; color:#fff; line-height:1.25">Ikuti &amp; Hubungi Pak Bayu</h2>
+    </div>
+    <div style="position:relative; display:flex; flex-direction:column; gap:11px; margin-top:22px">
+      <div style="display:flex; align-items:center; gap:14px; padding:15px; border-radius:16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2)">
+        <div style="width:44px; height:44px; border-radius:13px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; flex-shrink:0">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="#fff"><path d="M16.6 3h-3.1v13.1a2.6 2.6 0 1 1-2.2-2.6v-3.1A5.7 5.7 0 1 0 16.6 16V9.6a6.7 6.7 0 0 0 3.9 1.2V7.7a3.9 3.9 0 0 1-3.9-3.9z"/></svg>
+        </div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:#fff">TikTok</div>
+          <div style="font-size:11.5px; color:rgba(219,234,254,.75); margin-top:2px">Video belajar singkat</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px; padding:15px; border-radius:16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2)">
+        <div style="width:44px; height:44px; border-radius:13px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; flex-shrink:0">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#fff" stroke="none"/></svg>
+        </div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:#fff">Instagram</div>
+          <div style="font-size:11.5px; color:rgba(219,234,254,.75); margin-top:2px">Dokumentasi kelas</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px; padding:15px; border-radius:16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2)">
+        <div style="width:44px; height:44px; border-radius:13px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; flex-shrink:0">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+        </div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:#fff">Lynk.id</div>
+          <div style="font-size:11.5px; color:rgba(219,234,254,.75); margin-top:2px">Produk digital &amp; LKPD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8. FOOTER ============ -->
+  <div style="background:#0f172a; padding:26px 20px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center">
+    <div style="display:flex; align-items:center; gap:11px">
+      <div style="width:36px; height:36px; border-radius:12px; background:#1e40af; display:flex; align-items:center; justify-content:center">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="2.6"/><ellipse cx="12" cy="12" rx="10" ry="4.4"/><ellipse cx="12" cy="12" rx="10" ry="4.4" transform="rotate(60 12 12)"/></svg>
+      </div>
+      <div style="text-align:left">
+        <div style="font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; color:#fff">SMP Negeri 3 Besuki, Situbondo</div>
+        <div style="font-size:11px; color:#94a3b8; margin-top:2px">Tahun Ajaran 2026/2027</div>
+      </div>
+    </div>
+    <div style="display:inline-flex; align-items:center; gap:9px; padding:9px 15px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.9"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span style="font-size:11.5px; color:#94a3b8">Pengunjung</span>
+      <span style="font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:#fff">1.248</span>
+    </div>
+    <div style="font-size:11px; color:#64748b">© 2026 Bayu Setiadji, S.Pd. — Dibuat untuk pembelajaran IPA.</div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -8,3 +8,6 @@ desktop.ini
 
 # Cadangan data admin hasil export (opsional, jangan ikut ter-commit)
 data-ipa-*.json
+
+# Kanvas desain hasil seed (besar, dibuat ulang dari berkas .dc.html)
+design/tampilan-landing-ipa.html
