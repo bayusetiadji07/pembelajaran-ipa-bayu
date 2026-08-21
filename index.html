@@ -75,24 +75,11 @@
     background-size: 22px 22px;
   }
   /* --- Glow lembut di hero --- */
-  .glow-blue{ background: radial-gradient(circle at 30% 30%, rgba(37,99,235,.20), transparent 60%); }
-  .glow-green{ background: radial-gradient(circle at 70% 70%, rgba(5,150,105,.18), transparent 60%); }
+  /* Animasi hero (atom berputar, elektron mengorbit, gelembung tabung reaksi)
+     beserta glow-nya sudah dilepas: hero kini memakai foto latar dan dibuat
+     tenang tanpa gerakan. */
 
-  /* --- Animasi atom berputar --- */
-  @keyframes spin-slow { to { transform: rotate(360deg); } }
-  .spin-slow  { animation: spin-slow 18s linear infinite; transform-origin:50% 50%; }
-  .spin-slower{ animation: spin-slow 26s linear infinite reverse; transform-origin:50% 50%; }
-
-  /* --- Elektron mengorbit --- */
-  @keyframes orbit-dash { to { stroke-dashoffset: -1000; } }
-  .orbit-dash{ stroke-dasharray: 6 10; animation: orbit-dash 12s linear infinite; }
-
-  /* --- Gelembung tabung reaksi --- */
-  @keyframes bubble { 0%{transform:translateY(0);opacity:0} 20%{opacity:.9} 100%{transform:translateY(-42px);opacity:0} }
-  .bubble{ animation: bubble 3.2s ease-in infinite; }
-  .bubble.b2{ animation-delay:.9s } .bubble.b3{ animation-delay:1.8s } .bubble.b4{ animation-delay:2.5s }
-
-  /* --- Float lembut --- */
+  /* --- Float lembut (dipakai badge pada foto profil) --- */
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   .float{ animation: float 6s ease-in-out infinite; }
   .float-delay{ animation: float 7s ease-in-out infinite; animation-delay:1.2s; }
@@ -122,7 +109,7 @@
 
   /* --- Hormati preferensi reduce motion --- */
   @media (prefers-reduced-motion: reduce){
-    .spin-slow,.spin-slower,.orbit-dash,.bubble,.float,.float-delay{ animation:none !important }
+    .float,.float-delay{ animation:none !important }
     .reveal{ opacity:1; transform:none }
   }
 </style>
@@ -183,38 +170,24 @@
   <!-- ------------------------------------------------------------------
        1. HERO SECTION
        ------------------------------------------------------------------ -->
-  <section class="relative overflow-hidden pt-28 pb-24 sm:pt-36 sm:pb-32 pattern-grid bg-gradient-to-b from-white via-sains-50/40 to-slate-50">
-    <!-- Dekorasi glow -->
-    <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 glow-blue"></div>
-    <div class="pointer-events-none absolute -bottom-32 -right-24 w-96 h-96 glow-green"></div>
+  <section class="relative overflow-hidden bg-slate-100">
 
-    <!-- Ornamen molekul transparan -->
-    <svg class="pointer-events-none absolute top-24 right-6 w-40 h-40 opacity-[0.07] text-sains-800 float" viewBox="0 0 200 200" aria-hidden="true">
-      <g stroke="currentColor" stroke-width="4" fill="none">
-        <line x1="60" y1="55" x2="130" y2="40"/><line x1="60" y1="55" x2="45" y2="135"/>
-        <line x1="130" y1="40" x2="165" y2="105"/><line x1="45" y1="135" x2="120" y2="155"/>
-        <line x1="165" y1="105" x2="120" y2="155"/>
-      </g>
-      <g fill="currentColor">
-        <circle cx="60" cy="55" r="13"/><circle cx="130" cy="40" r="9"/><circle cx="45" cy="135" r="11"/>
-        <circle cx="165" cy="105" r="8"/><circle cx="120" cy="155" r="12"/>
-      </g>
-    </svg>
-    <svg class="pointer-events-none absolute bottom-32 left-4 w-28 h-28 opacity-[0.06] text-lab-600 float-delay" viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx="50" cy="50" r="16" fill="currentColor"/>
-      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4"/>
-      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(60 50 50)"/>
-      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(120 50 50)"/>
-    </svg>
+    <!-- Foto latar. Gambar sudah membawa gelombang putih di sisi bawahnya,
+         jadi pemisah gelombang SVG yang lama dilepas agar tidak dobel. -->
+    <picture>
+      <source srcset="hero.webp" type="image/webp">
+      <img src="hero.jpg" alt=""
+           class="absolute inset-0 w-full h-full object-cover object-center"
+           fetchpriority="high" decoding="async" />
+    </picture>
 
-    <!-- Pemisah gelombang ke seksi berikutnya -->
-    <svg class="pointer-events-none absolute inset-x-0 bottom-0 w-full h-12 sm:h-20 text-white" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-      <path fill="currentColor" d="M0,64 C240,120 480,8 720,40 C960,72 1200,120 1440,72 L1440,120 L0,120 Z"/>
-    </svg>
+    <!-- Lapisan keterbacaan: putih pekat di kiri, memudar ke kanan.
+         Di layar kecil arahnya dari bawah agar teks tetap terbaca. -->
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white/85 to-white/40 lg:bg-gradient-to-r lg:from-white lg:via-white/85 lg:to-transparent"></div>
 
-    <div class="relative max-w-6xl mx-auto px-5 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+    <div class="relative max-w-6xl mx-auto px-5 sm:px-6 pt-28 pb-24 sm:pt-36 sm:pb-32 lg:pb-40 grid lg:grid-cols-2 gap-12 items-center">
       <!-- Teks -->
-      <div class="reveal">
+      <div>
         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lab-50 text-lab-600 text-xs font-semibold border border-lab-200">
           <i data-lucide="microscope" class="w-3.5 h-3.5"></i> Kurikulum Merdeka · Fase D
         </span>
@@ -255,63 +228,8 @@
         </div>
       </div>
 
-      <!-- Ilustrasi SVG inline: atom berputar + tabung reaksi -->
-      <div class="relative reveal">
-        <div class="relative mx-auto w-full max-w-md aspect-square">
-          <!-- Atom -->
-          <svg viewBox="0 0 400 400" class="absolute inset-0 w-full h-full float" aria-hidden="true">
-            <defs>
-              <linearGradient id="gradAtom" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%"  stop-color="#2563eb"/>
-                <stop offset="100%" stop-color="#1e3a8a"/>
-              </linearGradient>
-              <radialGradient id="gradCore">
-                <stop offset="0%"  stop-color="#6ee7b7"/>
-                <stop offset="100%" stop-color="#059669"/>
-              </radialGradient>
-            </defs>
-
-            <!-- Orbit 1 -->
-            <g class="spin-slow">
-              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".75" class="orbit-dash"/>
-              <circle cx="350" cy="200" r="9" fill="#2563eb"/>
-            </g>
-            <!-- Orbit 2 -->
-            <g class="spin-slower" style="transform:rotate(60deg)">
-              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".55" class="orbit-dash"/>
-              <circle cx="50" cy="200" r="8" fill="#059669"/>
-            </g>
-            <!-- Orbit 3 -->
-            <g class="spin-slow" style="transform:rotate(120deg)">
-              <ellipse cx="200" cy="200" rx="150" ry="58" fill="none" stroke="url(#gradAtom)" stroke-width="3" opacity=".4" class="orbit-dash"/>
-              <circle cx="350" cy="200" r="7" fill="#93c5fd"/>
-            </g>
-            <!-- Inti -->
-            <circle cx="200" cy="200" r="30" fill="url(#gradCore)"/>
-            <circle cx="200" cy="200" r="30" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>
-            <circle cx="190" cy="190" r="7" fill="#fff" opacity=".45"/>
-          </svg>
-
-          <!-- Tabung reaksi kecil (pojok kiri bawah) -->
-          <svg viewBox="0 0 120 160" class="absolute -left-2 bottom-2 w-20 sm:w-24 float-delay" aria-hidden="true">
-            <rect x="44" y="6" width="32" height="10" rx="4" fill="#cbd5e1"/>
-            <path d="M46 16 h28 v112 a14 14 0 0 1 -28 0 Z" fill="#fff" stroke="#94a3b8" stroke-width="3"/>
-            <path d="M46 84 h28 v44 a14 14 0 0 1 -28 0 Z" fill="#2563eb" opacity=".85"/>
-            <circle class="bubble"    cx="56" cy="120" r="3.5" fill="#bfdbfe"/>
-            <circle class="bubble b2" cx="64" cy="124" r="2.8" fill="#bfdbfe"/>
-            <circle class="bubble b3" cx="59" cy="118" r="2.2" fill="#dbeafe"/>
-          </svg>
-
-          <!-- Labu erlenmeyer (pojok kanan atas) -->
-          <svg viewBox="0 0 140 150" class="absolute -right-1 top-2 w-20 sm:w-24 float" aria-hidden="true">
-            <path d="M56 10 h28 v44 l30 62 a14 14 0 0 1 -12 22 H38 a14 14 0 0 1 -12 -22 l30 -62 Z" fill="#fff" stroke="#94a3b8" stroke-width="3"/>
-            <path d="M36 106 h68 l8 16 a12 12 0 0 1 -10 16 H38 a12 12 0 0 1 -10 -16 Z" fill="#059669" opacity=".85"/>
-            <circle class="bubble b2" cx="62" cy="124" r="3" fill="#a7f3d0"/>
-            <circle class="bubble b4" cx="78" cy="128" r="2.4" fill="#d1fae5"/>
-            <rect x="52" y="4" width="36" height="9" rx="4" fill="#cbd5e1"/>
-          </svg>
-        </div>
-      </div>
+      <!-- Kolom kanan sengaja dibiarkan kosong: foto latar yang mengisinya.
+           Ilustrasi atom & alat lab beranimasi dilepas agar hero bersih. -->
     </div>
   </section>
 
