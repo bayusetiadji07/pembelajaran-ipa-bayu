@@ -256,8 +256,20 @@
   <!-- ------------------------------------------------------------------
        2. TENTANG GURU
        ------------------------------------------------------------------ -->
-  <section id="tentang" class="py-16 sm:py-24 bg-white scroll-mt-20">
-    <div class="max-w-6xl mx-auto px-5 sm:px-6">
+  <section id="tentang" class="relative overflow-hidden py-16 sm:py-24 bg-sains-50 scroll-mt-20">
+
+    <!-- Latar seksi. Gambarnya membawa gelombang putih di sisi atas sebagai
+         sambungan dari hero, serta dekorasi gunung & dedaunan di sisi bawah. -->
+    <picture>
+      <source srcset="section-bg.webp" type="image/webp">
+      <!-- Sengaja tidak lazy: letaknya persis di bawah hero dan ukurannya
+           hanya belasan KB, jadi menundanya justru berisiko tampil telat. -->
+      <img src="section-bg.jpg" alt=""
+           class="absolute inset-0 w-full h-full object-cover object-bottom"
+           decoding="async" />
+    </picture>
+
+    <div class="relative max-w-6xl mx-auto px-5 sm:px-6">
       <div class="grid md:grid-cols-[280px_1fr] gap-10 items-start">
 
         <!-- Foto / avatar inisial -->
