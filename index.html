@@ -9,6 +9,9 @@
 <!-- ============================================================
      FONT (Google Fonts CDN) — Poppins untuk heading, Inter untuk body
      ============================================================ -->
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="apple-touch-icon" href="favicon.png" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -188,9 +191,10 @@
     <nav class="max-w-6xl mx-auto px-5 sm:px-6 h-16 flex items-center justify-between">
       <!-- Logo + nama: klik 5x untuk membuka akses admin tersembunyi -->
       <button id="logoTrigger" class="flex items-center gap-2.5 group" title="Beranda">
-        <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-sains-800 to-sains-500 text-white shadow-sm">
-          <i data-lucide="atom" class="w-5 h-5"></i>
-        </span>
+        <picture>
+          <source srcset="logo.webp" type="image/webp">
+          <img src="logo.png" alt="Logo Logisains" class="w-10 h-10 object-contain shrink-0" />
+        </picture>
         <span class="text-left leading-tight">
           <span class="block font-display font-bold text-sains-800 text-sm sm:text-base" data-bind="navNama">Bayu Setiadji</span>
           <span class="block text-[11px] text-slate-500">Guru IPA · SMPN 3 Besuki</span>
@@ -574,8 +578,13 @@
   <footer class="ground-footer text-slate-400 py-10">
     <div class="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-center sm:text-left">
       <div class="flex items-center gap-3">
-        <span class="grid place-items-center w-9 h-9 rounded-xl bg-sains-700 text-white shrink-0">
-          <i data-lucide="atom" class="w-5 h-5"></i>
+        <!-- Latar putih agar bagian buku yang berwarna biru tua tetap terbaca
+             di atas footer yang gelap. -->
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-white shrink-0 p-1">
+          <picture>
+            <source srcset="logo.webp" type="image/webp">
+            <img src="logo.png" alt="Logo Logisains" class="w-full h-full object-contain" />
+          </picture>
         </span>
         <div>
           <p class="text-white font-semibold font-display" data-bind="footerSekolah">SMP Negeri 3 Besuki</p>
