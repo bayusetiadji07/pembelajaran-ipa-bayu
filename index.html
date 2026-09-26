@@ -1075,10 +1075,10 @@
         class="fixed bottom-5 right-5 z-[75] inline-flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full
                bg-white border border-slate-200 shadow-xl shadow-slate-900/15
                hover:shadow-2xl hover:-translate-y-0.5 transition duration-300">
-  <span class="grid place-items-center w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
+  <span class="relative block w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
     <picture>
-      <source srcset="logo.webp" type="image/webp">
-      <img src="logo.png" alt="" class="w-8 h-8 object-contain" />
+      <source srcset="pakbay-avatar.webp" type="image/webp">
+      <img src="pakbay-avatar.png" alt="" class="absolute inset-0 w-full h-full object-cover" />
     </picture>
   </span>
   <span class="text-left leading-tight">
@@ -1094,10 +1094,10 @@
 
     <!-- Kepala -->
     <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100 shrink-0 bg-white">
-      <span class="grid place-items-center w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
+      <span class="relative block w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
         <picture>
-          <source srcset="logo.webp" type="image/webp">
-          <img src="logo.png" alt="" class="w-8 h-8 object-contain" />
+          <source srcset="pakbay-avatar.webp" type="image/webp">
+          <img src="pakbay-avatar.png" alt="" class="absolute inset-0 w-full h-full object-cover" />
         </picture>
       </span>
       <div class="min-w-0 flex-1">
@@ -2442,8 +2442,8 @@
     const dariTutor = peran === 'tutor';
     return '<div class="flex gap-2.5 ' + (dariTutor ? '' : 'flex-row-reverse') + '">' +
       (dariTutor
-        ? '<span class="grid place-items-center w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
-            '<img src="logo.png" alt="" class="w-6 h-6 object-contain" /></span>'
+        ? '<span class="relative block w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
+            '<img src="pakbay-avatar.webp" alt="" class="absolute inset-0 w-full h-full object-cover" /></span>'
         : '<span class="grid place-items-center w-8 h-8 rounded-full bg-sains-700 text-white text-xs font-bold shrink-0">Kamu</span>'.replace('Kamu', 'K')) +
       '<div class="max-w-[78%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ' +
         (dariTutor
@@ -2459,9 +2459,9 @@
 
     wrap.innerHTML = (r.length
       ? r.map(m => gelembungTutor(m.peran, m.pesan)).join('')
-      : '<div class="text-center py-6">' +
-          '<span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-white border border-slate-200 mb-3 overflow-hidden">' +
-            '<img src="logo.png" alt="" class="w-10 h-10 object-contain" /></span>' +
+      : '<div class="text-center py-4">' +
+          '<img src="pakbay.webp" alt="Pak Bay, asisten belajar IPA" ' +
+               'class="w-36 h-36 mx-auto object-contain mb-2" />' +
           '<p class="font-display font-bold text-slate-800">Halo! Aku Pak Bay.</p>' +
           '<p class="mt-1.5 text-sm text-slate-500 leading-relaxed px-4">Tanya apa saja tentang IPA, atau minta saran materi apa yang sebaiknya kamu pelajari dulu.</p>' +
         '</div>');
@@ -2492,8 +2492,8 @@
     el.id = 'tutorMengetik';
     el.className = 'flex gap-2.5';
     el.innerHTML =
-      '<span class="grid place-items-center w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
-        '<img src="logo.png" alt="" class="w-6 h-6 object-contain" /></span>' +
+      '<span class="relative block w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
+        '<img src="pakbay-avatar.webp" alt="" class="absolute inset-0 w-full h-full object-cover" /></span>' +
       '<div class="px-4 py-3 rounded-2xl rounded-tl-sm bg-white border border-slate-200">' +
         '<span class="inline-flex gap-1">' +
           '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse"></span>' +
