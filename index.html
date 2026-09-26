@@ -833,6 +833,44 @@
       <div id="admKomentarList" class="space-y-2"></div>
     </section>
 
+    <!-- ===== TAB: TUTOR (riwayat + pengetahuan kurasi) ===== -->
+    <section data-tab-panel="tutor" class="admin-panel hidden space-y-4">
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="graduation-cap" class="w-4.5 h-4.5 text-sains-700"></i> Pengetahuan Pak Bay
+          </h3>
+          <button id="tutorTambahTahu" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sains-700 text-white text-xs font-semibold hover:bg-sains-800">
+            <i data-lucide="plus" class="w-4 h-4"></i> Tambah Catatan
+          </button>
+        </div>
+        <p class="mt-2 text-xs text-slate-500 leading-relaxed">
+          Inilah cara Pak Bay belajar. Catatan di sini <b>lebih berwenang</b> daripada pengetahuan umum AI —
+          kalau bertentangan, catatan Anda yang dipakai. Isi dengan koreksi jawaban yang keliru, istilah khas
+          kelas Anda, atau jawaban baku untuk pertanyaan yang sering muncul.
+        </p>
+        <div id="admTahuList" class="mt-4 space-y-2"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <h3 class="font-display font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="messages-square" class="w-4.5 h-4.5 text-sains-700"></i> Riwayat Percakapan
+          </h3>
+          <button id="muatTutorChat" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Muat Ulang
+          </button>
+        </div>
+        <p class="mt-2 text-xs text-slate-500 leading-relaxed">
+          Baca apa yang ditanyakan siswa. Kalau ada jawaban Pak Bay yang keliru, tambahkan koreksinya
+          ke daftar pengetahuan di atas.
+        </p>
+        <div id="admTutorStat" class="mt-4"></div>
+        <div id="admTutorChat" class="mt-4 space-y-3"></div>
+      </div>
+    </section>
+
     <!-- ===== TAB: SARAN (privat) ===== -->
     <section data-tab-panel="saran" class="admin-panel hidden space-y-4">
       <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -1025,6 +1063,79 @@
         <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Tab baru
       </a>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     ██ AI TUTOR "PAK BAY"
+     Tombol mengambang + panel obrolan. Kunci API tidak pernah ada di sini;
+     halaman hanya memanggil Edge Function yang menyimpannya.
+     ============================================================================ -->
+<button id="tutorBuka" aria-label="Buka Pak Bay, asisten belajar"
+        class="fixed bottom-5 right-5 z-[75] inline-flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full
+               bg-white border border-slate-200 shadow-xl shadow-slate-900/15
+               hover:shadow-2xl hover:-translate-y-0.5 transition duration-300">
+  <span class="grid place-items-center w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
+    <picture>
+      <source srcset="logo.webp" type="image/webp">
+      <img src="logo.png" alt="" class="w-8 h-8 object-contain" />
+    </picture>
+  </span>
+  <span class="text-left leading-tight">
+    <span class="block text-sm font-display font-bold text-sains-800">Tanya Pak Bay</span>
+    <span class="block text-[10px] text-slate-500">Asisten belajar IPA</span>
+  </span>
+</button>
+
+<div id="tutorPanel" class="hidden fixed inset-0 z-[78] bg-slate-900/40 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-0 sm:inset-auto sm:bottom-5 sm:right-5">
+  <div class="absolute inset-x-0 bottom-0 sm:static flex flex-col
+              h-[88vh] sm:h-[600px] sm:w-[400px] sm:max-h-[80vh]
+              bg-white rounded-t-3xl sm:rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+
+    <!-- Kepala -->
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100 shrink-0 bg-white">
+      <span class="grid place-items-center w-10 h-10 rounded-full bg-sains-50 overflow-hidden shrink-0">
+        <picture>
+          <source srcset="logo.webp" type="image/webp">
+          <img src="logo.png" alt="" class="w-8 h-8 object-contain" />
+        </picture>
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="font-display font-bold text-slate-900 text-sm leading-tight">Pak Bay</p>
+        <p class="text-[11px] text-slate-500">Asisten AI — bukan Pak Bayu yang sebenarnya</p>
+      </div>
+      <button id="tutorBersih" title="Mulai percakapan baru"
+              class="grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500">
+        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+      </button>
+      <button id="tutorTutup" aria-label="Tutup"
+              class="grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Percakapan -->
+    <div id="tutorPesan" class="flex-1 overflow-y-auto thin-scroll p-4 space-y-3 bg-slate-50 min-h-0"></div>
+
+    <!-- Saran pertanyaan pembuka -->
+    <div id="tutorSaran" class="px-4 pb-1 flex flex-wrap gap-2 shrink-0 bg-slate-50"></div>
+
+    <!-- Masukan -->
+    <form id="tutorForm" class="p-3 border-t border-slate-100 bg-white shrink-0">
+      <div class="flex items-end gap-2">
+        <textarea id="tutorInput" rows="1" maxlength="600" placeholder="Tanya apa saja tentang IPA…"
+                  class="flex-1 px-3.5 py-3 rounded-xl border border-slate-200 focus:border-sains-500
+                         focus:ring-2 focus:ring-sains-100 outline-none text-sm resize-none max-h-28"></textarea>
+        <button type="submit" id="tutorKirim" aria-label="Kirim"
+                class="grid place-items-center w-12 h-12 rounded-xl bg-sains-700 text-white shrink-0
+                       hover:bg-sains-800 transition active:scale-95 disabled:opacity-50">
+          <i data-lucide="send" class="w-4.5 h-4.5"></i>
+        </button>
+      </div>
+      <p class="mt-2 text-[10px] text-slate-400 leading-snug">
+        Jawaban dibuat AI dan bisa keliru. Jangan tulis data pribadi. Untuk urusan nilai atau tugas, temui Pak Bayu langsung.
+      </p>
+    </form>
   </div>
 </div>
 
@@ -2286,6 +2397,198 @@
   });
 
   /* ==========================================================================
+     § 5c. AI TUTOR "PAK BAY"
+     Halaman hanya memanggil Edge Function; kunci API tidak pernah ada di sini.
+     Riwayat disimpan lokal sekadar agar percakapan tidak hilang saat pindah
+     halaman — yang dipakai tutor untuk menyambung adalah riwayat di server.
+     ========================================================================== */
+  const TUTOR_URL  = SUPABASE_URL + '/functions/v1/pak-bay';
+  const KUNCI_SESI_TUTOR = 'ipa_tutor_sesi';
+  const KUNCI_RIWAYAT_TUTOR = 'ipa_tutor_riwayat';
+
+  const SARAN_TUTOR = [
+    'Aku harus belajar apa dulu?',
+    'Jelaskan fotosintesis dengan sederhana',
+    'Ada media belajar untuk kelas VII?',
+    'Bedanya massa dan berat apa?'
+  ];
+
+  let tutorSibuk = false;
+
+  function sesiTutor() {
+    try {
+      let s = localStorage.getItem(KUNCI_SESI_TUTOR);
+      if (!s || s.length < 8) {
+        s = 'ss' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(KUNCI_SESI_TUTOR, s);
+      }
+      return s;
+    } catch (e) {
+      // Mode privat: pakai sesi sekali pakai
+      return 'ss' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
+  }
+
+  function riwayatTutor() {
+    try { return JSON.parse(localStorage.getItem(KUNCI_RIWAYAT_TUTOR) || '[]'); }
+    catch (e) { return []; }
+  }
+  function simpanRiwayatTutor(r) {
+    try { localStorage.setItem(KUNCI_RIWAYAT_TUTOR, JSON.stringify(r.slice(-40))); }
+    catch (e) { /* abaikan */ }
+  }
+
+  function gelembungTutor(peran, teks) {
+    const dariTutor = peran === 'tutor';
+    return '<div class="flex gap-2.5 ' + (dariTutor ? '' : 'flex-row-reverse') + '">' +
+      (dariTutor
+        ? '<span class="grid place-items-center w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
+            '<img src="logo.png" alt="" class="w-6 h-6 object-contain" /></span>'
+        : '<span class="grid place-items-center w-8 h-8 rounded-full bg-sains-700 text-white text-xs font-bold shrink-0">Kamu</span>'.replace('Kamu', 'K')) +
+      '<div class="max-w-[78%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ' +
+        (dariTutor
+          ? 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+          : 'bg-sains-700 text-white rounded-tr-sm') + '">' + esc(teks) + '</div>' +
+    '</div>';
+  }
+
+  function renderTutor() {
+    const wrap = $('#tutorPesan');
+    if (!wrap) return;
+    const r = riwayatTutor();
+
+    wrap.innerHTML = (r.length
+      ? r.map(m => gelembungTutor(m.peran, m.pesan)).join('')
+      : '<div class="text-center py-6">' +
+          '<span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-white border border-slate-200 mb-3 overflow-hidden">' +
+            '<img src="logo.png" alt="" class="w-10 h-10 object-contain" /></span>' +
+          '<p class="font-display font-bold text-slate-800">Halo! Aku Pak Bay.</p>' +
+          '<p class="mt-1.5 text-sm text-slate-500 leading-relaxed px-4">Tanya apa saja tentang IPA, atau minta saran materi apa yang sebaiknya kamu pelajari dulu.</p>' +
+        '</div>');
+
+    // Saran hanya ditawarkan saat percakapan masih kosong
+    const saran = $('#tutorSaran');
+    if (saran) {
+      saran.innerHTML = r.length ? '' : SARAN_TUTOR.map(s =>
+        '<button data-saran="' + esc(s) + '" class="px-3 py-2 rounded-lg bg-white border border-slate-200 ' +
+        'text-xs font-medium text-slate-600 hover:border-sains-300 hover:text-sains-700 transition">' +
+        esc(s) + '</button>').join('');
+      $$('#tutorSaran [data-saran]').forEach(b => b.addEventListener('click', () => {
+        $('#tutorInput').value = b.dataset.saran;
+        kirimKeTutor();
+      }));
+    }
+
+    wrap.scrollTop = wrap.scrollHeight;
+    icons();
+  }
+
+  function tampilkanMengetik(tampil) {
+    const wrap = $('#tutorPesan');
+    const lama = $('#tutorMengetik');
+    if (lama) lama.remove();
+    if (!tampil) return;
+    const el = document.createElement('div');
+    el.id = 'tutorMengetik';
+    el.className = 'flex gap-2.5';
+    el.innerHTML =
+      '<span class="grid place-items-center w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
+        '<img src="logo.png" alt="" class="w-6 h-6 object-contain" /></span>' +
+      '<div class="px-4 py-3 rounded-2xl rounded-tl-sm bg-white border border-slate-200">' +
+        '<span class="inline-flex gap-1">' +
+          '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse"></span>' +
+          '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" style="animation-delay:.2s"></span>' +
+          '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" style="animation-delay:.4s"></span>' +
+        '</span></div>';
+    wrap.appendChild(el);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  async function kirimKeTutor() {
+    if (tutorSibuk) return;
+    const input = $('#tutorInput');
+    const pesan = input.value.trim();
+    if (!pesan) return;
+
+    tutorSibuk = true;
+    $('#tutorKirim').disabled = true;
+    input.value = '';
+    input.style.height = '';
+
+    const r = riwayatTutor();
+    r.push({ peran: 'siswa', pesan: pesan });
+    simpanRiwayatTutor(r);
+    renderTutor();
+    tampilkanMengetik(true);
+
+    try {
+      const res = await fetch(TUTOR_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ sesi: sesiTutor(), pesan: pesan })
+      });
+      const hasil = await res.json().catch(() => ({}));
+
+      const balasan = res.ok
+        ? (hasil.balasan || 'Maaf, Pak Bay belum bisa menjawab itu.')
+        : (hasil.pesan || 'Pak Bay sedang tidak bisa dihubungi. Coba sebentar lagi.');
+
+      const r2 = riwayatTutor();
+      r2.push({ peran: 'tutor', pesan: balasan });
+      simpanRiwayatTutor(r2);
+    } catch (e) {
+      const r2 = riwayatTutor();
+      r2.push({ peran: 'tutor', pesan: 'Sambungan internetmu sepertinya terputus. Coba lagi ya.' });
+      simpanRiwayatTutor(r2);
+    }
+
+    tampilkanMengetik(false);
+    renderTutor();
+    tutorSibuk = false;
+    $('#tutorKirim').disabled = false;
+    input.focus();
+  }
+
+  /* ---- Pemasangan tombol & panel ---- */
+  function bukaTutor() {
+    $('#tutorPanel').classList.remove('hidden');
+    $('#tutorBuka').classList.add('hidden');
+    document.body.style.overflow = 'hidden';
+    renderTutor();
+    setTimeout(() => $('#tutorInput').focus(), 80);
+  }
+  function tutupTutor() {
+    $('#tutorPanel').classList.add('hidden');
+    $('#tutorBuka').classList.remove('hidden');
+    if ($('#adminView').classList.contains('hidden')) document.body.style.overflow = '';
+  }
+
+  $('#tutorBuka').addEventListener('click', bukaTutor);
+  $('#tutorTutup').addEventListener('click', tutupTutor);
+  $('#tutorPanel').addEventListener('click', (e) => { if (e.target === $('#tutorPanel')) tutupTutor(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('#tutorPanel').classList.contains('hidden')) tutupTutor();
+  });
+
+  $('#tutorBersih').addEventListener('click', () => {
+    if (!confirm('Mulai percakapan baru? Obrolan yang ada akan dihapus dari layarmu.')) return;
+    try { localStorage.removeItem(KUNCI_RIWAYAT_TUTOR); localStorage.removeItem(KUNCI_SESI_TUTOR); }
+    catch (e) { /* abaikan */ }
+    renderTutor();
+  });
+
+  $('#tutorForm').addEventListener('submit', (e) => { e.preventDefault(); kirimKeTutor(); });
+
+  // Enter mengirim, Shift+Enter ganti baris; kotak tumbuh mengikuti isi
+  $('#tutorInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); kirimKeTutor(); }
+  });
+  $('#tutorInput').addEventListener('input', (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 112) + 'px';
+  });
+
+  /* ==========================================================================
      § 6. INTERAKSI UMUM (menu mobile, reveal on scroll)
      ========================================================================== */
   $('#mobileMenuBtn').addEventListener('click', () => $('#mobileMenu').classList.toggle('hidden'));
@@ -2410,6 +2713,7 @@
     { id:'galeri',     label:'Galeri',     icon:'images' },
     { id:'pengumuman', label:'Pengumuman', icon:'megaphone' },
     { id:'komentar',   label:'Komentar',   icon:'message-circle' },
+    { id:'tutor',      label:'Pak Bay',    icon:'graduation-cap' },
     { id:'saran',      label:'Saran',      icon:'inbox' },
     { id:'kontak',     label:'Kontak',     icon:'share-2' },
     { id:'data',       label:'Data',       icon:'database' }
@@ -2428,6 +2732,7 @@
 
     if (id === 'data')     renderAdminStats();
     if (id === 'komentar') muatAdminKomentar();
+    if (id === 'tutor')    { muatAdminTahu(); muatAdminTutorChat(); }
     if (id === 'saran')    muatAdminSaran();
     icons();
   }
@@ -2928,6 +3233,154 @@
     return '<p class="py-8 text-center text-sm text-slate-400">' + esc(teks) + '</p>';
   }
 
+  /* ---- Admin: pengetahuan kurasi & riwayat percakapan tutor ---- */
+  async function muatAdminTahu() {
+    const wrap = $('#admTahuList');
+    if (!sesi) { wrap.innerHTML = pesanAdmin('Masuk dulu untuk mengurus pengetahuan.'); icons(); return; }
+    try {
+      const res = await sb.from('ipa_tutor_pengetahuan')
+        .select('id, topik, isi, aktif, dibuat_pada')
+        .order('dibuat_pada', { ascending: false }).limit(200);
+      if (res.error) throw new Error(res.error.message);
+
+      const list = res.data || [];
+      if (!list.length) {
+        wrap.innerHTML = pesanAdmin('Belum ada catatan. Pak Bay masih memakai pengetahuan umumnya saja.');
+        icons(); return;
+      }
+
+      wrap.innerHTML = list.map(t =>
+        '<div class="bg-white rounded-xl border ' + (t.aktif ? 'border-slate-200' : 'border-slate-200 opacity-60') + ' p-3.5">' +
+          '<div class="flex items-start gap-3">' +
+            '<div class="min-w-0 flex-1">' +
+              '<div class="flex flex-wrap items-center gap-2">' +
+                '<span class="text-sm font-semibold text-slate-800">' + esc(t.topik) + '</span>' +
+                (t.aktif
+                  ? '<span class="px-2 py-0.5 rounded-md bg-lab-50 text-lab-600 text-[10px] font-bold border border-lab-200 uppercase">Dipakai</span>'
+                  : '<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase">Nonaktif</span>') +
+              '</div>' +
+              '<p class="mt-1.5 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(t.isi) + '</p>' +
+              '<div class="mt-3 flex flex-wrap gap-2">' +
+                '<button data-tahu-alih="' + esc(t.id) + '" data-aktif="' + (t.aktif ? '1' : '0') +
+                  '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200">' +
+                  '<i data-lucide="' + (t.aktif ? 'eye-off' : 'check') + '" class="w-3.5 h-3.5"></i>' +
+                  (t.aktif ? 'Nonaktifkan' : 'Aktifkan') + '</button>' +
+                '<button data-tahu-hapus="' + esc(t.id) + '" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100">' +
+                  '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>').join('');
+
+      $$('[data-tahu-alih]').forEach(b => b.addEventListener('click', async () => {
+        const r = await sb.from('ipa_tutor_pengetahuan')
+          .update({ aktif: b.dataset.aktif !== '1' }).eq('id', b.dataset.tahuAlih).select('id');
+        if (r.error || !r.data || !r.data.length) { toast('Gagal mengubah.', 'error'); return; }
+        muatAdminTahu();
+      }));
+      $$('[data-tahu-hapus]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('Hapus catatan ini? Pak Bay tidak akan memakainya lagi.')) return;
+        const r = await sb.from('ipa_tutor_pengetahuan').delete().eq('id', b.dataset.tahuHapus).select('id');
+        if (r.error || !r.data || !r.data.length) { toast('Gagal menghapus.', 'error'); return; }
+        toast('Catatan dihapus.', 'ok');
+        muatAdminTahu();
+      }));
+      icons();
+    } catch (e) {
+      wrap.innerHTML = pesanAdmin('Gagal memuat: ' + e.message);
+      icons();
+    }
+  }
+
+  $('#tutorTambahTahu').addEventListener('click', () => {
+    const topik = prompt('Topik atau pertanyaan yang sering muncul:');
+    if (topik === null) return;
+    const isi = prompt('Jawaban atau koreksi yang harus dipakai Pak Bay:');
+    if (isi === null) return;
+    if (topik.trim().length < 2 || isi.trim().length < 2) {
+      toast('Topik dan isinya harus diisi.', 'error'); return;
+    }
+    sb.from('ipa_tutor_pengetahuan').insert({ topik: topik.trim(), isi: isi.trim() }).select('id')
+      .then(r => {
+        if (r.error || !r.data || !r.data.length) { toast('Gagal menyimpan: ' + (r.error ? r.error.message : 'tidak ada izin'), 'error'); return; }
+        toast('Catatan ditambahkan. Pak Bay langsung memakainya.', 'ok');
+        muatAdminTahu();
+      });
+  });
+
+  async function muatAdminTutorChat() {
+    const wrap = $('#admTutorChat');
+    const stat = $('#admTutorStat');
+    if (!sesi) { wrap.innerHTML = pesanAdmin('Masuk dulu untuk membaca riwayat.'); icons(); return; }
+    wrap.innerHTML = pesanAdmin('Memuat…');
+    try {
+      const res = await sb.from('ipa_tutor_percakapan')
+        .select('id, sesi, peran, pesan, dibuat_pada')
+        .order('dibuat_pada', { ascending: false }).limit(200);
+      if (res.error) throw new Error(res.error.message);
+
+      const list = res.data || [];
+      const hariIni = new Date().toISOString().slice(0, 10);
+      const kuota = await sb.from('ipa_tutor_kuota').select('jumlah').eq('tanggal', hariIni).maybeSingle();
+
+      stat.innerHTML =
+        '<div class="grid grid-cols-3 gap-3 text-center">' +
+          '<div class="rounded-xl bg-slate-50 border border-slate-200 py-3">' +
+            '<div class="text-xl font-display font-bold text-sains-700">' + list.filter(m => m.peran === 'siswa').length + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-0.5">Pertanyaan</div></div>' +
+          '<div class="rounded-xl bg-slate-50 border border-slate-200 py-3">' +
+            '<div class="text-xl font-display font-bold text-lab-500">' + new Set(list.map(m => m.sesi)).size + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-0.5">Sesi</div></div>' +
+          '<div class="rounded-xl bg-slate-50 border border-slate-200 py-3">' +
+            '<div class="text-xl font-display font-bold text-amber-600">' + ((kuota.data && kuota.data.jumlah) || 0) + '<span class="text-sm text-slate-400">/400</span></div>' +
+            '<div class="text-[11px] text-slate-500 mt-0.5">Pemakaian hari ini</div></div>' +
+        '</div>';
+
+      if (!list.length) { wrap.innerHTML = pesanAdmin('Belum ada percakapan.'); icons(); return; }
+
+      // Kelompokkan per sesi supaya terbaca sebagai percakapan utuh
+      const perSesi = {};
+      list.slice().reverse().forEach(m => { (perSesi[m.sesi] = perSesi[m.sesi] || []).push(m); });
+      const urut = Object.keys(perSesi).sort((a, b) =>
+        new Date(perSesi[b][perSesi[b].length - 1].dibuat_pada) - new Date(perSesi[a][perSesi[a].length - 1].dibuat_pada));
+
+      wrap.innerHTML = urut.map(s => {
+        const pesan = perSesi[s];
+        return '<div class="bg-white rounded-xl border border-slate-200 p-3.5">' +
+          '<div class="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">' +
+            '<span class="text-[11px] font-semibold text-slate-400">Sesi ' + esc(s.slice(0, 10)) + '… · ' +
+              esc(formatWaktu(pesan[pesan.length - 1].dibuat_pada)) + '</span>' +
+            '<button data-sesi-hapus="' + esc(s) + '" class="grid place-items-center w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-600">' +
+              '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' +
+          '</div>' +
+          '<div class="space-y-2">' +
+            pesan.map(m =>
+              '<div class="flex gap-2 ' + (m.peran === 'tutor' ? '' : 'flex-row-reverse') + '">' +
+                '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase shrink-0 h-fit ' +
+                  (m.peran === 'tutor' ? 'bg-sains-50 text-sains-700' : 'bg-slate-100 text-slate-500') + '">' +
+                  (m.peran === 'tutor' ? 'Pak Bay' : 'Siswa') + '</span>' +
+                '<p class="max-w-[80%] text-sm leading-relaxed whitespace-pre-line break-words ' +
+                  (m.peran === 'tutor' ? 'text-slate-600' : 'text-slate-800 font-medium') + '">' + esc(m.pesan) + '</p>' +
+              '</div>').join('') +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      $$('[data-sesi-hapus]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('Hapus seluruh percakapan sesi ini?')) return;
+        const r = await sb.from('ipa_tutor_percakapan').delete().eq('sesi', b.dataset.sesiHapus).select('id');
+        if (r.error) { toast('Gagal menghapus.', 'error'); return; }
+        toast('Percakapan dihapus.', 'ok');
+        muatAdminTutorChat();
+      }));
+      icons();
+    } catch (e) {
+      wrap.innerHTML = pesanAdmin('Gagal memuat: ' + e.message);
+      icons();
+    }
+  }
+
+  $('#muatTutorChat').addEventListener('click', muatAdminTutorChat);
   $('#muatKomentar').addEventListener('click', muatAdminKomentar);
   $('#muatSaran').addEventListener('click', muatAdminSaran);
 
