@@ -2025,20 +2025,73 @@
   }
 
   /* ---- Komentar publik ---- */
+  /* ---- Suka: dicatat per peramban agar tidak bisa ditekan berkali-kali.
+     Catatan jujur: ini hanya penjaga di sisi pengunjung. Di server, fungsi
+     suka memang hanya bisa MENAMBAH satu dan cuma pada komentar yang sudah
+     disetujui, jadi angkanya tidak bisa dijatuhkan orang lain. ---- */
+  const KUNCI_SUKA = 'ipa_komentar_disukai';
+
+  function daftarDisukai() {
+    try { return JSON.parse(localStorage.getItem(KUNCI_SUKA) || '[]'); }
+    catch (e) { return []; }
+  }
+  function catatDisukai(id) {
+    try {
+      const d = daftarDisukai();
+      if (d.indexOf(id) === -1) { d.push(id); localStorage.setItem(KUNCI_SUKA, JSON.stringify(d)); }
+    } catch (e) { /* mode privat: cukup abaikan */ }
+  }
+
+  /** Satu kartu komentar. `balasan` menandai tampilan versi menjorok. */
+  function kartuKomentar(k, balasan) {
+    const disukai = daftarDisukai().indexOf(k.id) !== -1;
+    const suka = Number(k.suka || 0);
+    return '<div class="flex gap-3 bg-white rounded-xl border border-slate-200 p-3.5' +
+             (balasan ? ' ml-6 sm:ml-10 border-l-4 border-l-cyan-200' : '') + '">' +
+        '<span class="grid place-items-center rounded-full bg-cyan-100 text-cyan-700 font-display font-bold shrink-0 ' +
+          (balasan ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm') + '">' + esc(hurufAwal(k.nama)) + '</span>' +
+        '<div class="min-w-0 flex-1">' +
+          '<div class="flex flex-wrap items-baseline gap-x-2">' +
+            '<span class="text-sm font-semibold text-slate-800">' + esc(k.nama) + '</span>' +
+            '<span class="text-[11px] text-slate-400">' + esc(formatWaktu(k.dibuat_pada)) + '</span>' +
+          '</div>' +
+          '<p class="mt-1 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(k.pesan) + '</p>' +
+
+          '<div class="mt-2.5 flex flex-wrap items-center gap-2">' +
+            '<button data-suka="' + esc(k.id) + '"' + (disukai ? ' disabled' : '') +
+              ' class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ' +
+              (disukai ? 'bg-rose-50 text-rose-600 cursor-default'
+                       : 'text-slate-500 hover:bg-rose-50 hover:text-rose-600') + '">' +
+              '<i data-lucide="heart" class="w-3.5 h-3.5"' + (disukai ? ' fill="currentColor"' : '') + '></i>' +
+              '<span data-suka-jumlah="' + esc(k.id) + '">' + suka + '</span>' +
+              '<span class="sr-only">suka</span>' +
+            '</button>' +
+            (balasan ? '' :
+              '<button data-balas="' + esc(k.id) + '" ' +
+                'class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold ' +
+                'text-slate-500 hover:bg-cyan-50 hover:text-cyan-700 transition">' +
+                '<i data-lucide="reply" class="w-3.5 h-3.5"></i> Balas</button>') +
+          '</div>' +
+
+          (balasan ? '' : '<div data-form-balasan="' + esc(k.id) + '" class="hidden mt-3"></div>') +
+        '</div>' +
+      '</div>';
+  }
+
   async function muatKomentarPublik() {
     const wrap = $('#komentarList');
     try {
       const res = await sb.from('ipa_komentar')
-        .select('id, nama, pesan, dibuat_pada')
+        .select('id, nama, pesan, dibuat_pada, suka, balasan_dari')
         .eq('tampil', true)
         .order('dibuat_pada', { ascending: false })
-        .limit(100);
+        .limit(200);
       if (res.error) throw res.error;
 
-      const list = res.data || [];
-      $('#komentarJumlah').textContent = list.length;
+      const semua = res.data || [];
+      $('#komentarJumlah').textContent = semua.length;
 
-      if (!list.length) {
+      if (!semua.length) {
         wrap.innerHTML = '<div class="py-10 text-center">' +
           '<span class="inline-grid place-items-center w-12 h-12 rounded-2xl bg-white text-slate-300 border border-slate-200 mb-2">' +
             '<i data-lucide="message-circle" class="w-6 h-6"></i></span>' +
@@ -2046,23 +2099,109 @@
         icons(); return;
       }
 
-      wrap.innerHTML = list.map(k =>
-        '<div class="flex gap-3 bg-white rounded-xl border border-slate-200 p-3.5">' +
-          '<span class="grid place-items-center w-9 h-9 rounded-full bg-cyan-100 text-cyan-700 font-display font-bold text-sm shrink-0">' +
-            esc(hurufAwal(k.nama)) + '</span>' +
-          '<div class="min-w-0 flex-1">' +
-            '<div class="flex flex-wrap items-baseline gap-x-2">' +
-              '<span class="text-sm font-semibold text-slate-800">' + esc(k.nama) + '</span>' +
-              '<span class="text-[11px] text-slate-400">' + esc(formatWaktu(k.dibuat_pada)) + '</span>' +
-            '</div>' +
-            '<p class="mt-1 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(k.pesan) + '</p>' +
-          '</div>' +
+      // Kelompokkan balasan di bawah komentar induknya; balasan diurut menaik
+      // supaya percakapannya terbaca dari atas ke bawah.
+      const induk = semua.filter(k => !k.balasan_dari);
+      const balasan = {};
+      semua.filter(k => k.balasan_dari).forEach(k => {
+        (balasan[k.balasan_dari] = balasan[k.balasan_dari] || []).push(k);
+      });
+      Object.keys(balasan).forEach(id =>
+        balasan[id].sort((a, b) => new Date(a.dibuat_pada) - new Date(b.dibuat_pada)));
+
+      wrap.innerHTML = induk.map(k =>
+        '<div class="space-y-2">' +
+          kartuKomentar(k, false) +
+          (balasan[k.id] || []).map(b => kartuKomentar(b, true)).join('') +
         '</div>').join('');
+
+      pasangAksiKomentar();
       icons();
     } catch (e) {
       wrap.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Komentar belum bisa dimuat.</p>';
       console.warn('Gagal memuat komentar:', e.message || e);
     }
+  }
+
+  /** Pasang tombol suka & balas pada daftar komentar yang baru dirender. */
+  function pasangAksiKomentar() {
+    $$('#komentarList [data-suka]').forEach(b => b.addEventListener('click', async () => {
+      const id = b.dataset.suka;
+      if (b.disabled) return;
+      b.disabled = true;
+      try {
+        const res = await sb.rpc('ipa_tambah_suka', { p_id: id });
+        if (res.error) throw new Error(res.error.message);
+        if (res.data == null) throw new Error('Komentar tidak tersedia.');
+        const angka = $('[data-suka-jumlah="' + id + '"]');
+        if (angka) angka.textContent = res.data;
+        catatDisukai(id);
+        b.className = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-600 cursor-default transition';
+        const hati = b.querySelector('i,svg');
+        if (hati) hati.setAttribute('fill', 'currentColor');
+      } catch (err) {
+        b.disabled = false;
+        toast('Gagal menyukai: ' + err.message, 'error');
+      }
+    }));
+
+    $$('#komentarList [data-balas]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.balas;
+      const kotak = $('[data-form-balasan="' + id + '"]');
+      if (!kotak) return;
+      if (!kotak.classList.contains('hidden')) { kotak.classList.add('hidden'); kotak.innerHTML = ''; return; }
+
+      kotak.classList.remove('hidden');
+      kotak.innerHTML =
+        '<div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">' +
+          '<input data-balas-nama maxlength="40" placeholder="Nama kamu" ' +
+            'class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none text-sm bg-white" />' +
+          '<textarea data-balas-pesan rows="2" maxlength="500" placeholder="Tulis balasanmu…" ' +
+            'class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none text-sm resize-y bg-white"></textarea>' +
+          '<p data-balas-status class="hidden text-xs font-semibold"></p>' +
+          '<div class="flex gap-2">' +
+            '<button data-balas-batal class="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-semibold hover:bg-slate-50">Batal</button>' +
+            '<button data-balas-kirim class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-cyan-600 text-white text-xs font-semibold hover:bg-cyan-700 disabled:opacity-60">' +
+              '<i data-lucide="send" class="w-3.5 h-3.5"></i> Kirim Balasan</button>' +
+          '</div>' +
+          '<p class="text-[11px] text-slate-400 leading-snug">Balasan juga ditinjau Pak Bayu dulu sebelum tampil.</p>' +
+        '</div>';
+
+      const status = (teks, jenis) => {
+        const el = $('[data-balas-status]', kotak);
+        el.textContent = teks;
+        el.className = 'text-xs font-semibold ' +
+          (jenis === 'ok' ? 'text-lab-600' : jenis === 'error' ? 'text-red-600' : 'text-slate-500');
+        el.classList.remove('hidden');
+      };
+
+      $('[data-balas-batal]', kotak).addEventListener('click', () => {
+        kotak.classList.add('hidden'); kotak.innerHTML = '';
+      });
+
+      $('[data-balas-kirim]', kotak).addEventListener('click', async (ev) => {
+        const tombol = ev.currentTarget;
+        const nama  = $('[data-balas-nama]', kotak).value.trim();
+        const pesan = $('[data-balas-pesan]', kotak).value.trim();
+        if (nama.length < 2)  { status('Isi nama kamu dulu (minimal 2 huruf).', 'error'); return; }
+        if (pesan.length < 2) { status('Balasannya masih kosong.', 'error'); return; }
+
+        tombol.disabled = true;
+        status('Mengirim…', 'info');
+        try {
+          const res = await sb.from('ipa_komentar').insert({ nama: nama, pesan: pesan, balasan_dari: id });
+          if (res.error) throw new Error(res.error.message);
+          kotak.innerHTML = '<p class="rounded-xl border border-lab-200 bg-lab-50 px-3 py-2.5 text-xs font-semibold text-lab-600">' +
+            'Balasan terkirim. Akan tampil setelah ditinjau Pak Bayu.</p>';
+        } catch (err) {
+          tombol.disabled = false;
+          status('Gagal mengirim: ' + err.message, 'error');
+        }
+      });
+
+      icons();
+      $('[data-balas-nama]', kotak).focus();
+    }));
   }
 
   /** Tampilkan pesan status pada form (komentar / saran) */
@@ -2621,7 +2760,7 @@
     wrap.innerHTML = pesanAdmin('Memuat…');
     try {
       const res = await sb.from('ipa_komentar')
-        .select('id, nama, pesan, dibuat_pada, tampil')
+        .select('id, nama, pesan, dibuat_pada, tampil, suka, balasan_dari')
         .order('dibuat_pada', { ascending: false }).limit(200);
       if (res.error) throw new Error(res.error.message);
 
@@ -2629,11 +2768,25 @@
       const menunggu = list.filter(k => !k.tampil).length;
       if (!list.length) { wrap.innerHTML = pesanAdmin('Belum ada komentar masuk.'); icons(); return; }
 
+      // Untuk balasan, tunjukkan komentar induknya agar konteksnya jelas
+      // sebelum diputuskan disetujui atau dihapus.
+      const petaJudul = {};
+      list.forEach(k => { petaJudul[k.id] = k; });
+
       wrap.innerHTML =
         (menunggu ? '<p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">' +
                     menunggu + ' komentar menunggu persetujuan.</p>' : '') +
         list.map(k =>
-        '<div class="bg-white rounded-xl border ' + (k.tampil ? 'border-slate-200' : 'border-amber-300 bg-amber-50/40') + ' p-3.5">' +
+        '<div class="bg-white rounded-xl border ' + (k.tampil ? 'border-slate-200' : 'border-amber-300 bg-amber-50/40') +
+             ' p-3.5' + (k.balasan_dari ? ' ml-5 sm:ml-8 border-l-4 border-l-cyan-200' : '') + '">' +
+          (k.balasan_dari
+            ? '<p class="mb-2 flex items-start gap-1.5 text-[11px] text-slate-500 leading-snug">' +
+                '<i data-lucide="corner-down-right" class="w-3.5 h-3.5 shrink-0 mt-px"></i>' +
+                '<span>Balasan untuk <b>' + esc(petaJudul[k.balasan_dari] ? petaJudul[k.balasan_dari].nama : 'komentar yang sudah dihapus') + '</b>' +
+                (petaJudul[k.balasan_dari]
+                  ? ': “' + esc(petaJudul[k.balasan_dari].pesan.slice(0, 60)) + (petaJudul[k.balasan_dari].pesan.length > 60 ? '…' : '') + '”'
+                  : '') + '</span></p>'
+            : '') +
           '<div class="flex items-start gap-3">' +
             '<span class="grid place-items-center w-9 h-9 rounded-full bg-cyan-100 text-cyan-700 font-display font-bold text-sm shrink-0">' +
               esc(hurufAwal(k.nama)) + '</span>' +
@@ -2644,6 +2797,10 @@
                 (k.tampil
                   ? '<span class="px-2 py-0.5 rounded-md bg-lab-50 text-lab-600 text-[10px] font-bold border border-lab-200 uppercase">Tampil</span>'
                   : '<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200 uppercase">Menunggu</span>') +
+                (Number(k.suka) > 0
+                  ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 text-[10px] font-bold border border-rose-200">' +
+                      '<i data-lucide="heart" class="w-3 h-3" fill="currentColor"></i>' + Number(k.suka) + '</span>'
+                  : '') +
               '</div>' +
               '<p class="mt-1.5 text-sm text-slate-600 leading-relaxed whitespace-pre-line break-words">' + esc(k.pesan) + '</p>' +
               '<div class="mt-3 flex flex-wrap gap-2">' +
@@ -2680,7 +2837,8 @@
   }
 
   async function hapusKomentar(id) {
-    if (!confirm('Hapus komentar ini secara permanen?')) return;
+    // Menghapus komentar induk ikut menghapus balasannya (diatur di database).
+    if (!confirm('Hapus komentar ini secara permanen? Balasan di bawahnya ikut terhapus.')) return;
     const res = await sb.from('ipa_komentar').delete().eq('id', id).select('id');
     if (res.error || !res.data || !res.data.length) { toast('Gagal menghapus.', 'error'); return; }
     toast('Komentar dihapus.', 'ok');
