@@ -1046,16 +1046,57 @@
       </button>
     </div>
 
-    <div class="relative flex-1 bg-slate-100 min-h-0">
+    <div id="previewPanggung" class="relative flex-1 bg-slate-100 min-h-0">
       <!-- Jangan pasang referrerpolicy="no-referrer": YouTube menolak embed
            (Error 153) bila referrer disembunyikan. -->
-      <iframe id="previewFrame" class="w-full h-full border-0" title="Preview materi"
+      <iframe id="previewFrame" class="absolute inset-0 w-full h-full border-0" title="Preview materi"
               allow="fullscreen; encrypted-media; picture-in-picture"
               allowfullscreen></iframe>
+
+      <!-- Mode gambar: foto ditampilkan langsung sebagai <img> supaya muat
+           seluruh bidang dan tidak terikat aturan iframe situs lain. Gambarnya
+           dibungkus agar bidang kosong di sekelilingnya bisa diklik untuk
+           menutup, sementara klik pada fotonya sendiri tidak menutup. -->
+      <div id="previewGambarWadah" class="hidden absolute inset-0 flex items-center justify-center p-2 sm:p-4">
+        <img id="previewGambar" alt="" class="max-w-full max-h-full object-contain" />
+      </div>
+
+      <div id="previewMuat" class="hidden absolute inset-0 grid place-items-center bg-slate-900">
+        <span class="flex items-center gap-2.5 text-white/60 text-xs font-semibold">
+          <i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Memuat foto…
+        </span>
+      </div>
+
+      <div id="previewGalat" class="hidden absolute inset-0 grid place-items-center bg-slate-900 px-6">
+        <div class="text-center">
+          <i data-lucide="image-off" class="w-9 h-9 mx-auto text-white/35"></i>
+          <p class="mt-3 text-sm text-white/70 leading-relaxed max-w-xs">
+            Fotonya tidak bisa dimuat. Bila sumbernya Google Drive, pastikan
+            berkasnya dibagikan untuk “siapa saja yang memiliki link”.
+          </p>
+        </div>
+      </div>
+
+      <!-- Geser antar dokumentasi galeri -->
+      <button id="previewSebelum" type="button" aria-label="Foto sebelumnya"
+              class="hidden absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 grid place-items-center
+                     w-10 h-10 rounded-full bg-slate-900/55 text-white backdrop-blur-sm
+                     hover:bg-slate-900/80 transition active:scale-95">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+      <button id="previewSesudah" type="button" aria-label="Foto berikutnya"
+              class="hidden absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 grid place-items-center
+                     w-10 h-10 rounded-full bg-slate-900/55 text-white backdrop-blur-sm
+                     hover:bg-slate-900/80 transition active:scale-95">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+      <span id="previewHitung"
+            class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full
+                   bg-slate-900/60 text-white/90 text-[11px] font-semibold backdrop-blur-sm"></span>
     </div>
 
     <div class="px-4 sm:px-5 py-2.5 border-t border-slate-100 flex items-center gap-2 shrink-0">
-      <p class="text-[11px] text-slate-400 flex-1 leading-snug">
+      <p id="previewCatatan" class="text-[11px] text-slate-400 flex-1 leading-snug">
         Tampilan di atas kosong? Berarti situsnya menolak ditampilkan di dalam halaman lain — buka saja di tab baru.
       </p>
       <a id="previewBukaHp" href="#" target="_blank" rel="noopener noreferrer"
@@ -1653,30 +1694,135 @@
     return { jenis:'Tautan web', ikon:'link', bisaEmbed:false, embed:u, buka:u };
   }
 
-  function bukaPreview(judul, url) {
+  /**
+   * Mengubah tautan foto menjadi URL berkas gambarnya langsung, supaya bisa
+   * dipasang di <img> dan bukan di dalam iframe.
+   *
+   * `izinkanDrive` hanya diaktifkan bila kita sudah tahu tautannya memang
+   * foto — misalnya item galeri berjenis "Foto". Tautan Google Drive sendiri
+   * tidak memberi tahu apakah isinya gambar atau PDF, jadi menebak di luar
+   * kasus itu bisa salah: PDF akan ikut dipaksa jadi gambar.
+   */
+  function urlGambarLangsung(url, lebar, izinkanDrive) {
+    const u = String(url || '').trim();
+    if (!u || u === '#') return null;
+
+    if (izinkanDrive) {
+      const m = u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
+             || u.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?(?:[^#]*&)?id=([^&#]+)/);
+      if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w' + (lebar || 1600);
+    }
+
+    // Foto yang sudah dihosting Google (Drive/Photos/Blogger) atau berkas
+    // gambar biasa: pakai apa adanya.
+    if (/^https?:\/\/[^/]*googleusercontent\.com\//i.test(u)) return u;
+    if (/\.(png|jpe?g|webp|gif|avif|bmp)($|[?#])/i.test(u)) return u;
+    return null;
+  }
+
+  /* Daftar yang sedang bisa digeser di dalam modal (dipakai galeri). */
+  let geserPratinjau = [];
+  let indeksPratinjau = -1;
+
+  /**
+   * @param {string} judul
+   * @param {string} url
+   * @param {string|null} gambar URL gambar langsung bila pemanggil sudah tahu
+   *        tautannya foto; bila null, ditebak dari ekstensi berkas saja.
+   */
+  function bukaPreview(judul, url, gambar) {
     const info = analisisLampiran(url);
     if (!info) return;
+    const gbr = gambar || urlGambarLangsung(url, 1600, false);
+
+    const frame = $('#previewFrame'), img = $('#previewGambar');
     $('#previewJudul').textContent = judul;
-    $('#previewJenis').textContent = info.jenis + (info.bisaEmbed ? '' : ' — mungkin perlu dibuka di tab baru');
-    $('#previewIkon').innerHTML = '<i data-lucide="' + info.ikon + '" class="w-5 h-5"></i>';
+    $('#previewIkon').innerHTML = '<i data-lucide="' + (gbr ? 'image' : info.ikon) + '" class="w-5 h-5"></i>';
     $('#previewBuka').href   = safeUrl(info.buka);
     $('#previewBukaHp').href = safeUrl(info.buka);
-    $('#previewFrame').src   = safeUrl(info.embed);
+    $('#previewGalat').classList.add('hidden');
+
+    if (gbr) {
+      // Latar gelap supaya foto dengan rasio apa pun tetap enak dilihat.
+      $('#previewPanggung').classList.replace('bg-slate-100', 'bg-slate-900');
+      $('#previewJenis').textContent = 'Foto';
+      $('#previewCatatan').textContent = 'Klik di luar foto atau tekan Esc untuk menutup.';
+      frame.src = 'about:blank';
+      frame.classList.add('hidden');
+      $('#previewMuat').classList.remove('hidden');
+      $('#previewGambarWadah').classList.remove('hidden');
+      img.alt = judul;
+      img.src = safeUrl(gbr);
+    } else {
+      $('#previewPanggung').classList.replace('bg-slate-900', 'bg-slate-100');
+      $('#previewJenis').textContent = info.jenis + (info.bisaEmbed ? '' : ' — mungkin perlu dibuka di tab baru');
+      $('#previewCatatan').textContent =
+        'Tampilan di atas kosong? Berarti situsnya menolak ditampilkan di dalam halaman lain — buka saja di tab baru.';
+      $('#previewMuat').classList.add('hidden');
+      $('#previewGambarWadah').classList.add('hidden');
+      img.removeAttribute('src');
+      frame.classList.remove('hidden');
+      frame.src = safeUrl(info.embed);
+    }
+
     $('#previewModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     icons();
   }
 
+  $('#previewGambar').addEventListener('load', () => {
+    $('#previewMuat').classList.add('hidden');
+  });
+  $('#previewGambar').addEventListener('error', () => {
+    $('#previewMuat').classList.add('hidden');
+    if ($('#previewGambar').getAttribute('src')) $('#previewGalat').classList.remove('hidden');
+  });
+
+  /** Buka satu item galeri, sekalian menyiapkan tombol geser. */
+  function bukaGaleri(list, i) {
+    const g = list[i];
+    if (!g) return;
+    geserPratinjau = list;
+    indeksPratinjau = i;
+    bukaPreview(g.judul, g.url, urlGambarLangsung(g.url, 1600, g.jenis === 'Foto'));
+
+    const banyak = list.length > 1;
+    $('#previewSebelum').classList.toggle('hidden', !banyak);
+    $('#previewSesudah').classList.toggle('hidden', !banyak);
+    $('#previewHitung').classList.toggle('hidden', !banyak);
+    $('#previewHitung').textContent = (i + 1) + ' / ' + list.length;
+  }
+
+  function geserGaleri(arah) {
+    const n = geserPratinjau.length;
+    if (n < 2) return;
+    bukaGaleri(geserPratinjau, (indeksPratinjau + arah + n) % n);
+  }
+
   function tutupPreview() {
     $('#previewModal').classList.add('hidden');
     $('#previewFrame').src = 'about:blank';   // hentikan video/PDF yang sedang berjalan
+    $('#previewGambar').removeAttribute('src');
+    $('#previewMuat').classList.add('hidden');
+    geserPratinjau = []; indeksPratinjau = -1;
+    ['#previewSebelum', '#previewSesudah', '#previewHitung']
+      .forEach(s => $(s).classList.add('hidden'));
     if ($('#adminView').classList.contains('hidden')) document.body.style.overflow = '';
   }
 
   $('#previewTutup').addEventListener('click', tutupPreview);
+  $('#previewSebelum').addEventListener('click', () => geserGaleri(-1));
+  $('#previewSesudah').addEventListener('click', () => geserGaleri(1));
+  // Klik pada latar gelap di luar foto juga menutup, bukan hanya di luar kartu.
   $('#previewModal').addEventListener('click', (e) => { if (e.target === $('#previewModal')) tutupPreview(); });
+  $('#previewPanggung').addEventListener('click', (e) => {
+    if (e.target === $('#previewPanggung') || e.target === $('#previewGambarWadah')) tutupPreview();
+  });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !$('#previewModal').classList.contains('hidden')) tutupPreview();
+    if ($('#previewModal').classList.contains('hidden')) return;
+    if (e.key === 'Escape')     tutupPreview();
+    if (e.key === 'ArrowLeft')  geserGaleri(-1);
+    if (e.key === 'ArrowRight') geserGaleri(1);
   });
 
   /* ---- Kartu materi (expand/collapse) ---- */
@@ -1861,13 +2007,12 @@
   const jenisGaleri = (j) => JENIS_GALERI[j] || JENIS_GALERI['Foto'];
 
   /** Gambar pratinjau untuk kartu galeri; null bila tidak bisa ditebak. */
-  function thumbnailGaleri(url) {
-    const u = String(url || '').trim();
+  function thumbnailGaleri(g) {
+    const u = String((g && g.url) || '').trim();
     if (!u) return null;
     const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
     if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
-    if (/\.(png|jpe?g|webp|gif|avif)($|[?#])/i.test(u)) return u;
-    return null;   // mis. Google Drive — tidak ada pratinjau yang bisa diandalkan
+    return urlGambarLangsung(u, 800, (g && g.jenis) === 'Foto');
   }
 
   function renderFilterGaleri() {
@@ -1917,16 +2062,20 @@
 
     grid.innerHTML = list.map(g => {
       const j = jenisGaleri(g.jenis);
-      const thumb = thumbnailGaleri(g.url);
+      const thumb = thumbnailGaleri(g);
       return '<button data-galeri="' + esc(g.id) + '" ' +
           'class="group text-left bg-white rounded-2xl border border-slate-200 overflow-hidden ' +
           'hover:-translate-y-1.5 hover:shadow-xl hover:border-sains-300 transition duration-300">' +
         '<span class="relative block aspect-[4/3] bg-slate-100 overflow-hidden">' +
+          // Ikon dipasang sebagai lapisan dasar; bila thumbnail gagal dimuat,
+          // gambarnya dilepas sendiri dan ikon inilah yang terlihat.
+          '<span class="absolute inset-0 grid place-items-center ' + j.kotak + '">' +
+            '<i data-lucide="' + j.ikon + '" class="w-9 h-9"></i></span>' +
           (thumb
             ? '<img src="' + esc(safeUrl(thumb)) + '" alt="" loading="lazy" decoding="async" ' +
-              'class="w-full h-full object-cover transition duration-500 group-hover:scale-105" />'
-            : '<span class="absolute inset-0 grid place-items-center ' + j.kotak + '">' +
-                '<i data-lucide="' + j.ikon + '" class="w-9 h-9"></i></span>') +
+              'onerror="this.remove()" ' +
+              'class="relative w-full h-full object-cover transition duration-500 group-hover:scale-105" />'
+            : '') +
           (g.jenis === 'Video'
             ? '<span class="absolute inset-0 grid place-items-center bg-slate-900/25">' +
                 '<span class="grid place-items-center w-12 h-12 rounded-full bg-white/90 text-rose-600 shadow-lg">' +
@@ -1944,9 +2093,11 @@
       '</button>';
     }).join('');
 
+    // Geser antar dokumentasi memakai seluruh hasil penyaringan, bukan hanya
+    // yang sedang tampil, supaya sisanya tetap bisa dilihat dari dalam modal.
     $$('[data-galeri]', grid).forEach(b => b.addEventListener('click', () => {
-      const item = (data.galeri || []).find(x => x.id === b.dataset.galeri);
-      if (item) bukaPreview(item.judul, item.url);
+      const i = semua.findIndex(x => x.id === b.dataset.galeri);
+      if (i >= 0) bukaGaleri(semua, i);
     }));
 
     if (lainnya) {
@@ -2965,7 +3116,7 @@
           id: g.id, tipe: 'galeri',
           icon: jenisGaleri(g.jenis).ikon,
           judul: g.judul,
-          sub: (g.jenis || 'Foto') + ' · ' + (thumbnailGaleri(g.url) ? 'ada pratinjau' : 'tanpa pratinjau') +
+          sub: (g.jenis || 'Foto') + ' · ' + (thumbnailGaleri(g) ? 'ada pratinjau' : 'tanpa pratinjau') +
                (g.keterangan ? ' · ' + g.keterangan.slice(0, 50) : '')
         })).join('')
       : '<p class="text-sm text-slate-400 italic py-6 text-center">Belum ada dokumentasi.</p>';
