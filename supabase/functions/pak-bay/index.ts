@@ -26,7 +26,15 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const MODEL_UTAMA  = "gemini-3.8-flash";
+// gemini-2.5-flash dijadikan yang utama berdasarkan pengukuran, bukan karena
+// ia model yang lebih baru. Selama berjam-jam gemini-3.8-flash menolak dengan
+// 503 "high demand" di setiap permintaan, dan ia tidak menolak dengan cepat:
+// perlu 8 sampai 12 detik sebelum mengaku sibuk. Akibatnya tiap jawaban
+// membayar pajak sepuluh detik untuk model yang sudah pasti gagal, lalu baru
+// dijawab cadangannya dalam 2 sampai 3 detik. Menaruh yang sehat di depan
+// memangkas sebagian besar waktu tunggu siswa. Bila 3.8 pulih, ia tetap
+// terpakai sebagai cadangan pertama.
+const MODEL_UTAMA  = "gemini-2.5-flash";
 const BATAS_HARIAN = 400;   // total pesan seluruh pengunjung per hari
 const BATAS_SESI   = 30;    // pesan per sesi peramban per hari
 const BATAS_HURUF  = 600;   // panjang maksimal pertanyaan siswa
@@ -34,7 +42,20 @@ const BATAS_HURUF  = 600;   // panjang maksimal pertanyaan siswa
 // Model pengganti bila yang utama sedang sibuk. Daftarnya ditulis tetap,
 // bukan dicari lewat ListModels: panggilan pencarian itu sendiri memakan
 // beberapa detik, dan yang langka di Edge Function adalah waktu.
-const MODEL_CADANGAN = ["gemini-2.5-flash", "gemini-flash-latest"];
+// gemini-flash-latest sengaja tidak dipakai. Dalam pengukuran ia tidak pernah
+// sekali pun menjawab tepat waktu — selalu macet sampai batas, sehingga hanya
+// menambah belasan detik pada kasus terburuk tanpa pernah menolong.
+const MODEL_CADANGAN = ["gemini-3.8-flash"];
+
+// Batas waktu tiap panggilan ke Gemini. Tanpa ini satu sambungan yang macet
+// menggantung tanpa henti: anggaran waktu di bawah hanya diperiksa di ANTARA
+// percobaan, tidak bisa menyela percobaan yang sedang berjalan. Pernah
+// terukur satu permintaan menggantung lewat 90 detik karenanya.
+//
+// Enam detik, bukan sembilan: jawaban yang sehat datang dalam 2 sampai 3
+// detik, jadi yang belum menjawab setelah enam detik praktis tidak pernah
+// menjadi jalan tercepat — ia hanya menunda model berikutnya.
+const BATAS_PANGGILAN_MS = 6000;
 
 // Edge Function dimatikan paksa bila terlalu lama menunggu (WallClockTime).
 // Dulu fungsi ini mati justru saat 503 terjadi, karena coba-ulang berjeda
@@ -98,28 +119,33 @@ Deno.serve(async (req: Request) => {
 
   const hariIni = new Date().toISOString().slice(0, 10);
 
-  const { count: jumlahSesi } = await sb
-    .from("ipa_tutor_percakapan")
-    .select("id", { count: "exact", head: true })
-    .eq("sesi", sesi).eq("peran", "siswa")
-    .gte("dibuat_pada", hariIni);
+  // Kelimanya dijalankan serentak, bukan berurutan. Tidak ada yang bergantung
+  // pada hasil yang lain, sementara berurutan berarti lima kali bolak-balik ke
+  // basis data sebelum Gemini sempat dihubungi. Pemeriksaan batas tetap
+  // dilakukan sebelum AI dipanggil; paling banter beberapa kueri ringan
+  // terlanjur jalan saat batasnya memang sudah terlampaui.
+  const [resSesi, resKuota, resKonten, resPengetahuan, resRiwayat] = await Promise.all([
+    sb.from("ipa_tutor_percakapan")
+      .select("id", { count: "exact", head: true })
+      .eq("sesi", sesi).eq("peran", "siswa").gte("dibuat_pada", hariIni),
+    sb.from("ipa_tutor_kuota").select("jumlah").eq("tanggal", hariIni).maybeSingle(),
+    sb.from("ipa_konten").select("data").eq("id", 1).maybeSingle(),
+    sb.from("ipa_tutor_pengetahuan").select("topik, isi").eq("aktif", true).limit(60),
+    sb.from("ipa_tutor_percakapan").select("peran, pesan")
+      .eq("sesi", sesi).order("dibuat_pada", { ascending: false }).limit(10),
+  ]);
 
-  if ((jumlahSesi ?? 0) >= BATAS_SESI) {
+  if ((resSesi.count ?? 0) >= BATAS_SESI) {
     return jawab({ galat: "batas_sesi",
       pesan: "Kamu sudah banyak bertanya hari ini. Lanjut lagi besok ya!" }, 429);
   }
 
-  const { data: kuota } = await sb
-    .from("ipa_tutor_kuota").select("jumlah").eq("tanggal", hariIni).maybeSingle();
-
-  if ((kuota?.jumlah ?? 0) >= BATAS_HARIAN) {
+  if ((resKuota.data?.jumlah ?? 0) >= BATAS_HARIAN) {
     return jawab({ galat: "batas_harian",
       pesan: "Kak Nala sedang istirahat karena hari ini sudah banyak sekali pertanyaan. Coba lagi besok ya!" }, 429);
   }
 
-  const { data: barisKonten } = await sb
-    .from("ipa_konten").select("data").eq("id", 1).maybeSingle();
-  const konten = (barisKonten?.data ?? {}) as Record<string, any>;
+  const konten = (resKonten.data?.data ?? {}) as Record<string, any>;
 
   const pangkas = (t: unknown, n: number) => {
     const s = String(t ?? "").trim();
@@ -141,17 +167,10 @@ Deno.serve(async (req: Request) => {
     .map((p: any) => `- (${p.tanggal}) ${p.judul} — ${pangkas(p.isi, 140)}`)
     .join("\n");
 
-  const { data: pengetahuan } = await sb
-    .from("ipa_tutor_pengetahuan").select("topik, isi").eq("aktif", true).limit(60);
-
-  const daftarPengetahuan = (pengetahuan ?? [])
+  const daftarPengetahuan = (resPengetahuan.data ?? [])
     .map((p: any) => `- ${p.topik}: ${p.isi}`).join("\n");
 
-  const { data: riwayat } = await sb
-    .from("ipa_tutor_percakapan").select("peran, pesan")
-    .eq("sesi", sesi).order("dibuat_pada", { ascending: false }).limit(10);
-
-  const percakapan = (riwayat ?? []).reverse().map((r: any) => ({
+  const percakapan = (resRiwayat.data ?? []).reverse().map((r: any) => ({
     role: r.peran === "siswa" ? "user" : "model",
     parts: [{ text: r.pesan }],
   }));
@@ -234,10 +253,26 @@ ${daftarPengumuman || "(belum ada)"}`;
   };
 
   async function coba(model: string): Promise<{ teks?: string; kode?: number; alasan?: string }> {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${kunciAI}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(muatan) },
-    );
+    // Jangan menunggu lebih lama dari yang tersisa, dan jangan pernah lebih
+    // dari batas satu panggilan. Tanpa penyela ini, model yang menggantung
+    // menahan jawaban sampai platformnya sendiri yang membunuh fungsi.
+    const jatah = Math.max(1000, Math.min(BATAS_PANGGILAN_MS, sisaWaktu() - 1500));
+    const mulaiPanggilan = Date.now();
+
+    let r: Response;
+    try {
+      r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${kunciAI}`,
+        { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(muatan), signal: AbortSignal.timeout(jatah) },
+      );
+    } catch (e) {
+      const lama = Date.now() - mulaiPanggilan;
+      console.warn(`Model ${model} tidak menjawab dalam ${lama}ms:`, String(e).slice(0, 120));
+      return { kode: 503 };   // diperlakukan sebagai kesibukan: coba model lain
+    }
+
+    console.log(`Model ${model} menjawab ${r.status} dalam ${Date.now() - mulaiPanggilan}ms`);
     if (!r.ok) {
       const rinci = await r.text();
       console.error(`Model ${model} menolak:`, r.status, rinci.slice(0, 250));
@@ -316,12 +351,15 @@ ${daftarPengumuman || "(belum ada)"}`;
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/^\s*[-*]\s+/gm, "• ");
 
-  await sb.from("ipa_tutor_percakapan").insert([
-    { sesi, peran: "siswa", pesan },
-    { sesi, peran: "tutor", pesan: balasan },
+  // Keduanya berjalan serentak. Jawabannya sudah siap di titik ini, jadi tiap
+  // bolak-balik ke basis data di sini murni menunda sampainya ke siswa.
+  await Promise.all([
+    sb.from("ipa_tutor_percakapan").insert([
+      { sesi, peran: "siswa", pesan },
+      { sesi, peran: "tutor", pesan: balasan },
+    ]),
+    sb.rpc("ipa_tutor_naikkan_kuota", { p_tanggal: hariIni }),
   ]);
-
-  await sb.rpc("ipa_tutor_naikkan_kuota", { p_tanggal: hariIni });
 
   return jawab({ balasan });
 });
