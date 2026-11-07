@@ -654,10 +654,17 @@
       </div>
 
       <!-- Penghitung pengunjung -->
-      <div class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10">
-        <i data-lucide="eye" class="w-4 h-4 text-sains-300"></i>
-        <span class="text-xs">Pengunjung</span>
-        <span id="statKunjungan" class="font-display font-bold text-white tabular-nums">—</span>
+      <div class="flex flex-col items-center gap-2">
+        <div class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10">
+          <i data-lucide="eye" class="w-4 h-4 text-sains-300"></i>
+          <span class="text-xs">Pengunjung</span>
+          <span id="statKunjungan" class="font-display font-bold text-white tabular-nums">—</span>
+        </div>
+        <!-- Statistik lengkap dari Statcounter, sengaja dibuka untuk umum -->
+        <a href="https://statcounter.com/p13365417/?guest=1" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-sains-300 transition">
+          <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Lihat statistik kunjungan
+        </a>
       </div>
 
       <p class="text-xs" data-bind="footerCredit">© 2026 Bayu Setiadji, S.Pd., Gr.</p>
@@ -3888,5 +3895,39 @@
   sb.auth.getSession().then((r) => { if (r.data) sesi = r.data.session; });
 })();
 </script>
+
+<!-- ============================================================================
+     ██ STATCOUNTER
+     Pelacak kunjungan pihak ketiga, terpisah dari penghitung sendiri di footer.
+     Yang di footer menghitung sesi peramban; yang ini memberi rincian halaman,
+     asal pengunjung, dan perangkat di dasbor Statcounter.
+
+     Dua penyesuaian dari potongan bawaan Statcounter:
+
+     1. sc_invisible = 1. Potongan aslinya 0, yang memunculkan lencana
+        penghitung di halaman. Footer sudah punya penghitung sendiri, jadi
+        lencana kedua hanya membuat bingung.
+
+     2. counter.js dimuat sebagai skrip async biasa, bukan lewat penulisan
+        dokumen secara langsung seperti pada potongan bawaannya. Cara bawaan
+        itu menahan penggambaran halaman, dan bila sempat berjalan setelah
+        halaman selesai dimuat ia justru mengosongkan seluruh dokumen. Cara
+        async aman justru karena lencananya disembunyikan: tidak ada apa pun
+        yang perlu dituliskan di tempat skrip ini berada.
+     ============================================================================ -->
+<script type="text/javascript">
+  var sc_project   = 13365417;
+  var sc_invisible = 1;
+  var sc_security  = "139e0c68";
+</script>
+<script type="text/javascript" src="https://www.statcounter.com/counter/counter.js" async></script>
+<noscript>
+  <!-- Pengunjung tanpa JavaScript tetap terhitung lewat gambar suar ini. -->
+  <div class="statcounter"><img class="statcounter"
+    src="https://c.statcounter.com/13365417/0/139e0c68/1/"
+    alt="Web Analytics Made Easy - Statcounter"
+    referrerPolicy="no-referrer-when-downgrade" width="1" height="1" /></div>
+</noscript>
+<!-- Akhir Statcounter -->
 </body>
 </html>
