@@ -23,10 +23,22 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const MODEL_UTAMA  = "gemini-3.8-flash";
-const PERCOBAAN    = 3;     // percobaan ulang saat model sedang sibuk
 const BATAS_HARIAN = 400;   // total pesan seluruh pengunjung per hari
 const BATAS_SESI   = 30;    // pesan per sesi peramban per hari
 const BATAS_HURUF  = 600;   // panjang maksimal pertanyaan siswa
+
+// Model pengganti bila yang utama sedang sibuk. Daftarnya ditulis tetap,
+// bukan dicari lewat ListModels: panggilan pencarian itu sendiri memakan
+// beberapa detik, dan yang langka di Edge Function adalah waktu.
+const MODEL_CADANGAN = ["gemini-2.5-flash", "gemini-flash-latest"];
+
+// Edge Function dimatikan paksa bila terlalu lama menunggu (WallClockTime).
+// Dulu fungsi ini mati justru saat 503 terjadi, karena coba-ulang berjeda
+// lalu pencarian model menghabiskan jatah waktunya sebelum sempat menjawab.
+// Sekarang waktunya dianggarkan sendiri, dan kalau habis kita menyerah
+// dengan pesan yang sopan alih-alih dibunuh di tengah jalan.
+const ANGGARAN_MS = 18000;
+const SISA_MINIMAL_MS = 3500;   // tidak memulai percobaan baru di bawah ini
 
 // Model baru memakai sebagian jatah keluaran untuk berpikir sebelum menulis,
 // jadi angkanya harus longgar. Jawaban tetap pendek karena diatur lewat
@@ -49,32 +61,10 @@ function jawab(isi: unknown, status = 200) {
   });
 }
 
-const tidur = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/** Cari model pengganti yang benar-benar tersedia pada akun ini. */
-async function modelCadangan(kunci: string): Promise<string[]> {
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${kunci}&pageSize=100`,
-    );
-    if (!r.ok) return [];
-    const d = await r.json();
-    const nama: string[] = (d.models ?? [])
-      .filter((m: any) => (m.supportedGenerationMethods ?? []).includes("generateContent"))
-      .map((m: any) => String(m.name ?? "").replace(/^models\//, ""))
-      .filter((n: string) => n && n !== MODEL_UTAMA);
-
-    const flash = nama.filter((n) => n.includes("flash"));
-    const lain = nama.filter((n) => !n.includes("flash"));
-    console.log("Model tersedia:", nama.slice(0, 20).join(", "));
-    return [...flash, ...lain].slice(0, 3);
-  } catch (e) {
-    console.error("Gagal mengambil daftar model:", e);
-    return [];
-  }
-}
-
 Deno.serve(async (req: Request) => {
+  const mulaiPermintaan = Date.now();
+  const sisaWaktu = () => ANGGARAN_MS - (Date.now() - mulaiPermintaan);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return jawab({ galat: "Metode tidak didukung." }, 405);
 
@@ -200,7 +190,9 @@ CARA MENULIS — PENTING
 - Tulis POLOS tanpa format apa pun. JANGAN memakai tanda bintang, pagar, garis bawah, atau penanda tebal/miring. Panel obrolan menampilkannya mentah sehingga jadi jelek.
 - Bila menyebut materi atau media, sebutkan JUDULNYA SAJA. JANGAN menyalin keterangan atau ringkasannya.
 - Pendek: 2 sampai 4 kalimat, dan selalu SELESAIKAN kalimat terakhirmu.
-- Bahasa Indonesia hangat dan sederhana untuk siswa SMP kelas VII sampai IX. Panggil siswa dengan "kamu". Jangan menggurui dan jangan memuji berlebihan.
+- Bahasa Indonesia hangat dan sederhana untuk siswa SMP kelas VII sampai IX.
+- Panggil siswa HANYA dengan "kamu". JANGAN pernah menyapa "Nak", "Adik", "Dik", "Anak-anak", atau sapaan sejenis — itu terdengar menggurui dan membuat jarak.
+- Jangan memuji berlebihan. "Wah, pertanyaan bagus sekali!" di setiap balasan terasa palsu. Langsung saja ke pokoknya.
 
 SIAPA KAMU
 - Kamu ASISTEN AI, bukan Pak Bayu yang sebenarnya. Bila ada yang mengira kamu gurunya sungguhan, luruskan dengan ramah.
@@ -262,22 +254,22 @@ ${daftarPengumuman || "(belum ada)"}`;
   let kodeTerakhir = 0;
 
   try {
-    for (let i = 0; i < PERCOBAAN; i++) {
-      const h = await coba(MODEL_UTAMA);
-      if (h.teks !== undefined) { balasan = h.teks; kodeTerakhir = 0; break; }
-      kodeTerakhir = h.kode ?? 0;
-      if (h.kode !== 503 && h.kode !== 429) break;
-      if (i < PERCOBAAN - 1) await tidur(700 * (i + 1));
-    }
-
-    if (!balasan && kodeTerakhir) {
-      for (const cadangan of await modelCadangan(kunciAI)) {
-        const h = await coba(cadangan);
-        if (h.teks !== undefined) {
-          console.log("Terlayani model cadangan:", cadangan);
-          balasan = h.teks; kodeTerakhir = 0; break;
-        }
+    // Satu percobaan per model, langsung pindah ke cadangan. Mengulang model
+    // yang sama saat ia 503 hampir selalu sia-sia dan hanya memakan waktu
+    // yang dibutuhkan model berikutnya.
+    for (const model of [MODEL_UTAMA, ...MODEL_CADANGAN]) {
+      if (sisaWaktu() < SISA_MINIMAL_MS) {
+        console.warn("Anggaran waktu habis, berhenti sebelum", model);
+        break;
       }
+      const h = await coba(model);
+      if (h.teks !== undefined) {
+        if (model !== MODEL_UTAMA) console.log("Terlayani model cadangan:", model);
+        balasan = h.teks; kodeTerakhir = 0; break;
+      }
+      kodeTerakhir = h.kode ?? 0;
+      // Galat selain kesibukan tidak akan membaik dengan ganti model.
+      if (h.kode !== 503 && h.kode !== 429 && h.kode !== 404) break;
     }
 
     if (!balasan && kodeTerakhir) {
