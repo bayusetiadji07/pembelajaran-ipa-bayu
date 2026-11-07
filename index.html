@@ -73,6 +73,11 @@
      ============================================================ */
   :root{ --putih:#ffffff; --kabut:#f2f6fb; --kabut-tua:#e8f0fa; }
 
+  /* Menjembatani seksi Tentang (bg-sains-50 #eff6ff) ke awal seksi Materi
+     (--kabut-tua), supaya kolom dialog terasa menyatu dengan keduanya. */
+  .ground-dialog{
+    background-image:linear-gradient(to bottom, #eff6ff 0%, #ecf3fd 55%, var(--kabut-tua) 100%);
+  }
   .ground-materi{
     background-color:var(--kabut);
     background-image:
@@ -204,6 +209,7 @@
       <!-- Menu desktop -->
       <ul class="hidden md:flex items-center gap-1 text-sm font-medium">
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#tentang">Tentang</a></li>
+        <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#dialog">Tanya Pak Bay</a></li>
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#materi">Materi</a></li>
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#media">Media</a></li>
         <li><a class="px-3 py-2 rounded-lg text-slate-600 hover:text-sains-700 hover:bg-sains-50 transition" href="#pengumuman">Pengumuman</a></li>
@@ -222,6 +228,7 @@
     <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
       <ul class="px-4 py-3 space-y-1 text-sm font-medium">
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#tentang">Tentang Guru</a></li>
+        <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#dialog">Tanya Pak Bay</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#materi">Materi IPA</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#media">Media Pembelajaran</a></li>
         <li><a class="block px-3 py-2.5 rounded-lg hover:bg-sains-50 text-slate-700" href="#pengumuman">Pengumuman</a></li>
@@ -368,6 +375,60 @@
           <div id="peranList" class="mt-6 flex flex-wrap gap-2"></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------
+       2b. BERDIALOG DENGAN PAK BAY
+       Kolom tanya bergaya kotak pencarian. Mengirimnya membuka panel
+       obrolan yang sama dengan tombol mengambang — tidak ada mesin
+       percakapan kedua, hanya pintu masuk yang lebih terlihat.
+       ------------------------------------------------------------------ -->
+  <section id="dialog" class="py-16 sm:py-20 ground-dialog scroll-mt-20">
+    <div class="max-w-3xl mx-auto px-5 sm:px-6">
+      <div class="text-center reveal">
+        <span class="inline-flex items-center gap-2 text-lab-600 text-xs font-bold uppercase tracking-widest">
+          <i data-lucide="messages-square" class="w-4 h-4"></i> Teman Berpikir
+        </span>
+        <h2 class="mt-3 text-2xl sm:text-3xl font-bold text-slate-900">
+          Bingung? Ayo pikirkan bersama.
+        </h2>
+        <p class="mt-3 text-slate-600 leading-relaxed max-w-xl mx-auto">
+          Pak Bay tidak langsung memberi jawaban. Ia menuntunmu dengan pertanyaan
+          sampai kamu menemukan sendiri jawabannya — karena yang kamu temukan
+          sendiri jauh lebih lekat diingat.
+        </p>
+      </div>
+
+      <!-- Kotak tanya -->
+      <form id="dialogForm" class="mt-8 reveal" autocomplete="off">
+        <div class="group flex items-center gap-2 sm:gap-3 bg-white rounded-full border border-slate-200
+                    shadow-lg shadow-sains-900/5 px-3 sm:px-4 py-2.5
+                    focus-within:border-sains-300 focus-within:shadow-xl focus-within:shadow-sains-900/10
+                    transition duration-300">
+          <span class="relative block w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-sains-50 border border-sains-100 overflow-hidden shrink-0">
+            <img src="pakbay-avatar.webp" alt="" class="absolute inset-0 w-full h-full object-cover" />
+          </span>
+          <input id="dialogInput" type="text" maxlength="600"
+                 class="flex-1 min-w-0 bg-transparent border-0 outline-none text-[15px] sm:text-base
+                        text-slate-800 placeholder:text-slate-400 py-1.5"
+                 placeholder="Tulis yang sedang kamu pikirkan…"
+                 aria-label="Tulis pertanyaan untuk Pak Bay" />
+          <button type="submit" aria-label="Mulai berdialog"
+                  class="grid place-items-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-sains-700 text-white
+                         shadow-md hover:bg-sains-800 transition active:scale-95 shrink-0">
+            <i data-lucide="arrow-up" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Pemantik: hal-hal yang biasa ditanyakan siswa -->
+      <div id="dialogPemantik" class="mt-5 flex flex-wrap justify-center gap-2 reveal"></div>
+
+      <p class="mt-6 text-center text-xs text-slate-400 leading-relaxed reveal">
+        Pak Bay adalah asisten AI, bukan Pak Bayu yang sebenarnya.
+        Untuk nilai, tugas, dan urusan sekolah, temui gurumu langsung.
+      </p>
     </div>
   </section>
 
@@ -2557,11 +2618,20 @@
   const KUNCI_SESI_TUTOR = 'ipa_tutor_sesi';
   const KUNCI_RIWAYAT_TUTOR = 'ipa_tutor_riwayat';
 
+  /* Pemantik dibuat terbuka, bukan pertanyaan yang sekali jawab selesai,
+     supaya percakapannya memang berkembang jadi dialog. */
   const SARAN_TUTOR = [
     'Aku harus belajar apa dulu?',
-    'Jelaskan fotosintesis dengan sederhana',
-    'Ada media belajar untuk kelas VII?',
-    'Bedanya massa dan berat apa?'
+    'Kenapa langit warnanya biru?',
+    'Kenapa es batu mengapung di air?',
+    'Bantu aku paham massa dan berat'
+  ];
+  const PEMANTIK_DIALOG = [
+    'Aku harus belajar apa dulu?',
+    'Kenapa langit warnanya biru?',
+    'Kenapa es batu mengapung di air?',
+    'Bagaimana tumbuhan membuat makanannya?',
+    'Aku belum paham gaya dan gerak'
   ];
 
   let tutorSibuk = false;
@@ -2614,7 +2684,7 @@
           '<img src="pakbay.webp" alt="Pak Bay, asisten belajar IPA" ' +
                'class="w-36 h-36 mx-auto object-contain mb-2" />' +
           '<p class="font-display font-bold text-slate-800">Halo! Aku Pak Bay.</p>' +
-          '<p class="mt-1.5 text-sm text-slate-500 leading-relaxed px-4">Tanya apa saja tentang IPA, atau minta saran materi apa yang sebaiknya kamu pelajari dulu.</p>' +
+          '<p class="mt-1.5 text-sm text-slate-500 leading-relaxed px-4">Ceritakan apa yang sedang kamu pikirkan. Aku tidak akan langsung memberi jawaban — kita cari bersama lewat pertanyaan.</p>' +
         '</div>');
 
     // Saran hanya ditawarkan saat percakapan masih kosong
@@ -2729,6 +2799,37 @@
   });
 
   $('#tutorForm').addEventListener('submit', (e) => { e.preventDefault(); kirimKeTutor(); });
+
+  /* ---- Kolom dialog di halaman (seksi "Teman Berpikir") ----
+     Pintu masuk kedua ke panel yang sama, bukan percakapan terpisah. */
+  function mulaiDialog(teks) {
+    const t = String(teks || '').trim();
+    if (!t) return;
+    bukaTutor();
+    $('#tutorInput').value = t;
+    kirimKeTutor();
+  }
+
+  const dialogForm = $('#dialogForm');
+  if (dialogForm) {
+    dialogForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = $('#dialogInput');
+      mulaiDialog(inp.value);
+      inp.value = '';
+    });
+  }
+
+  const pemantik = $('#dialogPemantik');
+  if (pemantik) {
+    pemantik.innerHTML = PEMANTIK_DIALOG.map(s =>
+      '<button type="button" data-pemantik="' + esc(s) + '" ' +
+      'class="px-3.5 py-2 rounded-full bg-white/80 border border-slate-200 text-xs sm:text-[13px] ' +
+      'font-medium text-slate-600 hover:border-sains-300 hover:text-sains-700 hover:bg-white ' +
+      'transition active:scale-[.97]">' + esc(s) + '</button>').join('');
+    $$('#dialogPemantik [data-pemantik]').forEach(b =>
+      b.addEventListener('click', () => mulaiDialog(b.dataset.pemantik)));
+  }
 
   // Enter mengirim, Shift+Enter ganti baris; kotak tumbuh mengikuti isi
   $('#tutorInput').addEventListener('keydown', (e) => {
