@@ -1,5 +1,5 @@
 // =============================================================================
-// AI Tutor "Pak Bay" — perantara antara halaman publik dan Google Gemini.
+// AI Tutor "Kak Nala" — perantara antara halaman publik dan Google Gemini.
 //
 // Perannya BUKAN menjawab, melainkan menuntun: balasannya diarahkan berupa
 // pertanyaan balik yang memancing siswa berpikir satu langkah lebih jauh.
@@ -15,6 +15,10 @@
 //
 // Kunci API hanya hidup di sini sebagai rahasia lingkungan; halaman tidak
 // pernah menerimanya.
+//
+// Slug fungsinya tetap "pak-bay" meski asistennya kini bernama Kak Nala.
+// Slug itu tidak pernah dilihat siswa, sedangkan menggantinya berarti membuat
+// fungsi baru dan sempat memutus halaman yang sedang tayang.
 //
 // Men-deploy ulang:
 //   supabase functions deploy pak-bay --project-ref riajhxegskgwytmpcvut --no-verify-jwt
@@ -110,7 +114,7 @@ Deno.serve(async (req: Request) => {
 
   if ((kuota?.jumlah ?? 0) >= BATAS_HARIAN) {
     return jawab({ galat: "batas_harian",
-      pesan: "Pak Bay sedang istirahat karena hari ini sudah banyak sekali pertanyaan. Coba lagi besok ya!" }, 429);
+      pesan: "Kak Nala sedang istirahat karena hari ini sudah banyak sekali pertanyaan. Coba lagi besok ya!" }, 429);
   }
 
   const { data: barisKonten } = await sb
@@ -159,7 +163,7 @@ Deno.serve(async (req: Request) => {
 
   const namaGuru = konten?.profil?.nama ?? "Bayu Setiadji";
 
-  const perintahSistem = `Kamu adalah "Pak Bay", teman berpikir pada halaman pembelajaran IPA milik ${namaGuru}, guru IPA SMP Negeri 3 Besuki, Situbondo.
+  const perintahSistem = `Kamu adalah "Kak Nala", teman berpikir pada halaman pembelajaran IPA milik ${namaGuru}, guru IPA SMP Negeri 3 Besuki, Situbondo.
 
 PERAN UTAMAMU: MENUNTUN, BUKAN MENJAWAB
 Tugasmu membuat siswa menemukan jawabannya sendiri. Secara umum, balasanmu berakhir dengan SATU pertanyaan balik yang membawa siswa satu langkah lebih dekat ke jawaban.
@@ -195,7 +199,7 @@ CARA MENULIS — PENTING
 - Jangan memuji berlebihan. "Wah, pertanyaan bagus sekali!" di setiap balasan terasa palsu. Langsung saja ke pokoknya.
 
 SIAPA KAMU
-- Kamu ASISTEN AI, bukan Pak Bayu yang sebenarnya. Bila ada yang mengira kamu gurunya sungguhan, luruskan dengan ramah.
+- Kamu ASISTEN AI, bukan guru sungguhan. Bila ada yang mengira kamu manusia atau mengira kamu Pak Bayu, luruskan dengan ramah.
 - Kamu tidak bisa memberi nilai, mengubah tugas, atau mengurus hal administrasi sekolah. Untuk itu arahkan siswa menemui Pak Bayu langsung atau lewat kotak saran di halaman ini.
 
 BATAS
@@ -252,6 +256,7 @@ ${daftarPengumuman || "(belum ada)"}`;
 
   let balasan = "";
   let kodeTerakhir = 0;
+  let adaPercobaan = false;   // sempatkah satu model dicoba sebelum waktu habis?
 
   try {
     // Satu percobaan per model, langsung pindah ke cadangan. Mengulang model
@@ -262,6 +267,7 @@ ${daftarPengumuman || "(belum ada)"}`;
         console.warn("Anggaran waktu habis, berhenti sebelum", model);
         break;
       }
+      adaPercobaan = true;
       const h = await coba(model);
       if (h.teks !== undefined) {
         if (model !== MODEL_UTAMA) console.log("Terlayani model cadangan:", model);
@@ -279,19 +285,29 @@ ${daftarPengumuman || "(belum ada)"}`;
       }
       if (kodeTerakhir === 503) {
         return jawab({ galat: "sedang_sibuk",
-          pesan: "Pak Bay sedang ramai sekali ditanya. Tunggu sebentar lalu kirim lagi ya." }, 503);
+          pesan: "Kak Nala sedang ramai sekali ditanya. Tunggu sebentar lalu kirim lagi ya." }, 503);
       }
       return jawab({ galat: "ai_gagal",
-        pesan: "Pak Bay sedang tidak bisa menjawab. Coba sebentar lagi." }, 502);
+        pesan: "Kak Nala sedang tidak bisa menjawab. Coba sebentar lagi." }, 502);
     }
 
     if (!balasan) {
-      balasan = "Maaf, pertanyaan itu belum bisa Pak Bay jawab. Coba tanyakan hal lain seputar IPA ya.";
+      // Dua sebab berbeda bisa sampai ke sini, dan keduanya tidak pantas
+      // diberi pesan yang sama. Anggaran waktu habis sebelum satu pun model
+      // sempat dicoba berarti sedang sibuk — mencoba lagi memang masuk akal.
+      // Sedangkan model yang menjawab kosong biasanya karena penyaring
+      // keamanannya menahan jawaban; menyuruh siswa mencoba lagi hanya
+      // membuatnya mengulang hal yang sama dan kecewa lagi.
+      if (!adaPercobaan) {
+        return jawab({ galat: "sedang_sibuk",
+          pesan: "Kak Nala sedang ramai sekali ditanya. Tunggu sebentar lalu kirim lagi ya." }, 503);
+      }
+      balasan = "Maaf, pertanyaan itu belum bisa Kak Nala jawab. Coba tanyakan hal lain seputar IPA ya.";
     }
   } catch (e) {
     console.error("Gagal menghubungi Gemini:", e);
     return jawab({ galat: "ai_gagal",
-      pesan: "Pak Bay sedang tidak bisa dihubungi. Coba sebentar lagi." }, 502);
+      pesan: "Kak Nala sedang tidak bisa dihubungi. Coba sebentar lagi." }, 502);
   }
 
   balasan = balasan
