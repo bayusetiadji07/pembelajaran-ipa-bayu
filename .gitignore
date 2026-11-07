@@ -11,3 +11,6 @@ data-ipa-*.json
 
 # Kanvas desain hasil seed (besar, dibuat ulang dari berkas .dc.html)
 design/tampilan-landing-ipa.html
+
+# Berkas video promosi beserta alat pembuatnya (besar, dibuat ulang bila perlu)
+promo/
