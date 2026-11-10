@@ -152,6 +152,14 @@
   .float-delay{ animation: float 7s ease-in-out infinite; animation-delay:1.2s; }
 
   /* --- Fade in saat masuk viewport --- */
+  /* Memotong pita hitam thumbnail YouTube.
+     hqdefault berukuran 480x360: gambar 16:9 di tengah, pita hitam setinggi
+     45 px (seperdelapan) di atas dan di bawah. Di dalam kotak 16:10 dengan
+     object-cover, yang terpotong baru 8,33% tiap sisi sehingga pitanya masih
+     menyisa. Pembesaran 1,12 menaikkan potongan menjadi 12,5% tiap sisi,
+     yaitu tepat setinggi pitanya. */
+  .yt-potong{ transform:scale(1.12); }
+
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
   .reveal.show{ opacity:1; transform:none; }
 
@@ -1986,6 +1994,41 @@
   const PRATINJAU_MEDIA = 6;
   let mediaTampilSemua = false;
 
+  /**
+   * Gambar pratinjau untuk kartu media, berurutan dari yang paling dipercaya:
+   *
+   * 1. Video YouTube  - thumbnail resminya, selalu mutakhir, tanpa disimpan.
+   * 2. Isian manual   - bila Pak Bayu mengisi ruas Gambar Pratinjau di admin.
+   * 3. Hasil potret   - media-pratinjau/<id>.webp, dibuat oleh
+   *                     alat/potret-media.js.
+   *
+   * Media lain di halaman ini berupa aplikasi web utuh. Memuat semuanya
+   * sebagai iframe hidup akan menghabiskan kuota dan membuat HP siswa
+   * tersendat, jadi yang dipakai gambar diam hasil potret sekali jalan.
+   *
+   * Bila berkasnya tidak ada, <img> gagal memuat lalu melepas dirinya
+   * sendiri, dan sampul berwarna kategori di belakangnya yang terlihat.
+   */
+  function pratinjauMedia(m) {
+    const u = String((m && m.link) || '').trim();
+    const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+
+    // hqdefault berukuran 480x360 dan selalu tersedia untuk video apa pun.
+    // Bentuknya 4:3 dengan gambar 16:9 disisipkan di tengah, jadi ada pita
+    // hitam setinggi seperdelapan di atas dan di bawah. Pita itu dipotong
+    // lewat pembesaran terukur di CSS (lihat kelas yt-potong), bukan dengan
+    // menukar ke mqdefault yang bebas pita tetapi hanya 320 px — terlalu
+    // kecil untuk kartu selebar layar HP.
+    if (yt) return { src: 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg', youtube: true };
+
+    if (m && m.gambar) return { src: safeUrl(m.gambar), youtube: false };
+
+    // Hanya id beraksara aman yang boleh menjadi nama berkas
+    const id = String((m && m.id) || '');
+    if (/^[a-z0-9]+$/i.test(id)) return { src: 'media-pratinjau/' + id + '.webp', youtube: false };
+    return null;
+  }
+
   function renderMedia() {
     const semua = kategoriAktif === 'Semua' ? data.media : data.media.filter(m => m.kategori === kategoriAktif);
     const grid = $('#mediaGrid');
@@ -2005,27 +2048,45 @@
       const url = safeUrl(m.link);
       const adaLink = url !== '#';
       const aksi = AKSI_MEDIA[m.kategori] || 'Buka Media';
-      // Kartu dibuat ringkas: ikon sebaris dengan judul, deskripsi dibatasi dua
-      // baris, dan tombol bergaya garis tepi supaya deretan kartu tidak menjadi
-      // "tembok tombol" saat ditumpuk satu kolom di layar HP.
-      return '<article class="group flex flex-col bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 ' +
+      const gambar = pratinjauMedia(m);
+      // Rasio 16/10 menyamai ukuran potret (1280x800), jadi tangkapan layar
+      // media tampil utuh tanpa terpotong. Thumbnail YouTube yang 16/9
+      // terpangkas sedikit di atas-bawah, dan itu tidak mengganggu.
+      //
+      // Judul dinaikkan ke atas gambar lewat object-top: bagian paling
+      // mengenali dari sebuah aplikasi hampir selalu ada di kepala halaman.
+      return '<article class="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden ' +
           'hover:-translate-y-1.5 hover:shadow-xl transition duration-300 ' + kat.tepi + '">' +
-        '<div class="flex items-start gap-3">' +
-          '<span class="grid place-items-center w-10 h-10 rounded-xl shrink-0 transition group-hover:scale-110 ' + kat.kotak + '">' +
-            '<i data-lucide="' + kat.icon + '" class="w-5 h-5"></i></span>' +
-          '<div class="min-w-0 flex-1">' +
-            '<span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ' + kat.badge + '">' + esc(m.kategori) + '</span>' +
-            '<h3 class="mt-1 font-display font-bold text-slate-900 text-[15px] leading-snug">' + esc(m.judul) + '</h3>' +
-          '</div>' +
+        '<span class="relative block aspect-[16/10] bg-slate-100 overflow-hidden">' +
+          // Sampul kategori sebagai lapisan dasar; terlihat bila gambarnya
+          // belum ada atau gagal dimuat.
+          '<span class="absolute inset-0 grid place-items-center ' + kat.kotak + '">' +
+            '<i data-lucide="' + kat.icon + '" class="w-10 h-10 opacity-50"></i></span>' +
+          (gambar
+            ? '<img src="' + esc(gambar.src) + '" alt="" loading="lazy" decoding="async" ' +
+              'onerror="this.remove()" ' +
+              'class="relative w-full h-full object-cover object-center transition duration-500 ' +
+              (gambar.youtube ? 'yt-potong group-hover:scale-[1.18]' : 'group-hover:scale-105') + '" />'
+            : '') +
+          (m.kategori === 'Video'
+            ? '<span class="absolute inset-0 grid place-items-center bg-slate-900/20">' +
+                '<span class="grid place-items-center w-12 h-12 rounded-full bg-white/90 text-amber-600 shadow-lg">' +
+                  '<i data-lucide="play" class="w-5 h-5"></i></span></span>'
+            : '') +
+          '<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold border ' + kat.badge + '">' +
+            esc(m.kategori) + '</span>' +
+        '</span>' +
+        '<div class="flex flex-col flex-1 p-4 sm:p-5">' +
+          '<h3 class="font-display font-bold text-slate-900 text-[15px] leading-snug">' + esc(m.judul) + '</h3>' +
+          '<p class="mt-1.5 text-sm text-slate-600 leading-relaxed line-clamp-2 flex-1">' + esc(m.deskripsi) + '</p>' +
+          (adaLink
+            ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" ' +
+                'class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border bg-white ' +
+                'text-sm font-semibold transition active:scale-[.98] ' + kat.garis + '">' +
+                aksi + ' <i data-lucide="arrow-up-right" class="w-4 h-4"></i></a>'
+            : '<span class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl ' +
+                'border border-slate-200 bg-slate-50 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
         '</div>' +
-        '<p class="mt-2.5 text-sm text-slate-600 leading-relaxed line-clamp-2 flex-1">' + esc(m.deskripsi) + '</p>' +
-        (adaLink
-          ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" ' +
-              'class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border bg-white ' +
-              'text-sm font-semibold transition active:scale-[.98] ' + kat.garis + '">' +
-              aksi + ' <i data-lucide="arrow-up-right" class="w-4 h-4"></i></a>'
-          : '<span class="mt-3.5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl ' +
-              'border border-slate-200 bg-slate-50 text-slate-400 text-sm font-semibold">Segera hadir</span>') +
       '</article>';
     }).join('');
 
@@ -3667,7 +3728,9 @@
       { name:'judul',     label:'Judul Media',  type:'text', value:item ? item.judul : '', required:true },
       { name:'kategori',  label:'Kategori',     type:'select', value:item ? item.kategori : 'Simulasi', options:Object.keys(KATEGORI).map(k => ({ v:k, t:k })) },
       { name:'deskripsi', label:'Deskripsi Singkat', type:'textarea', rows:3, value:item ? item.deskripsi : '' },
-      { name:'link',      label:'Link / URL',   type:'text', value:item ? item.link : '', hint:'Kosongkan atau isi "#" jika media belum tersedia.' }
+      { name:'link',      label:'Link / URL',   type:'text', value:item ? item.link : '', hint:'Kosongkan atau isi "#" jika media belum tersedia.' },
+      { name:'gambar',    label:'Gambar Pratinjau (opsional)', type:'text', value:item ? (item.gambar || '') : '',
+        hint:'Biarkan kosong untuk memakai potret otomatis. Video YouTube selalu memakai thumbnail resminya.' }
     ];
     if (tipe === 'galeri') return [
       { name:'judul',      label:'Judul Dokumentasi', type:'text', value:item ? item.judul : '', required:true },
