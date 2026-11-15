@@ -2770,7 +2770,7 @@
         // Tombol dengar hanya pada jawaban Kak Nala, dan hanya bila
         // perambannya memang bisa membaca. Berguna saat jawaban terlewat
         // atau siswa ingin mengulang kalimat yang panjang.
-        (dariTutor && bisaBicara()
+        (dariTutor && bisaSuara()
           ? '<button type="button" data-baca="' + esc(teks) + '" ' +
             'class="mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] ' +
             'text-slate-400 hover:text-sains-700 hover:bg-white transition">' +
@@ -2914,6 +2914,9 @@
   const Pengenal = window.SpeechRecognition || window.webkitSpeechRecognition;
   const bisaDengar = () => !!Pengenal && location.protocol !== 'file:';
   const bisaBicara = () => 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function';
+  // Jawaban bisa dibacakan lewat dua jalur: suara Leda dari server (butuh
+  // halaman online) atau pembaca bawaan perangkat. Cukup salah satu ada.
+  const bisaSuara = () => bisaBicara() || location.protocol !== 'file:';
 
   let modeSuara = false, pengenal = null, mendengar = false, tanyaLewatSuara = false, suaraId = null;
   try { modeSuara = localStorage.getItem(KUNCI_MODE_SUARA) === '1'; } catch (e) { /* abaikan */ }
@@ -2943,18 +2946,98 @@
       .replace(/\s+/g, ' ').trim();
   }
 
+  /* ---- Suara Leda (Gemini TTS lewat Edge Function) ----
+     Suara utamanya sama dengan yang dipakai Kak Nala di NalarSTEM. Kuota
+     gratisnya kecil, jadi ini diperlakukan sebagai kemewahan yang boleh
+     gagal: setiap kegagalan jatuh mulus ke suara bawaan perangkat. */
+  const SUARA_URL = SUPABASE_URL + '/functions/v1/suara-nala';
+  const pemutar = new Audio();
+  pemutar.preload = 'auto';
+  const audioTersimpan = new Map();   // teks -> data URL, agar ulangan tidak memakai kuota
+  let ledaIstirahat = 0;              // sampai kapan berhenti mencoba server
+  let nomorBaca = 0;                  // pembatal: bacaan lama berhenti saat ada yang baru
+
   /* Peramban HP menolak memutar suara yang tidak berawal dari ketukan
-     pengguna. Satu ucapan kosong saat panel dibuka "membangunkannya",
-     sehingga jawaban pertama pun sudah bisa langsung dibacakan. */
+     pengguna. Ketukan yang membuka panel dipakai membangunkan KEDUANYA:
+     pemutar audio (lewat WAV sunyi sesaat) dan pembaca bawaan. Tanpa ini
+     jawaban pertama selalu bisu. */
   let audioTerbuka = false;
+  function wavSunyi() {
+    const n = 2400, b = new Uint8Array(44 + n * 2), v = new DataView(b.buffer);
+    const tulis = (o, s) => { for (let i = 0; i < s.length; i++) b[o + i] = s.charCodeAt(i); };
+    tulis(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); tulis(8, 'WAVE'); tulis(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 24000, true); v.setUint32(28, 48000, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    tulis(36, 'data'); v.setUint32(40, n * 2, true);
+    let s = ''; b.forEach(x => { s += String.fromCharCode(x); });
+    return 'data:audio/wav;base64,' + btoa(s);
+  }
   function bukaKunciAudio() {
-    if (audioTerbuka || !bisaBicara()) return;
+    if (audioTerbuka) return;
+    audioTerbuka = true;
     try {
-      const u = new SpeechSynthesisUtterance(' ');
-      u.volume = 0;
-      speechSynthesis.speak(u);
-      audioTerbuka = true;
-    } catch (e) { /* abaikan, dicoba lagi pada ketukan berikutnya */ }
+      pemutar.src = wavSunyi();
+      const p = pemutar.play();
+      if (p && p.catch) p.catch(() => { audioTerbuka = false; });
+    } catch (e) { audioTerbuka = false; }
+    try {
+      if (bisaBicara()) {
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        speechSynthesis.speak(u);
+      }
+    } catch (e) { /* abaikan */ }
+  }
+
+  /** Ambil audio Leda dari server; null berarti pakai suara perangkat. */
+  async function ambilLeda(teks) {
+    const t = String(teks || '').trim();
+    if (!t) return null;
+    if (audioTersimpan.has(t)) return audioTersimpan.get(t);
+    if (Date.now() < ledaIstirahat || !navigator.onLine) return null;
+    try {
+      const r = await fetch(SUARA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ teks: t })
+      });
+      if (r.ok) {
+        const j = await r.json().catch(() => ({}));
+        if (j.audio) {
+          const url = 'data:audio/wav;base64,' + j.audio;
+          audioTersimpan.set(t, url);
+          if (audioTersimpan.size > 40) audioTersimpan.delete(audioTersimpan.keys().next().value);
+          return url;
+        }
+      }
+      // Kuota habis atau fungsinya belum dipasang: berhenti mencoba sebentar
+      // supaya tiap jawaban tidak menunggu permintaan yang pasti gagal.
+      if (r.status === 503 || r.status === 404) ledaIstirahat = Date.now() + 10 * 60 * 1000;
+    } catch (e) {
+      ledaIstirahat = Date.now() + 2 * 60 * 1000;
+    }
+    return null;
+  }
+
+  function putarLeda(url, sesudah) {
+    return new Promise((selesai, gagal) => {
+      pemutar.onended = () => { tandaiBicara(false); selesai(); if (sesudah) sesudah(); };
+      pemutar.onerror = () => gagal(new Error('pemutaran gagal'));
+      pemutar.src = url;
+      const p = pemutar.play();
+      if (p && p.then) p.then(() => tandaiBicara(true)).catch(gagal);
+      else tandaiBicara(true);
+    });
+  }
+
+  /* Kalimat pembuka dibuat lebih dulu supaya Kak Nala mulai bicara beberapa
+     detik lebih awal, sisanya dibuat bersamaan lalu menyambung. */
+  function potongJawaban(kalimat) {
+    const bagian = kalimat.match(/[^.!?]+[.!?]*\s*/g) || [kalimat];
+    let awal = '';
+    while (bagian.length && awal.length < 60) awal += bagian.shift();
+    return [awal.trim(), bagian.join('').trim()];
   }
 
   function tandaiBicara(aktif) {
@@ -2963,22 +3046,15 @@
   }
 
   function hentikanBicara() {
+    nomorBaca++;
+    try { pemutar.pause(); } catch (e) { /* abaikan */ }
     if (bisaBicara()) speechSynthesis.cancel();
     tandaiBicara(false);
   }
 
-  /**
-   * Bacakan jawaban. `lanjutDengar` hanya benar bila pertanyaannya tadi
-   * diucapkan — percakapan yang dimulai dengan mengetik tidak tiba-tiba
-   * menyalakan mikrofon, karena itu akan mengejutkan.
-   */
-  function bacakan(teks, lanjutDengar, paksa) {
-    // `paksa` dipakai tombol "Dengarkan" pada tiap jawaban: siswa memintanya
-    // secara sadar, jadi tidak perlu menunggu mode suara dinyalakan.
-    if ((!modeSuara && !paksa) || !bisaBicara()) return;
-    const kalimat = teksUntukDibaca(teks);
-    if (!kalimat) return;
-
+  /** Suara cadangan: pembaca bawaan perangkat. */
+  function bacakanPeramban(kalimat, selesai) {
+    if (!bisaBicara()) { tandaiBicara(false); if (selesai) selesai(); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(kalimat);
     const v = pilihSuara();
@@ -2986,15 +3062,71 @@
     u.lang = v ? v.lang : 'id-ID';
     u.rate = 1; u.pitch = 1.05;
     u.onstart = () => tandaiBicara(true);
-    u.onerror = () => tandaiBicara(false);
-    u.onend = () => {
+    u.onerror = () => { tandaiBicara(false); if (selesai) selesai(); };
+    u.onend = () => { tandaiBicara(false); if (selesai) selesai(); };
+    speechSynthesis.speak(u);
+  }
+
+  /**
+   * Bacakan jawaban: coba suara Leda dari server dulu, bila gagal pakai suara
+   * bawaan perangkat. `lanjutDengar` hanya benar bila pertanyaannya tadi
+   * diucapkan — percakapan yang dimulai dengan mengetik tidak tiba-tiba
+   * menyalakan mikrofon, karena itu akan mengejutkan.
+   */
+  async function bacakan(teks, lanjutDengar, paksa) {
+    // `paksa` dipakai tombol "Dengarkan" pada tiap jawaban: siswa memintanya
+    // secara sadar, jadi tidak perlu menunggu mode suara dinyalakan.
+    if (!modeSuara && !paksa) return;
+    const kalimat = teksUntukDibaca(teks);
+    if (!kalimat) return;
+
+    hentikanBicara();
+    const no = nomorBaca;
+    const dibatalkan = () => no !== nomorBaca;
+
+    const selesai = () => {
       tandaiBicara(false);
+      if (dibatalkan()) return;
       const panelTerbuka = !$('#tutorPanel').classList.contains('hidden');
       if (lanjutDengar && modeSuara && panelTerbuka && bisaDengar()) {
         setTimeout(() => mulaiDengar(), 350);
       }
     };
-    speechSynthesis.speak(u);
+
+    // Yang pernah diputar utuh langsung dipakai apa adanya
+    const [awal, sisa] = audioTersimpan.has(kalimat) ? [kalimat, ''] : potongJawaban(kalimat);
+    tandaiBicara(true);
+
+    // Keduanya diminta bersamaan: sisanya sudah siap saat pembuka selesai
+    const janjiAwal = ambilLeda(awal);
+    const janjiSisa = sisa ? ambilLeda(sisa) : Promise.resolve(null);
+
+    const urlAwal = await janjiAwal;
+    if (dibatalkan()) return;
+    if (!urlAwal) { bacakanPeramban(kalimat, selesai); return; }
+
+    const lanjutSisa = async () => {
+      if (dibatalkan()) return;
+      if (!sisa) return selesai();
+      const urlSisa = await janjiSisa;
+      if (dibatalkan()) return;
+      if (!urlSisa) return bacakanPeramban(sisa, selesai);
+      try { await putarLeda(urlSisa, selesai); }
+      catch (e) { bacakanPeramban(sisa, selesai); }
+    };
+
+    try { await putarLeda(urlAwal, lanjutSisa); }
+    catch (e) {
+      if (dibatalkan()) return;
+      // Ponsel menolak memutar tanpa ketukan: suaranya sudah siap, cukup
+      // ketuk "Dengarkan" pada jawabannya.
+      if (e && e.name === 'NotAllowedError') {
+        tandaiBicara(false);
+        toast('Suara Kak Nala siap. Ketuk "Dengarkan" di jawabannya.');
+        return;
+      }
+      bacakanPeramban(kalimat, selesai);
+    }
   }
 
   function tandaiDengar(aktif) {
@@ -3070,7 +3202,7 @@
 
   /** Tombol baru muncul bila peramban memang mendukungnya. */
   function siapkanSuara() {
-    if (bisaBicara()) {
+    if (bisaSuara()) {
       $('#tutorSuara').classList.remove('hidden');
       setelModeSuara(modeSuara);
       $('#tutorSuara').addEventListener('click', () => {
