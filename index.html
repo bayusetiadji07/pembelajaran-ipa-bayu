@@ -160,6 +160,23 @@
      yaitu tepat setinggi pitanya. */
   .yt-potong{ transform:scale(1.12); }
 
+  /* --- Keadaan dialog suara Kak Nala ---
+     Mendengar dan membaca perlu terlihat jelas tanpa membaca tulisan: anak
+     SMP memakai ini sambil memegang HP agak jauh dari mata. */
+  #tutorMic.mendengar{
+    background:#dc2626; border-color:#dc2626; color:#fff;
+    animation:denyut 1.1s ease-in-out infinite;
+  }
+  #tutorSuara.aktif{ background:#eff6ff; color:#1e40af; }
+  #tutorSuara.bicara{ animation:denyut 1.1s ease-in-out infinite; }
+  @keyframes denyut{
+    0%,100%{ box-shadow:0 0 0 0 rgba(220,38,38,.45) }
+    70%    { box-shadow:0 0 0 10px rgba(220,38,38,0) }
+  }
+  @media (prefers-reduced-motion:reduce){
+    #tutorMic.mendengar, #tutorSuara.bicara{ animation:none }
+  }
+
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
   .reveal.show{ opacity:1; transform:none; }
 
@@ -1221,6 +1238,11 @@
         <p class="font-display font-bold text-slate-900 text-sm leading-tight">Kak Nala</p>
         <p class="text-[11px] text-slate-500">Asisten belajar IPA — bukan guru sungguhan</p>
       </div>
+      <button id="tutorSuara" title="Mode suara: jawaban dibacakan"
+              aria-pressed="false"
+              class="hidden grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500">
+        <i data-lucide="volume-x" class="w-4 h-4"></i>
+      </button>
       <button id="tutorBersih" title="Mulai percakapan baru"
               class="grid place-items-center w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500">
         <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
@@ -1243,6 +1265,12 @@
         <textarea id="tutorInput" rows="1" maxlength="600" placeholder="Tanya apa saja tentang IPA…"
                   class="flex-1 px-3.5 py-3 rounded-xl border border-slate-200 focus:border-sains-500
                          focus:ring-2 focus:ring-sains-100 outline-none text-sm resize-none max-h-28"></textarea>
+        <button type="button" id="tutorMic" aria-label="Bicara" title="Tekan lalu bicara"
+                class="hidden grid place-items-center w-12 h-12 rounded-xl border border-slate-200 bg-white
+                       text-slate-500 shrink-0 hover:border-sains-300 hover:text-sains-700
+                       transition active:scale-95">
+          <i data-lucide="mic" class="w-4.5 h-4.5"></i>
+        </button>
         <button type="submit" id="tutorKirim" aria-label="Kirim"
                 class="grid place-items-center w-12 h-12 rounded-xl bg-sains-700 text-white shrink-0
                        hover:bg-sains-800 transition active:scale-95 disabled:opacity-50">
@@ -2734,10 +2762,21 @@
         ? '<span class="relative block w-8 h-8 rounded-full bg-white border border-slate-200 overflow-hidden shrink-0">' +
             '<img src="kaknala-avatar.webp" alt="" class="absolute inset-0 w-full h-full object-cover" /></span>'
         : '<span class="grid place-items-center w-8 h-8 rounded-full bg-sains-700 text-white text-xs font-bold shrink-0">Kamu</span>'.replace('Kamu', 'K')) +
-      '<div class="max-w-[78%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ' +
-        (dariTutor
-          ? 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-          : 'bg-sains-700 text-white rounded-tr-sm') + '">' + esc(teks) + '</div>' +
+      '<div class="max-w-[78%] min-w-0">' +
+        '<div class="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line break-words ' +
+          (dariTutor
+            ? 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+            : 'bg-sains-700 text-white rounded-tr-sm') + '">' + esc(teks) + '</div>' +
+        // Tombol dengar hanya pada jawaban Kak Nala, dan hanya bila
+        // perambannya memang bisa membaca. Berguna saat jawaban terlewat
+        // atau siswa ingin mengulang kalimat yang panjang.
+        (dariTutor && bisaBicara()
+          ? '<button type="button" data-baca="' + esc(teks) + '" ' +
+            'class="mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] ' +
+            'text-slate-400 hover:text-sains-700 hover:bg-white transition">' +
+            '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Dengarkan</button>'
+          : '') +
+      '</div>' +
     '</div>';
   }
 
@@ -2771,6 +2810,12 @@
       }));
     }
 
+    // Tombol "Dengarkan" pada tiap jawaban Kak Nala
+    $$('#tutorPesan [data-baca]').forEach(b => b.addEventListener('click', () => {
+      bukaKunciAudio();
+      bacakan(b.dataset.baca, false, true);
+    }));
+
     wrap.scrollTop = wrap.scrollHeight;
     icons();
   }
@@ -2802,6 +2847,12 @@
     const pesan = input.value.trim();
     if (!pesan) return;
 
+    // Dicatat lalu segera dikosongkan: giliran berikutnya baru boleh
+    // menyalakan mikrofon sendiri bila pertanyaan ITU pun diucapkan.
+    const lewatSuara = tanyaLewatSuara;
+    tanyaLewatSuara = false;
+    let dibacakan = '';
+
     tutorSibuk = true;
     $('#tutorKirim').disabled = true;
     input.value = '';
@@ -2828,6 +2879,7 @@
       const r2 = riwayatTutor();
       r2.push({ peran: 'tutor', pesan: balasan });
       simpanRiwayatTutor(r2);
+      dibacakan = balasan;
     } catch (e) {
       const r2 = riwayatTutor();
       r2.push({ peran: 'tutor', pesan: 'Sambungan internetmu sepertinya terputus. Coba lagi ya.' });
@@ -2838,8 +2890,200 @@
     renderTutor();
     tutorSibuk = false;
     $('#tutorKirim').disabled = false;
-    input.focus();
+
+    if (dibacakan) bacakan(dibacakan, lewatSuara);
+    // Jangan rebut fokus saat memakai suara: papan ketik HP akan muncul
+    // menutupi layar padahal siswa sedang berbicara.
+    if (!lewatSuara) input.focus();
   }
+
+  /* ==========================================================================
+     § 5d. DIALOG BERSUARA
+     Memakai kemampuan bawaan peramban (Web Speech API), tanpa kuota AI:
+     - mikrofon  : ucapan siswa diubah jadi teks (SpeechRecognition, id-ID)
+     - mode suara: jawaban Kak Nala dibacakan (speechSynthesis)
+     Bila pertanyaannya tadi diucapkan, setelah selesai membaca Kak Nala
+     otomatis mendengarkan lagi — itulah yang membuatnya terasa berdialog,
+     bukan sekadar membacakan.
+
+     Pengenal ucapan Chrome mengirim rekaman ke server Google untuk diproses.
+     Karena penggunanya siswa, mikrofon tidak pernah menyala sendiri: selalu
+     harus ditekan, dan berhenti otomatis begitu siswa selesai bicara.
+     ========================================================================== */
+  const KUNCI_MODE_SUARA = 'ipa_tutor_mode_suara';
+  const Pengenal = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const bisaDengar = () => !!Pengenal && location.protocol !== 'file:';
+  const bisaBicara = () => 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function';
+
+  let modeSuara = false, pengenal = null, mendengar = false, tanyaLewatSuara = false, suaraId = null;
+  try { modeSuara = localStorage.getItem(KUNCI_MODE_SUARA) === '1'; } catch (e) { /* abaikan */ }
+
+  /** Pilih suara berbahasa Indonesia; utamakan yang perempuan agar cocok dengan Kak Nala. */
+  function pilihSuara() {
+    if (suaraId) return suaraId;
+    const semua = bisaBicara() ? speechSynthesis.getVoices() : [];
+    const id = semua.filter(v => /^(id|in)[-_]?/i.test(v.lang));
+    suaraId = id.find(v => /gadis|damayanti|female|perempuan|wanita/i.test(v.name))
+           || id.find(v => /google/i.test(v.name))
+           || id[0] || null;
+    return suaraId;
+  }
+  if (bisaBicara()) speechSynthesis.onvoiceschanged = () => { suaraId = null; pilihSuara(); };
+
+  /** Ubah teks jawaban jadi kalimat yang enak didengar, bukan dieja apa adanya. */
+  function teksUntukDibaca(t) {
+    return String(t || '')
+      .replace(/\*\*|__|`|#+\s/g, '')
+      .replace(/^\s*[-•]\s*/gm, '')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '')
+      .replace(/CO₂/g, 'C O dua').replace(/H₂O/g, 'H dua O')
+      .replace(/₂/g, ' dua').replace(/₃/g, ' tiga')
+      .replace(/→/g, ', lalu ').replace(/×/g, ' kali ')
+      .replace(/°C/g, ' derajat Celsius')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  /* Peramban HP menolak memutar suara yang tidak berawal dari ketukan
+     pengguna. Satu ucapan kosong saat panel dibuka "membangunkannya",
+     sehingga jawaban pertama pun sudah bisa langsung dibacakan. */
+  let audioTerbuka = false;
+  function bukaKunciAudio() {
+    if (audioTerbuka || !bisaBicara()) return;
+    try {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+      audioTerbuka = true;
+    } catch (e) { /* abaikan, dicoba lagi pada ketukan berikutnya */ }
+  }
+
+  function tandaiBicara(aktif) {
+    const b = $('#tutorSuara');
+    if (b) b.classList.toggle('bicara', !!aktif);
+  }
+
+  function hentikanBicara() {
+    if (bisaBicara()) speechSynthesis.cancel();
+    tandaiBicara(false);
+  }
+
+  /**
+   * Bacakan jawaban. `lanjutDengar` hanya benar bila pertanyaannya tadi
+   * diucapkan — percakapan yang dimulai dengan mengetik tidak tiba-tiba
+   * menyalakan mikrofon, karena itu akan mengejutkan.
+   */
+  function bacakan(teks, lanjutDengar, paksa) {
+    // `paksa` dipakai tombol "Dengarkan" pada tiap jawaban: siswa memintanya
+    // secara sadar, jadi tidak perlu menunggu mode suara dinyalakan.
+    if ((!modeSuara && !paksa) || !bisaBicara()) return;
+    const kalimat = teksUntukDibaca(teks);
+    if (!kalimat) return;
+
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(kalimat);
+    const v = pilihSuara();
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : 'id-ID';
+    u.rate = 1; u.pitch = 1.05;
+    u.onstart = () => tandaiBicara(true);
+    u.onerror = () => tandaiBicara(false);
+    u.onend = () => {
+      tandaiBicara(false);
+      const panelTerbuka = !$('#tutorPanel').classList.contains('hidden');
+      if (lanjutDengar && modeSuara && panelTerbuka && bisaDengar()) {
+        setTimeout(() => mulaiDengar(), 350);
+      }
+    };
+    speechSynthesis.speak(u);
+  }
+
+  function tandaiDengar(aktif) {
+    mendengar = !!aktif;
+    const b = $('#tutorMic');
+    if (b) {
+      b.classList.toggle('mendengar', mendengar);
+      b.setAttribute('aria-label', mendengar ? 'Berhenti mendengarkan' : 'Bicara');
+    }
+    const inp = $('#tutorInput');
+    if (inp) inp.placeholder = mendengar ? 'Mendengarkan… bicara sekarang' : 'Tanya apa saja tentang IPA…';
+  }
+
+  function mulaiDengar() {
+    if (!bisaDengar()) {
+      toast('Peramban ini belum mendukung masukan suara. Coba pakai Google Chrome.', 'error');
+      return;
+    }
+    if (mendengar) { try { pengenal && pengenal.stop(); } catch (e) {} return; }
+    if (!navigator.onLine) {
+      toast('Masukan suara butuh internet. Ketik pertanyaanmu dulu, ya.', 'error');
+      return;
+    }
+
+    hentikanBicara();
+    pengenal = new Pengenal();
+    pengenal.lang = 'id-ID';
+    pengenal.interimResults = true;
+    pengenal.continuous = false;
+    pengenal.maxAlternatives = 1;
+
+    const input = $('#tutorInput');
+    let hasilAkhir = '';
+
+    pengenal.onstart = () => tandaiDengar(true);
+    pengenal.onresult = (ev) => {
+      let sementara = '';
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const t = ev.results[i][0].transcript;
+        if (ev.results[i].isFinal) hasilAkhir += t; else sementara += t;
+      }
+      // Teks sementara ikut ditampilkan supaya siswa tahu ucapannya tertangkap
+      input.value = (hasilAkhir + sementara).trim();
+    };
+    pengenal.onerror = (ev) => {
+      tandaiDengar(false);
+      if (ev.error === 'not-allowed') toast('Izin mikrofon ditolak. Aktifkan dari setelan peramban.', 'error');
+      else if (ev.error === 'no-speech') toast('Tidak ada suara yang tertangkap. Coba lagi ya.');
+    };
+    pengenal.onend = () => {
+      tandaiDengar(false);
+      const teks = input.value.trim();
+      if (teks) { tanyaLewatSuara = true; kirimKeTutor(); }
+    };
+
+    try { pengenal.start(); }
+    catch (e) { tandaiDengar(false); }
+  }
+
+  function setelModeSuara(nyala) {
+    modeSuara = !!nyala;
+    try { localStorage.setItem(KUNCI_MODE_SUARA, modeSuara ? '1' : '0'); } catch (e) { /* abaikan */ }
+    const b = $('#tutorSuara');
+    if (b) {
+      b.classList.toggle('aktif', modeSuara);
+      b.setAttribute('aria-pressed', modeSuara ? 'true' : 'false');
+      b.title = modeSuara ? 'Mode suara aktif — jawaban dibacakan' : 'Mode suara mati';
+      b.innerHTML = '<i data-lucide="' + (modeSuara ? 'volume-2' : 'volume-x') + '" class="w-4 h-4"></i>';
+      icons();
+    }
+    if (!modeSuara) hentikanBicara();
+  }
+
+  /** Tombol baru muncul bila peramban memang mendukungnya. */
+  function siapkanSuara() {
+    if (bisaBicara()) {
+      $('#tutorSuara').classList.remove('hidden');
+      setelModeSuara(modeSuara);
+      $('#tutorSuara').addEventListener('click', () => {
+        bukaKunciAudio();
+        setelModeSuara(!modeSuara);
+      });
+    }
+    if (bisaDengar()) {
+      $('#tutorMic').classList.remove('hidden');
+      $('#tutorMic').addEventListener('click', () => { bukaKunciAudio(); mulaiDengar(); });
+    }
+  }
+  siapkanSuara();
 
   /* ---- Pemasangan tombol & panel ---- */
   function bukaTutor() {
@@ -2847,11 +3091,17 @@
     $('#tutorBuka').classList.add('hidden');
     document.body.style.overflow = 'hidden';
     renderTutor();
+    // Ketukan yang membuka panel sekaligus dipakai membuka kunci audio HP,
+    // supaya jawaban pertama pun sudah bisa langsung dibacakan.
+    bukaKunciAudio();
     setTimeout(() => $('#tutorInput').focus(), 80);
   }
   function tutupTutor() {
     $('#tutorPanel').classList.add('hidden');
     $('#tutorBuka').classList.remove('hidden');
+    // Suara dan mikrofon tidak boleh hidup terus setelah panelnya ditutup
+    hentikanBicara();
+    if (mendengar) { try { pengenal && pengenal.stop(); } catch (e) { /* abaikan */ } }
     if ($('#adminView').classList.contains('hidden')) document.body.style.overflow = '';
   }
 
